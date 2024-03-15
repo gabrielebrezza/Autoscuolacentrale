@@ -1,7 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Comfortaa:wght@300..700&display=swap');
 *{
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    font-family: "Bebas Neue", sans-serif;
+    font-weight: 50;
+    letter-spacing: 1px;
+    font-style: normal;
 }
 body{
     width: 100%;
@@ -11,6 +16,8 @@ body{
     justify-content: center;
 }
 .container{
+
+    padding: 10px;
     border-radius: 20px;
     /* position: relative; */
     width: 60vw;
@@ -20,7 +27,7 @@ body{
     /* align-items: center; */
     flex-direction: row;
     /* border: 1px solid #121212; */
-    background-color: #121212;
+    background-color: #3d405b;
     color: aliceblue;
     overflow-x: hidden;
 }
@@ -32,38 +39,45 @@ body{
 }
 
 #login p{
-    margin-left: 25%;
+    margin-left: 50%;
 
     left: 0;
 
-    
+    transform: translateX(calc(30vw - 50%)) translateY(-50%); 
     transition: transform 1s ease;
     z-index: -1;
 }
 
 #signup p{
-    margin-right: 25%;
+    margin-right: 50%;
     right: 0;
-    
+    transform: translateX(calc(30vw + 50%)) translateY(-50%); 
     transition: transform 1s ease;
     z-index: -1;
 }
 
 .auth-form p{
+    
     font-size: 1.5rem;
-    width: 250px;
-    padding: 15px;
+    width: fit-content;
+    padding: 15px 25px;
     text-wrap: wrap;
-    background: #fff;
+    background: #e2e2e2;
+    border-radius: 5px;
     color: #000;
     position: absolute;
     top: 50%;
-    transform: translateX(30vw) translateY(-50%);
     text-align: center;
+}
+.auth-form p a{
+    color: #3d405b;
+    text-decoration: none;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 450;
 }
 
 .auth-form{
-    border: 1px solid #121212;
+    border-radius: 10px;
     height: 100%;
     width: 50%;
     background-color: #e2e2e2;
@@ -73,13 +87,16 @@ body{
     transition: transform 1s ease;
 }
 form{
-    height: 80%;
+    height: 100%;
+    border-radius: 10px;
     background-color: #e2e2e2;
-    z-index: 0;
+    z-index: 3;
 }
 
 .auth-form h1{
+    text-decoration: underline;
     position: absolute;
+    color: #3d405b;
     font-size: 4rem;
     left: 30px;
     top: 30px;
@@ -87,7 +104,7 @@ form{
 }
 .auth-form form{
     
-    margin-top: 100px;
+    margin-top: 25%;
     display: flex;
     align-items: center;
     justify-content: space-around;
@@ -98,8 +115,8 @@ form{
     outline: #0000;
     background: #0000;
     border: 0px solid #0000;
-    border-bottom: 1px solid grey;
-    color: grey;
+    border-bottom: 1px solid #3d405b;
+    color: #3d405b;
     padding-left: 5px;
     margin-block: 15px;
 }
@@ -131,15 +148,16 @@ button {
    
    button span:after {
     content: '»';
+    font-size: xx-large;
     position: absolute;
     opacity: 0;
-    top: 0;
+    top: -15%;
     right: -15px;
     transition: 0.5s;
    }
    
    button:hover span {
-    padding-right: 15px;
+    padding-right: 25px;
    }
    
    button:hover span:after {

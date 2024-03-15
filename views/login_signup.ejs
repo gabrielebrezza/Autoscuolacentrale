@@ -13,18 +13,18 @@
             <form method="post" action="/login">
                 <input type="text" name="username" placeholder="Username" required /><br>
                 <input type="password" name="password" placeholder="Password" required /><br>
-                <button type="submit">Login</button>
+                <button type="submit"><span>Log In</span></button>
             </form>
-            <p id="signupBtn">Non hai un account? <a href="#" onclick="toggleForm('signup')">Registrati qui</a></p>
+            <p id="signupBtn"><a href="#" onclick="toggleForm('signup')">Registrati</a></p>
         </div>
         <div id="signup" class="auth-form" >
             <h1>Sign Up</h1>
             <form method="post" action="/signup">
                 <input type="text" name="username" placeholder="Username" required /><br>
                 <input type="password" name="password" placeholder="Password" required /><br>
-                <button type="submit">Sign Up</button>
+                <button type="submit"><span>Sign Up</span></button>
             </form>
-            <p id="loginBtn">Hai già un account? <a href="#" onclick="toggleForm('login')">Accedi qui</a></p>
+            <p id="loginBtn"><a href="#" onclick="toggleForm('login')">Accedi</a></p>
         </div>
     </div>
     <script>
@@ -35,14 +35,14 @@
             const loginBtn = document.getElementById('loginBtn');
             if (form === 'login') {
                 login.style.transform = 'translateX(0%)';
-                loginBtn.style.transform = 'translateX(30vw)';
+                loginBtn.style.transform = 'translateX(30vw) translateY(-50%)';
                 signup.style.transform = 'translateX(100%)';
-                signupBtn.style.transform = 'translateX(30vw)  translateY(-50%)';
+                signupBtn.style.transform = 'translateX(calc(30vw - 50%))  translateY(-50%)';
             } else if (form === 'signup') {
                 signup.style.transform = 'translateX( 0%)';
-                signupBtn.style.transform = 'translateX(0%)';
+                signupBtn.style.transform = 'translateX(0%) translateY(-50%)';
                 login.style.transform = 'translateX( -100%)';
-                loginBtn.style.transform = 'translateX(-30vw) translateY(-50%)';
+                loginBtn.style.transform = 'translateX(calc(-30vw + 50%)) translateY(-50%)';
             }
         }
     </script>

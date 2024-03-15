@@ -1,0 +1,2 @@
+per avere le pagine scalabili aggiungi nell'url il nome utente
+e fai tutte le modifiche al database per quell'utente
