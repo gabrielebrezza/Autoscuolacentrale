@@ -3,8 +3,9 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 
-
-const collection = require('./User');
+//DB schemas
+const credentials = require('./Db/User');
+const guide = require('./Db/Guide');
 // Aggiungi cookie-parser come middleware per gestire i cookie
 
 
@@ -32,7 +33,7 @@ app.post("/signup", async (req, res) =>{
         password: req.body.password
     }
     //check if the user already exist
-    const existingUser = await collection.findOne({userName: data.userName});
+    const existingUser = await credentials.findOne({userName: data.userName});
     if(existingUser){
         res.send('<h1>Esiste già un account con questo nome</h1>');
     }else{
@@ -42,7 +43,7 @@ app.post("/signup", async (req, res) =>{
 
         data.password = hashedPassword;
 
-        const userData = await collection.insertMany(data);
+        const userData = await credentials.insertMany(data);
         console.log('nuovo utente registrato: ', data.userName);
         res.redirect('/');
     }
@@ -65,7 +66,7 @@ const isAuthenticated = (req, res, next) => {
 
 app.post('/login', async (req, res) => {
     try {
-        const check = await collection.findOne({ userName: req.body.username });
+        const check = await credentials.findOne({ userName: req.body.username });
         if (!check) {
             res.send('This username does not exist');
         }
@@ -87,14 +88,25 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/profile/:username', isAuthenticated, async (req, res) => {
-    const istruttori = ['mario', 'marco', 'giuseppe'];
-    const orari = ['12:30', '13:30', '14:30'];
+    const istruttori = ['mario', 'marco', 'giuseppe', 'mario', 'marco', 'giuseppe'];
+    const orari = ['12:30', '13:30', '14:30', '12:30', '13:30', '14:30'];
 
     const nome = req.params.username.replace(':', '');
     res.render('guideBooking', { nome, istruttori, orari });
     // res.send(`Benvenuto ${nome}`);
 });
+app.post('/book', async (req, res) => {
 
+    const data = {
+        instructor: req.body.instructor,
+        dateHour: req.body.time,
+        student: req.body.student
+    }
+    const guida = await guide.insertMany(data);
+    // guide
+    console.log('guida prenotata da:', data.student);
+    res.sendStatus(200);
+});
 const port = 5000;
 app.listen(port, () =>{
     console.log('Server running on Port: ' + port);

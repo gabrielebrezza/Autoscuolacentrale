@@ -11,17 +11,55 @@
 
     <table>
         <tr> 
+            <th></th> <!-- Intestazione vuota per la prima colonna -->
             <% for(var i = 0; i < istruttori.length; i++) { %>
-                <th><%= istruttori[i] %></th>
+                <th><%= istruttori[i] %></th> <!-- Intestazioni per ogni istruttore -->
             <% } %>
         </tr>
-        <tr> 
         <% for(var i = 0; i < orari.length; i++) { %>
-          <td><%= orari[i] %></td>
+            <tr> <!-- Inizia una nuova riga per ogni orario -->
+                <td><%= orari[i] %></td> <!-- Stampare l'orario -->
+                <% for(var j = 0; j < istruttori.length; j++) { %>
+                    <td class="book-cell" data-instructor="<%= istruttori[j] %>" data-time="<%= orari[i] %>">Prenota</td> <!-- Celle vuote per gli istruttori -->
+                <% } %>
+            </tr>
         <% } %>
-        </tr>
     </table>
     
+    <script>
+        const cells = document.querySelectorAll('.book-cell');
+        const student = '<%= nome %>';
+        cells.forEach((cell) => {
+            cell.addEventListener('click', () => {
+                const instructor = cell.dataset.instructor;
+                const time = cell.dataset.time;
+                fetch('/book', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ instructor, time, student})
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Prenotazione effettuata');
+                    } else {
+                        console.error('Errore durante la prenotazione');
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore durante la prenotazione:', error);
+                });
+            });
+        });
+
+        
+        cells.forEach((cell) => {
+            cell.addEventListener('click', () => {
+                cell.style.backgroundColor = 'green';
+            });
+        });
+    </script>
 
 
     

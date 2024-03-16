@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const connect = mongoose.connect('mongodb://localhost/Autoscuolacentrale');
 
 connect.then(() =>{
-    console.log('Database connected successfully');
+    console.log('Users Database connected successfully');
 })
 .catch(() =>{
-    console.log('Database cannot be connected ');
+    console.log('Users Database cannot be connected ');
 });
 
 const LoginSchema = new mongoose.Schema({
@@ -19,6 +19,6 @@ const LoginSchema = new mongoose.Schema({
     }
 });
 
-const collection = new mongoose.model('users', LoginSchema);
+const credentials = new mongoose.model('users', LoginSchema);
 
-module.exports = collection;
+module.exports = credentials;
