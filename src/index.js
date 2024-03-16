@@ -1,9 +1,10 @@
 const express = require('express');
 const path = require('path');
 const bcrypt = require('bcrypt');
-const collection = require('./User');
 const cookieParser = require('cookie-parser');
 
+
+const collection = require('./User');
 // Aggiungi cookie-parser come middleware per gestire i cookie
 
 
@@ -21,7 +22,7 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
 app.get('/', (req, res) =>{
-    res.render('login_signup');
+    res.render('login');
 });
 
 //Register user
@@ -51,11 +52,13 @@ app.post("/signup", async (req, res) =>{
 // Middleware per controllare l'autenticazione
 const isAuthenticated = (req, res, next) => {
     const usernameCookie = req.cookies.username;
-    if (usernameCookie) {
-        // L'utente è autenticato
+    const usernameURL = req.params.username;
+
+    if (usernameCookie && usernameCookie === usernameURL.replace(":", "")) {
+        // User authenticated
         return next();
     } else {
-        // L'utente non è autenticato, reindirizzalo alla pagina di login
+        // User not authenticated
         res.redirect('/');
     }
 };
@@ -72,7 +75,7 @@ app.post('/login', async (req, res) => {
         const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
         if (isPasswordMatch) {
             // Imposta il cookie di autenticazione
-            res.cookie('username', req.body.username, { maxAge: 60000, httpOnly: true });
+            res.cookie('username', req.body.username, { maxAge: sixMonths, httpOnly: true });
             console.log('Nuovo utente loggato: ', req.body.username);
             res.redirect(`/profile/:${req.body.username}`);
         } else {
@@ -84,8 +87,12 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/profile/:username', isAuthenticated, async (req, res) => {
-    const nome = req.params.username;
-    res.send(`Benvenuto ${nome}`);
+    const istruttori = ['mario', 'marco', 'giuseppe'];
+    const orari = ['12:30', '13:30', '14:30'];
+
+    const nome = req.params.username.replace(':', '');
+    res.render('guideBooking', { nome, istruttori, orari });
+    // res.send(`Benvenuto ${nome}`);
 });
 
 const port = 5000;

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenota Guide</title>
+    <link rel="stylesheet" href="/styles/guideBooking.css">
+</head>
+<body>
+    <h1>Benvenuto <%= nome %></h1>
+
+    <table>
+        <tr> 
+            <% for(var i = 0; i < istruttori.length; i++) { %>
+                <th><%= istruttori[i] %></th>
+            <% } %>
+        </tr>
+        <tr> 
+        <% for(var i = 0; i < orari.length; i++) { %>
+          <td><%= orari[i] %></td>
+        <% } %>
+        </tr>
+    </table>
+    
+
+
+    
+</body>
+</html>
