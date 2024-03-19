@@ -7,61 +7,129 @@
     <link rel="stylesheet" href="/styles/guideBooking.css">
 </head>
 <body>
-    <h1>Benvenuto <%= nome %></h1>
+    <header> <%= nome %></header>
 
-    <table>
-        <tr> 
-            <th></th> <!-- Intestazione vuota per la prima colonna -->
-            <% for(var i = 0; i < istruttori.length; i++) { %>
-                <th><%= istruttori[i] %></th> <!-- Intestazioni per ogni istruttore -->
-            <% } %>
-        </tr>
-        <% for(var i = 0; i < orari.length; i++) { %>
-            <tr> <!-- Inizia una nuova riga per ogni orario -->
-                <td><%= orari[i] %></td> <!-- Stampare l'orario -->
-                <% for(var j = 0; j < istruttori.length; j++) { %>
-                    <td class="book-cell" data-instructor="<%= istruttori[j] %>" data-time="<%= orari[i] %>">Prenota</td> <!-- Celle vuote per gli istruttori -->
-                <% } %>
+
+    <% for(var i = 0; i < lezioni.length; i++) { %>
+        <% let booked = 0 %> 
+        <% for(j = 0; j < lezioni[i].book.length; j++) {
+            booked = (lezioni[i].book[j].student && lezioni[i].book[j].student != nome) ? booked+1 : booked;
+        }%>
+        
+        <% if(booked < lezioni[i].book.length){ %>
+
+        <table>
+
+            <tr>
+                <th>data</th>
+                <th><%= lezioni[i].instructor %></th>
             </tr>
-        <% } %>
-    </table>
+
+            <% for(j = 0; j < lezioni[i].book.length; j++) { %>
+
+                <tr>
+                    <% if(!lezioni[i].book[j].student){ %>
+                        <td><%= lezioni[i].book[j].dateHour %></td>
+                        <td class="book" data-time="<%= lezioni[i].book[j].dateHour %>"
+                            data-instructor="<%= lezioni[i].instructor %>">Prenota</td>
+                    <% } %>
+
+                    <% if(lezioni[i].book[j].student == nome){ %>
+                        <td><%= lezioni[i].book[j].dateHour %></td>
+                        <td class="removeBooking" data-time="<%= lezioni[i].book[j].dateHour %>"
+                            data-instructor="<%= lezioni[i].instructor %>">
+                                Rimuovi prenotazione
+                        </td>
+                    <% } %>
+                </tr>
+
+            <% } %>
+        </table>
+        <% }%>
+    <% } %>
     
     <script>
-        const cells = document.querySelectorAll('.book-cell');
-        const student = '<%= nome %>';
-        cells.forEach((cell) => {
-            cell.addEventListener('click', () => {
-                const instructor = cell.dataset.instructor;
-                const time = cell.dataset.time;
-                fetch('/book', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ instructor, time, student})
-                })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Prenotazione effettuata');
-                    } else {
-                        console.error('Errore durante la prenotazione');
-                    }
-                })
-                .catch(error => {
-                    console.error('Errore durante la prenotazione:', error);
-                });
-            });
+
+        const studente = '<%= nome %>'
+        const removeBooking = document.querySelectorAll('.removeBooking');
+        removeBooking.forEach((cell) =>{ 
+            cell.addEventListener("click", removeBookHandler);
         });
 
-        
-        cells.forEach((cell) => {
-            cell.addEventListener('click', () => {
-                cell.style.backgroundColor = 'green';
-            });
-        });
-    </script>
+        function removeBookHandler(event) {
+            const cell = event.currentTarget;
+            removeBook(cell);
+            cell.removeEventListener("click", removeBookHandler);
+        }
 
+        function removeBook(cella){
+    const instructor = cella.dataset.instructor;
+    const time = cella.dataset.time;
+    console.log(time, instructor, studente);
+    fetch('/removebooking', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ instructor: instructor, time: time, student: studente })
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('prenotazione rimossa con successo');
+            cella.innerHTML = 'Prenota';
+            cella.classList.add('book');
+            cella.classList.remove('removeBooking');
+        } else {
+            console.error('Errore durante la rimozione della prenotazione');
+        }
+    })
+    .catch(error => {
+        console.error('Errore durante la rimozione della prenotazione:', error);
+    });
+}
+
+
+
+        const cells = document.querySelectorAll('.book');
+cells.forEach((cell) => {
+    cell.addEventListener("click", bookHandler);
+});
+
+function bookHandler(event) {
+    const cell = event.currentTarget;
+    book(cell);
+    cell.removeEventListener("click", bookHandler);
+}
+
+function book(cella){
+    const instructor = cella.dataset.instructor;
+    const time = cella.dataset.time;
+    console.log(time, instructor, studente);
+    fetch('/book', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ instructor: instructor, time: time, student: studente })
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Prenotazione effettuata');
+            cella.innerHTML = 'Rimuovi prenotazione';
+            cella.classList.remove('book');
+            cella.classList.add('removeBooking');
+        } else {
+            console.error('Errore durante la prenotazione');
+        }
+    })
+    .catch(error => {
+        console.error('Errore durante la prenotazione:', error);
+    });
+}
 
     
+
+        
+    </script>
 </body>
 </html>

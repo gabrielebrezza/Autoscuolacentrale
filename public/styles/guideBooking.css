@@ -1,27 +1,58 @@
-body{
-    background: #000;
-    color: black;
+/* Aggiungi queste regole CSS al tuo file di stile CSS esistente */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
 }
 
+header {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
 
 table {
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid #ddd;
+    margin-top: 20px;
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-td:not(:first-child){
-    cursor: pointer;
-}
-th {
-    background-color: #f2f2f2;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
 }
 
-tr {
-    background-color: #f2f2f2;
+th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+.book, .removeBooking {
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+.book {
+    background-color: #28a745;
+    color: white;
+}
+
+.removeBooking {
+    background-color: #dc3545;
+    color: white;
+}
+
+.book:hover, .removeBooking:hover {
+    opacity: 0.8;
+}
+
+.booked {
+    background-color: #ffc107;
+    color: black;
 }

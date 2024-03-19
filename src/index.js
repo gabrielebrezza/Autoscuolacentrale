@@ -88,11 +88,9 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/profile/:username', isAuthenticated, async (req, res) => {
-    const istruttori = ['mario', 'marco', 'giuseppe', 'mario', 'marco', 'giuseppe'];
-    const orari = ['12:30', '13:30', '14:30', '12:30', '13:30', '14:30'];
-
+    const lezioni = await guide.find();
     const nome = req.params.username.replace(':', '');
-    res.render('guideBooking', { nome, istruttori, orari });
+    res.render('guideBooking', { nome, lezioni});
     // res.send(`Benvenuto ${nome}`);
 });
 app.post('/book', async (req, res) => {
@@ -102,11 +100,34 @@ app.post('/book', async (req, res) => {
         dateHour: req.body.time,
         student: req.body.student
     }
-    const guida = await guide.insertMany(data);
+    console.log(data);
+    const guida = await guide.updateOne(
+        { instructor: data.instructor, "book.dateHour": data.dateHour },
+        { $set: { "book.$.student": data.student } }
+    );
     // guide
     console.log('guida prenotata da:', data.student);
     res.sendStatus(200);
 });
+
+app.post('/removebooking', async (req, res) => {
+
+    const data = {
+        instructor: req.body.instructor,
+        dateHour: req.body.time,
+        student: req.body.student
+    }
+    console.log(data);
+    const guida = await guide.updateOne(
+        { instructor: data.instructor, "book.dateHour": data.dateHour },
+        { $unset: { "book.$.student": "" } }
+    );
+    
+    // guide
+    console.log('guida disdetta da:', data.student);
+    res.sendStatus(200);
+});
+
 const port = 5000;
 app.listen(port, () =>{
     console.log('Server running on Port: ' + port);

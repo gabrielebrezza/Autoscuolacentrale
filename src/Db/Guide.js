@@ -13,14 +13,19 @@ const guideSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    dateHour: {
-        type: String,
-        required: true
-    },
-    student:{
-        type: String,
-        required: true
-    }
+    book:[
+            {
+                dateHour: {
+                    type: String,
+                    required: true
+                },
+
+                student:{
+                    type: String,
+                    required: false
+                }
+            }
+        ]
 });
 
 const guide = new mongoose.model('prenotazioniGuide', guideSchema);
