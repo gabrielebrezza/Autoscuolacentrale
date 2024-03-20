@@ -9,23 +9,30 @@ connect.then(() =>{
 });
 
 const guideSchema = new mongoose.Schema({
-    instructor:{
+    instructor: {
         type: String,
         required: true
     },
-    book:[
-            {
-                dateHour: {
-                    type: String,
-                    required: true
-                },
-
-                student:{
-                    type: String,
-                    required: false
+    book: [
+        {
+            day: {
+                type: String,
+                required: true
+            },
+            schedule: [
+                {
+                    hour: {
+                        type: String,
+                        required: true
+                    },
+                    student: {
+                        type: String,
+                        required: false
+                    }
                 }
-            }
-        ]
+            ]
+        }
+    ]
 });
 
 const guide = new mongoose.model('prenotazioniGuide', guideSchema);

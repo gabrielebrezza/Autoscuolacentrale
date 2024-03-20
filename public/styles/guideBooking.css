@@ -2,27 +2,49 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #f8f9fa;
     margin: 0;
     padding: 0;
 }
 
 header {
-    background-color: #333;
+    background-color: #343a40;
     color: white;
     padding: 20px;
     text-align: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.section-title{
+    text-transform: capitalize;
+}
+
+section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    padding: 20px;
+    max-width: 300px;
+    overflow: hidden;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 th, td {
     padding: 10px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #dee2e6;
     text-align: center;
 }
 
@@ -36,6 +58,8 @@ th {
     cursor: pointer;
     padding: 8px 16px;
     border-radius: 4px;
+    outline: #0000;
+    border: 2px solid #0000;
 }
 
 .book {
@@ -52,7 +76,75 @@ th {
     opacity: 0.8;
 }
 
-.booked {
-    background-color: #ffc107;
-    color: black;
+aside{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: auto;
+    height: 50px;
+    background: #007bff;
+    border-radius: 20px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
+aside input{
+    position: absolute;
+}
+
+
+.material-symbols-outlined {
+    cursor: pointer;
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 800,
+  'GRAD' 0,
+  'opsz' 240;
+  color: #f8f9fa;
+  padding: 10px;
+  margin: 10px;
+}
+
+
+
+
+
+
+
+
+
+/* Stili per le date disponibili */
+
+
+.greenDate a {
+    font-size: 1rem;
+    padding: 5px !important;
+    text-align: center !important;
+    border: 2px solid green !important;
+    color: green !important;
+}
+
+/* Stili per le date non disponibili */
+.redDate a {
+    border: 2px solid red !important;
+    font-size: 1rem;
+    text-align: center !important;
+    color: red !important;
+}
+
+/* Stili per la data odierna */
+.ui-datepicker-today{
+    background-color: transparent !important;
+    color: aqua !important;
+}
+ .ui-state-highlight {
+    border: 1px solid #0000 !important;
+    background: #0000 !important;
+    color: #0000 !important;
+}
+.ui-state-active{
+    background: #5992cf !important;
+}
+
+
+

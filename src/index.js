@@ -91,41 +91,41 @@ app.get('/profile/:username', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();
     const nome = req.params.username.replace(':', '');
     res.render('guideBooking', { nome, lezioni});
-    // res.send(`Benvenuto ${nome}`);
 });
 app.post('/book', async (req, res) => {
+    try {
+        const { instructor, time, student } = req.body;
 
-    const data = {
-        instructor: req.body.instructor,
-        dateHour: req.body.time,
-        student: req.body.student
+        // Aggiorna il documento della guida
+        const updatedGuide = await guide.findOneAndUpdate(
+            { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
+            { $set: { "book.$.schedule.$[elem].student": student } },
+            { arrayFilters: [{ "elem.hour": time.split(' - ')[1] }] }
+        );
+
+        res.sendStatus(200);
+    } catch (error) {
+        console.error('Errore durante la prenotazione:', error);
+        res.status(500).send('Errore durante la prenotazione');
     }
-    console.log(data);
-    const guida = await guide.updateOne(
-        { instructor: data.instructor, "book.dateHour": data.dateHour },
-        { $set: { "book.$.student": data.student } }
-    );
-    // guide
-    console.log('guida prenotata da:', data.student);
-    res.sendStatus(200);
 });
 
 app.post('/removebooking', async (req, res) => {
+    try {
+        const { instructor, time } = req.body;
 
-    const data = {
-        instructor: req.body.instructor,
-        dateHour: req.body.time,
-        student: req.body.student
+        // Aggiorna il documento della guida
+        const updatedGuide = await guide.findOneAndUpdate(
+            { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
+            { $unset: { "book.$.schedule.$[elem].student": "" } },
+            { arrayFilters: [{ "elem.hour": time.split(' - ')[1] }] }
+        );
+
+        res.sendStatus(200);
+    } catch (error) {
+        console.error('Errore durante la rimozione della prenotazione:', error);
+        res.status(500).send('Errore durante la rimozione della prenotazione');
     }
-    console.log(data);
-    const guida = await guide.updateOne(
-        { instructor: data.instructor, "book.dateHour": data.dateHour },
-        { $unset: { "book.$.student": "" } }
-    );
-    
-    // guide
-    console.log('guida disdetta da:', data.student);
-    res.sendStatus(200);
 });
 
 const port = 5000;
