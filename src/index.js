@@ -204,12 +204,12 @@ app.get('/success', async (req, res) =>{
         ]
     };
 
-    paypal.payment.execute(paymentId, execute_payment_json, (error, payment) =>{
+    paypal.payment.execute(paymentId, execute_payment_json, async (error, payment) =>{
         if(error){
             console.error(error.response);
             throw error
         } else{
-            res.render("payments/success", {transactionId: payment.id});
+            res.redirect(`/profile/${req.cookies.username}`);
         }
     });
 });

@@ -14,16 +14,16 @@
 </head>
 <body>
     <header class="header">
-        <h1>logo</h1>
+        <!-- <img src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px"> -->
         <h2>Benvenuto <%= nome %></h2>
     </header>
     <aside>
-            <label for="data">
-                <span  class="material-symbols-outlined">
-                    calendar_month
+            <!-- <label for="data"> -->
+                <span  class="material-symbols-outlined" id="data" name="data" readonly>
+
                 </span>
-            </label>
-            <input style="opacity: 0;" type="radio" id="data" name="data" readonly>
+            <!-- </label> -->
+            <!-- <input  type="hidden" id="data" name="data" readonly> -->
     </aside>
     
     <div class="container">
@@ -69,9 +69,12 @@
         <% } %>
         <% } %>
     </div>
-    <form action="/create-payment" method="POST">
-        <button type="submit">Paga con PayPal</button>
-    </form>
+    <div id="paymentModal" class="paymentModal modal" style="display: none;">
+        <form id="paymentForm" action="/create-payment" method="POST">
+            <!-- Altri campi del form rimossi per brevità -->
+            <button id="payButton" type="submit">Paga con PayPal</button>
+        </form>
+    </div>
     <script>
 $(function() {
     $("#data").datepicker({
@@ -117,16 +120,17 @@ $(function() {
 
     <script>
         const studente = '<%= nome %>';
-        
+        const paymentModal = document.getElementById('paymentModal');
         // Gestore per prenotare una lezione
         const bookButtons = document.querySelectorAll('.book');
-        bookButtons.forEach((button) => {
+        bookButtons.forEach(async(button) => {
+            
             button.addEventListener("click", bookHandler);
         });
 
-        function bookHandler(event) {
+        async function  bookHandler(event) {
             const button = event.currentTarget;
-            book(button);
+            paymentModal.style.display = 'block';
             button.removeEventListener("click", bookHandler);
         }
 
@@ -153,40 +157,40 @@ $(function() {
             });
         }
 
-        // Gestore per cancellare una prenotazione
-        const removeButtons = document.querySelectorAll('.removeBooking');
-        removeButtons.forEach((button) => {
-            button.addEventListener("click", removeBookHandler);
-        });
+        // // Gestore per cancellare una prenotazione
+        // const removeButtons = document.querySelectorAll('.removeBooking');
+        // removeButtons.forEach((button) => {
+        //     button.addEventListener("click", removeBookHandler);
+        // });
 
-        function removeBookHandler(event) {
-            const button = event.currentTarget;
-            removeBook(button);
-            button.removeEventListener("click", removeBookHandler);
-        }
+        // function removeBookHandler(event) {
+        //     const button = event.currentTarget;
+        //     removeBook(button);
+        //     button.removeEventListener("click", removeBookHandler);
+        // }
 
-        function removeBook(button) {
-            const instructor = button.dataset.instructor;
-            const time = button.dataset.time;
-            fetch('/removebooking', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ instructor: instructor, time: time, student: studente })
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Prenotazione rimossa con successo');
-                } else {
-                    alert('Errore durante la rimozione della prenotazione');
-                }
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Errore durante la rimozione della prenotazione:', error);
-            });
-        }
+        // function removeBook(button) {
+        //     const instructor = button.dataset.instructor;
+        //     const time = button.dataset.time;
+        //     fetch('/removebooking', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({ instructor: instructor, time: time, student: studente })
+        //     })
+        //     .then(response => {
+        //         if (response.ok) {
+        //             alert('Prenotazione rimossa con successo');
+        //         } else {
+        //             alert('Errore durante la rimozione della prenotazione');
+        //         }
+        //         window.location.reload();
+        //     })
+        //     .catch(error => {
+        //         console.error('Errore durante la rimozione della prenotazione:', error);
+        //     });
+        // }
     </script>
 </body>
 </html>
