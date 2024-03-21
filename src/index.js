@@ -2,13 +2,19 @@ const express = require('express');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const paypal = require('paypal-rest-sdk');
 
 //DB schemas
 const credentials = require('./Db/User');
 const guide = require('./Db/Guide');
 // Aggiungi cookie-parser come middleware per gestire i cookie
 
-
+paypal.configure({
+    mode: "sandbox",
+    client_id: "AQ_o9Yz9c5nvarfJulXNOBctDZHOPZd4_KsotSdq7K4lcwlDi1gRBi_kJaNICV93KP5n2cmAdxBKngpi",
+    client_secret: "ELznTnRYt4XSn1bNM00e56zPWFbZm_kROe-J5YOAKpO9mQCC-iz0RoblN6fktd6Ojjw5tFgY5XpLzlga"
+});
 
 const app = express();
 
@@ -21,6 +27,8 @@ app.use(express.urlencoded({extended: false}));
 app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
+
+app.use(bodyParser.urlencoded({ extended: false}));
 
 app.get('/', (req, res) =>{
     res.render('login');
@@ -127,6 +135,101 @@ app.post('/removebooking', async (req, res) => {
         res.status(500).send('Errore durante la rimozione della prenotazione');
     }
 });
+
+
+
+
+
+app.post('/create-payment', (req, res) =>{
+    const create_payment_json = {
+        intent: "sale",
+        payer: {
+            payment_method: "paypal"
+        },
+        redirect_urls: {
+            return_url: "http://localhost:5000/success",
+            cancel_url: "http://localhost:5000/cancel",
+        },
+        transactions: [
+            {
+                item_list: {
+                    items: [
+                        {
+                            name: "Lezione di Guida",
+                            sku: "Item SKU",
+                            price: "12.00",
+                            currency: "EUR",
+                            quantity: 1
+                        }
+                    ]
+                },
+                amount: {
+                    currency: "EUR",
+                    total: "12.00"
+                },
+                description: "Pagamento effettuato per la lezione di guida"
+            }
+        ]
+        
+    };
+
+    paypal.payment.create(create_payment_json, (error, payment)=>{
+        if(error){
+            throw error;
+        } else{
+            for(i = 0; i < payment.links.length; i++){
+                if(payment.links[i].rel === "approval_url"){
+                    res.redirect(payment.links[i].href);
+                }
+            }
+        }
+    });
+});
+
+
+
+app.get('/success', async (req, res) =>{
+    const payerId = req.query.PayerID;
+    const paymentId = req.query.paymentId;
+
+    const execute_payment_json = {
+        payer_id: payerId,
+        transactions: [
+            {
+                amount: {
+                    currency: "EUR",
+                    total: "12.00"
+                }
+            }
+        ]
+    };
+
+    paypal.payment.execute(paymentId, execute_payment_json, (error, payment) =>{
+        if(error){
+            console.error(error.response);
+            throw error
+        } else{
+            res.render("payments/success", {transactionId: payment.id});
+        }
+    });
+});
+
+app.get('/cancel', async (req, res) =>{
+    res.render('payments/cancel');
+});
+
+app.post('/payPP', async (req, res) => {
+    res.json({ message: 'Form data received successfully'})
+});
+
+
+
+
+
+
+
+
+
 
 const port = 5000;
 app.listen(port, () =>{
