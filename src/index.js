@@ -141,13 +141,19 @@ app.post('/removebooking', async (req, res) => {
 
 
 app.post('/create-payment', (req, res) =>{
+    const instructor = req.body.instructor;
+    const time = req.body.time;
+    const student = req.body.student;
+    console.log('sta per pagare ', req.body);
+    const returnUrl = `http://localhost:5000/success?instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(time)}&student=${encodeURIComponent(student)}`;
+
     const create_payment_json = {
         intent: "sale",
         payer: {
             payment_method: "paypal"
         },
         redirect_urls: {
-            return_url: "http://localhost:5000/success",
+            return_url: returnUrl,
             cancel_url: "http://localhost:5000/cancel",
         },
         transactions: [
@@ -209,7 +215,33 @@ app.get('/success', async (req, res) =>{
             console.error(error.response);
             throw error
         } else{
-            res.redirect(`/profile/${req.cookies.username}`);
+            const instructor = req.query.instructor;
+            const time = req.query.time;
+            const student = req.query.student;
+
+            fetch('http://localhost:5000/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ instructor, time, student })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
+                    // Reindirizza l'utente alla pagina del profilo
+                    res.redirect(`/profile/${req.cookies.username}`);
+                } else {
+                    console.error('Errore durante la prenotazione dopo il pagamento');
+                    // Gestisci l'errore in modo appropriato
+                    res.redirect(`/profile/${req.cookies.username}`);
+                }
+            })
+            .catch(error => {
+                console.error('Errore durante la prenotazione dopo il pagamento:', error);
+                // Gestisci l'errore in modo appropriato
+                res.redirect(`/profile/${req.cookies.username}`);
+            });
         }
     });
 });

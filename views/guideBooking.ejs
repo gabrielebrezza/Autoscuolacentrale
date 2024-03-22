@@ -19,26 +19,33 @@
     </header>
     <aside>
             <!-- <label for="data"> -->
-                <span  class="material-symbols-outlined" id="data" name="data" readonly>
+                <div class="esami">
+                    <nav>Prenotazione esami di guida</nav>
+                    <div>1° Esame:</div>
+                </div>
+                <span  class="material-symbols-outlined" id="data" name="data" readonly></span>
+                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. At omnis excepturi, placeat mollitia esse labore, vel corporis repudiandae quam iste porro voluptatum commodi magnam reprehenderit vero. Itaque quasi dolore modi.</p>
+                
 
                 </span>
             <!-- </label> -->
             <!-- <input  type="hidden" id="data" name="data" readonly> -->
     </aside>
-    
+
     <div class="container">
         <% for(var i = 0; i < lezioni.length; i++) { %>
         <% let dateElaborate = []; %>
         <% for(j = 0; j < lezioni[i].book.length; j++) { %>
         <% if (!dateElaborate.includes(lezioni[i].book[j].day)) { %>
         <% dateElaborate.push(lezioni[i].book[j].day); %>
+
         <section class="section" data-date="<%= lezioni[i].book[j].day %>">
             <h2 class="section-title"><%= lezioni[i].instructor %> - <%= lezioni[i].book[j].day %></h2>
             <table class="table">
                 <thead>
                     <tr>
                         <th>Ora</th>
-                        <th>Azioni</th>
+                        <!-- <th></th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -57,7 +64,7 @@
                         <td class="hour"><%= schedule.hour %></td>
                         <td>
                             <button class="removeBooking" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
-                                data-instructor="<%= lezioni[i].instructor %>">Rimuovi prenotazione</button>
+                                data-instructor="<%= lezioni[i].instructor %>">Prenotato</button>
                         </td>
                     </tr>
                     <% } %>
@@ -71,7 +78,9 @@
     </div>
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <form id="paymentForm" action="/create-payment" method="POST">
-            <!-- Altri campi del form rimossi per brevità -->
+            <input type="hidden" id="instructorInput" name="instructor" value="">
+            <input type="hidden" id="timeInput" name="time" value="">
+            <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
             <button id="payButton" type="submit">Paga con PayPal</button>
         </form>
     </div>
@@ -121,41 +130,52 @@ $(function() {
     <script>
         const studente = '<%= nome %>';
         const paymentModal = document.getElementById('paymentModal');
+        const instructorInput = document.getElementById('instructorInput');
+        const timeInput = document.getElementById('timeInput');
         // Gestore per prenotare una lezione
         const bookButtons = document.querySelectorAll('.book');
         bookButtons.forEach(async(button) => {
-            
             button.addEventListener("click", bookHandler);
         });
 
         async function  bookHandler(event) {
             const button = event.currentTarget;
-            paymentModal.style.display = 'block';
-            button.removeEventListener("click", bookHandler);
-        }
-
-        function book(button) {
             const instructor = button.dataset.instructor;
             const time = button.dataset.time;
-            fetch('/book', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ instructor: instructor, time: time, student: studente })
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Prenotazione effettuata con successo');
-                } else {
-                    alert('Errore durante la prenotazione');
-                }
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Errore durante la prenotazione:', error);
-            });
+            instructorInput.value = instructor;
+            timeInput.value = time;
+            paymentModal.style.display = 'block';
         }
+
+
+
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear(); 
+        today = dd + '/' + mm + '/' + yyyy;
+        document.addEventListener('DOMContentLoaded', () =>{
+            const section = document.querySelectorAll('.section');
+            // setTimeout(() =>{
+                section.forEach((section) => {
+                    if(section.dataset.date == today){
+                        section.style.display = 'block';
+                        console.log('trovato oggi');
+                    }else{
+                        section.style.display = 'none';
+                        console.log('diverso da oggi');
+                    }
+                });
+                
+            // }, 500);
+           
+        });
+
+
+
+
+
+
 
         // // Gestore per cancellare una prenotazione
         // const removeButtons = document.querySelectorAll('.removeBooking');
