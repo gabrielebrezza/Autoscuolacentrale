@@ -9,6 +9,9 @@ const paypal = require('paypal-rest-sdk');
 //DB schemas
 const credentials = require('./Db/User');
 const guide = require('./Db/Guide');
+
+//routes
+const adminRoutes = require('./adminRoute/adminRoutes');
 // Aggiungi cookie-parser come middleware per gestire i cookie
 
 paypal.configure({
@@ -19,7 +22,7 @@ paypal.configure({
 
 const app = express();
 
-const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
+
 
 app.use(cookieParser());
 
@@ -32,6 +35,8 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
 app.use(bodyParser.urlencoded({ extended: false}));
+
+app.use(adminRoutes);
 
 app.get('/', (req, res) =>{
     res.render('login');
@@ -256,111 +261,6 @@ app.get('/cancel', async (req, res) =>{
 
 
 
-// Funzione per la generazione di token JWT
-function generateToken(username) {
-    return jwt.sign({ username }, JWT_SECRET, { expiresIn: '3h' }); // Token scade dopo 1 ora
-}
-
-// Middleware per l'autenticazione JWT
-function authenticateJWT(req, res, next) {
-    const token = req.cookies.token;
-    if (!token) {
-        return res.status(401).json({ message: 'Nessun token fornito' });
-    }
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.status(403).json({ message: 'Autenticazione fallita' });
-        }
-        req.user = user;
-        next();
-    });
-}
-
-app.get('/admin/register', (req, res) => {
-    res.render('adminRegister');
-});
-
-app.post('/admin/register', async (req, res) => {
-    const Admin = require('./Db/Admin');
-    const { username, password } = req.body;
-    try {
-        // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
-        const existingAdmin = await Admin.findOne({ username });
-
-        // Verifica se l'amministratore esiste già
-        if (existingAdmin) {
-            return res.status(400).json({ message: 'L\'utente con questo nome utente esiste già' });
-        }
-
-        // Crea un nuovo documento Admin
-        const newAdmin = new Admin({
-            userName: username,
-            password: await bcrypt.hash(password, 10) // Cripta la password prima di salvarla
-        });
-
-        // Salva il nuovo amministratore nel database
-        await newAdmin.save();
-
-        res.status(201).json({ message: 'Registrazione riuscita' });
-    } catch (error) {
-        console.error('Errore durante la registrazione:', error);
-        res.status(500).json({ message: 'Errore durante la registrazione' });
-    }
-});
-
-
-
-
-app.get('/admin/login', (req, res) => {
-    res.render('admin/adminLogin'); // Renderizza la pagina di login dell'amministratore
-});
-// Admin panel route
-app.post('/admin/login', async (req, res) => {
-    const Admin = require('./Db/Admin');
-    const { username, password } = req.body;
-    try {
-        // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
-        const admin = await Admin.findOne({ userName: username });
-
-        // Verifica se l'amministratore esiste e se la password è corretta
-        if (!admin || !(await bcrypt.compare(password, admin.password))) {
-            return res.status(401).json({ message: 'Credenziali non valide' });
-        }
-
-        // Genera il token JWT
-        const token = generateToken(username);
-
-        // Imposta il token come cookie
-        res.cookie('token', token, { httpOnly: true });
-
-        // Restituisci un messaggio di login riuscito
-        res.status(200).json({ message: 'Login riuscito' });
-    } catch (error) {
-        console.error('Errore durante il login:', error);
-        res.status(500).json({ message: 'Errore durante il login' });
-    }
-});
-
-// Rotta protetta
-app.get('/admin', authenticateJWT, async (req, res) => {
-    res.render('admin/admin', { title: 'Admin - DashBoard'}); // Invia la pagina HTML protetta
-});
-
-app.get('/admin/guides',authenticateJWT, async (req, res) => {
-    try {
-        const guides = await guide.find(); // Recupera tutte le guide dal database
-        res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides });
-    } catch (error) {
-        console.error('Errore durante il recupero delle guide:', error);
-        res.status(500).json({ message: 'Errore durante il recupero delle guide' });
-    }
-});
-
-// Aggiungi questa route per la pagina degli utenti
-app.get('/admin/users',authenticateJWT , async (req, res) => {
-    res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti' });
-});
 
 
 

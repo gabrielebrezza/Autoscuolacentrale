@@ -5,26 +5,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/adminHeader.css">
+    <link rel="stylesheet" href="/styles/adminguides.css">
+
     <title><%= title %></title>
 </head>
 <body>
     <%- include('header.ejs') %>
 
-    <h1><%= title %></h1>
-    <div>
-        <% if (guides.length > 0) { %>
-            <ul>
-                <% guides.forEach((guide) => { %>
-                    <li><%= guide.title %> - <%= guide.instructor %></li> <!-- Aggiungi altri campi guida se necessario -->
-                <% }); %>
-            </ul>
-        <% } else { %>
-            <p>Nessuna guida disponibile al momento.</p>
-        <% } %>
-    </div>
 
-    <!-- Altri contenuti della pagina admin-guides -->
+        <% for (let i = 0; i < guides.length; i++) { %>
+            <% const guide = guides[i]; %>
+            <h2><%= guide.instructor %></h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Giorno</th>
+                        <th>Ora</th>
+                        <th>Studente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (let j = 0; j < guide.book.length; j++) { %>
+                        <% const day = guide.book[j]; %>
+                        <% for (let k = 0; k < day.schedule.length; k++) { %>
+                            <% const schedule = day.schedule[k]; %>
+                            <tr>
+                                <td><%= day.day %></td>
+                                <td><%= schedule.hour %></td>
+                                <td><%= schedule.student || 'Nessuno' %></td>
+                            </tr>
+                        <% } %>
+                    <% } %>
+                </tbody>
+            </table>
+        <% } %>
+
 
 </body>
 </html>

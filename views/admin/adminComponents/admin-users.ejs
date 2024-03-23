@@ -3,9 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="/styles/adminguides.css">
+    <title><%= title %></title>
 </head>
 <body>
-    <h1>ciaooo</h1>
+    <%- include('header.ejs') %>
+    <table>
+        <thead>
+            <tr>
+                <th>Allievo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for (let i = 0; i < utenti.length; i++) { %>
+                <tr>
+                    <td> <%= utenti[i] %></td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
 </body>
 </html>
