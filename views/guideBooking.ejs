@@ -21,7 +21,7 @@
             <!-- <label for="data"> -->
                 <div class="esami">
                     <nav>Prenotazione esami di guida</nav>
-                    <div>1° Esame:</div>
+                    <div>1° Esame: <strong>DA PAGARE</strong>  </div>
                 </div>
                 <span  class="material-symbols-outlined" id="data" name="data" readonly></span>
                 <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. At omnis excepturi, placeat mollitia esse labore, vel corporis repudiandae quam iste porro voluptatum commodi magnam reprehenderit vero. Itaque quasi dolore modi.</p>
@@ -35,10 +35,22 @@
     <div class="container">
         <% for(var i = 0; i < lezioni.length; i++) { %>
         <% let dateElaborate = []; %>
+        <% let hasAvailableTime = false; %>
         <% for(j = 0; j < lezioni[i].book.length; j++) { %>
         <% if (!dateElaborate.includes(lezioni[i].book[j].day)) { %>
         <% dateElaborate.push(lezioni[i].book[j].day); %>
-
+        
+        <% let hasStudentBooking = false; %>
+        <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
+            <% const schedule = lezioni[i].book[j].schedule[k]; %>
+            <% if(!schedule.student) { %>
+                <% hasAvailableTime = true; %>
+            <% } else if (schedule.student == nome) { %>
+                <% hasStudentBooking = true; %>
+            <% } %>
+        <% } %>
+    
+        <% if(hasAvailableTime || hasStudentBooking) { %>
         <section class="section" data-date="<%= lezioni[i].book[j].day %>">
             <h2 class="section-title"><%= lezioni[i].instructor %> - <%= lezioni[i].book[j].day %></h2>
             <table class="table">
@@ -75,7 +87,9 @@
         <% } %>
         <% } %>
         <% } %>
+        <% } %>
     </div>
+    
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <form id="paymentForm" action="/create-payment" method="POST">
             <input type="hidden" id="instructorInput" name="instructor" value="">
@@ -109,6 +123,8 @@ $(function() {
         },
         onSelect: function(dateText, inst) {
             var selectedDate = this.value;
+            var Available = inst;
+            console.log(Available);
             var sections = document.querySelectorAll('.section');
             sections.forEach(function (section) {
                 if (section.getAttribute('data-date') === selectedDate) {

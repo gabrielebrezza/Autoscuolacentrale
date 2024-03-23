@@ -1,0 +1,30 @@
+/* admin-header.css */
+
+.header {
+    background-color: #333; /* Colore di sfondo */
+    color: #fff; /* Colore del testo */
+    padding: 10px 20px; /* Spaziatura interna */
+}
+
+.header h1 {
+    margin: 0; /* Rimuove il margine superiore/inferiore dal titolo */
+}
+
+.header ul {
+    list-style-type: none; /* Rimuove i punti elenco */
+    padding: 0; /* Rimuove il padding predefinito */
+}
+
+.header ul li {
+    display: inline; /* Disposizione in linea */
+    margin-right: 10px; /* Margine destro tra gli elementi */
+}
+
+.header a {
+    color: #fff; /* Colore del testo dei link */
+    text-decoration: none; /* Rimuove la sottolineatura dei link */
+}
+
+.header a:hover {
+    text-decoration: underline; /* Aggiunge la sottolineatura quando il mouse passa sopra il link */
+}
