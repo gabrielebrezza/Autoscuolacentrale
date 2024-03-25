@@ -1,0 +1,81 @@
+<!-- admin-guides.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/adminguides.css">
+    <link rel="stylesheet" href="/styles/addGuides.css">
+    <title><%= title %></title>
+</head>
+<body>
+    <%- include('header.ejs') %>
+
+
+    
+    
+    <div class="container">
+        <h2>Crea una Nuova Guida</h2>
+        <form action="/create-guide" method="POST">
+            <div class="form-group">
+                <label for="instructor">istruttore:</label>
+                <input type="text" id="instructor" name="instructor" required>
+            </div>
+            <div class="form-group">
+                <label for="day">giorno:</label>
+                <input type="date" id="day" name="day" required>
+            </div>
+            <div class="form-group">
+                <label for="startHour">ora di inizio:</label>
+                <input type="time" id="startHour" name="startHour" required>
+            </div>
+            <div class="form-group">
+                <label for="lessonsNumber">numero di guide:</label>
+                <input type="number" id="lessonsNumber" name="lessonsNumber" min="1" required>
+            </div>
+            <label>Durata:</label>
+            <div class="form-group duration">
+                <div>
+                    <input type="radio" id="30min" name="duration" checked="true" value="30">
+                    <label for="30min">30 minuti</label>
+                </div>
+                <div>
+                    <input type="radio" id="40min" name="duration" value="40">
+                    <label for="40min">40 minuti</label>
+                </div>
+                <div>
+                    <input type="radio" id="1hour" name="duration" value="60">
+                    <label for="1hour">1 ora</label>
+                </div>
+            </div>
+            <button type="submit">pubblica</button>
+        </form>
+    </div>
+    
+    <script>
+        function roundToNearestHalfHour(time) {
+            var timeSplit = time.split(':');
+            var hours = parseInt(timeSplit[0]);
+            var minutes = parseInt(timeSplit[1]);
+    
+            var roundedMinutes = Math.round(minutes / 30) * 30;
+            if (roundedMinutes == 60) {
+                hours++;
+                roundedMinutes = 0;
+            }
+    
+            var formattedHours = ('0' + hours).slice(-2);
+            var formattedMinutes = ('0' + roundedMinutes).slice(-2);
+    
+            return formattedHours + ':' + formattedMinutes;
+        }
+    
+        var startHourInput = document.getElementById('startHour');
+        startHourInput.addEventListener('change', function() {
+            // Arrotonda l'orario alla mezz'ora più vicina
+            this.value = roundToNearestHalfHour(this.value);
+        });
+    </script>
+</body>
+</html>

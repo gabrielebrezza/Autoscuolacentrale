@@ -34,7 +34,7 @@ router.get('/admin/register', (req, res) => {
 });
 
 router.post('/admin/register', async (req, res) => {
-    const Admin = require('./Db/Admin');
+    const Admin = require('../Db/Admin');
     const { username, password } = req.body;
     try {
         // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
@@ -65,11 +65,12 @@ router.post('/admin/register', async (req, res) => {
 
 
 router.get('/admin/login', (req, res) => {
+
     res.render('admin/adminLogin'); // Renderizza la pagina di login dell'amministratore
 });
 // Admin panel route
 router.post('/admin/login', async (req, res) => {
-    const Admin = require('./Db/Admin');
+    const Admin = require('../Db/Admin');
     const { username, password } = req.body;
     try {
         // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
@@ -127,5 +128,56 @@ router.get('/admin/users',authenticateJWT , async (req, res) => {
         res.status(500).json({ message: 'Errore durante il recupero degli utenti' });
     }
 });
+
+
+router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
+    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide'});
+});
+
+router.post('/create-guide', authenticateJWT, async (req, res) => {
+    const { instructor, day, startHour, lessonsNumber, duration } = req.body;
+    try {
+        let oraDiInizio = startHour;
+        let schedule = [];
+
+        // Calcola gli orari di inizio e fine delle lezioni e aggiungili all'array schedule
+        for (let i = 1; i <= lessonsNumber; i++) {
+            var [startHours, startMinutes] = oraDiInizio.split(':').map(Number);
+            let totalMinutes = startMinutes + Number(duration);
+            let finalHours = Math.floor((startHours + Math.floor(totalMinutes / 60)) % 24);
+            let finalMinutes = totalMinutes % 60;
+            let endTime = `${finalHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`;
+            schedule.push({ hour: oraDiInizio, student: null }); // assuming student is null initially
+            console.log(oraDiInizio, "-", endTime);
+            oraDiInizio = endTime;
+        }
+
+        const [anno, mese, giorno] = day.split('-');
+        const newDay = `${giorno}/${mese}/${anno}`;
+
+        let existingGuide = await guide.findOne({ instructor: instructor, 'book.day': newDay });
+
+        if (existingGuide) {
+            // Se esiste già una guida per quell'istruttore e giorno, aggiorna l'orario della lezione
+            await guide.updateOne(
+                { instructor: instructor, 'book.day': newDay },
+                { $push: { 'book.$.schedule': { $each: schedule } } }
+            );
+        } else {
+            // Se non esiste, crea una nuova guida per quell'istruttore con il giorno e l'orario specificati
+            await guide.updateOne(
+                { instructor: instructor },
+                { $push: { book: { day: newDay, schedule: schedule } } },
+                { upsert: true }
+            );
+        }
+
+        res.redirect('/admin/addGuides');
+    } catch (error) {
+        console.error('Errore durante la creazione della guida:', error);
+        res.status(500).json({ message: 'Errore durante la creazione della guida' });
+    }
+});
+
 
 module.exports = router;
