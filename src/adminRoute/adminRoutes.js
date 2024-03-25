@@ -147,8 +147,9 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
             let finalHours = Math.floor((startHours + Math.floor(totalMinutes / 60)) % 24);
             let finalMinutes = totalMinutes % 60;
             let endTime = `${finalHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`;
-            schedule.push({ hour: oraDiInizio, student: null }); // assuming student is null initially
-            console.log(oraDiInizio, "-", endTime);
+            let ora = `${oraDiInizio}-${endTime}`
+            schedule.push({ hour: ora, student: null }); // assuming student is null initially
+            console.log();
             oraDiInizio = endTime;
         }
 
