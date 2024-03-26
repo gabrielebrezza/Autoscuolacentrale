@@ -139,7 +139,7 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
     try {
         let oraDiInizio = startHour;
         let schedule = [];
-
+        const price = (45/60) * duration;
         // Calcola gli orari di inizio e fine delle lezioni e aggiungili all'array schedule
         for (let i = 1; i <= lessonsNumber; i++) {
             var [startHours, startMinutes] = oraDiInizio.split(':').map(Number);
@@ -148,10 +148,10 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
             let finalMinutes = totalMinutes % 60;
             let endTime = `${finalHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`;
             let ora = `${oraDiInizio}-${endTime}`
-            schedule.push({ hour: ora, student: null }); // assuming student is null initially
-            console.log();
+            schedule.push({ hour: ora, price: price, student: null }); // assuming student is null initially
             oraDiInizio = endTime;
         }
+
 
         const [anno, mese, giorno] = day.split('-');
         const newDay = `${giorno}/${mese}/${anno}`;
