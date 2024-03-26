@@ -68,7 +68,8 @@
                         <td class="hour"><%= schedule.hour %></td>
                         <td>
                             <button class="book" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
-                                data-instructor="<%= lezioni[i].instructor %>">Prenota</button>
+                                data-instructor="<%= lezioni[i].instructor %>"
+                                data-price="<%= schedule.price %>">Prenota</button>
                         </td>
                     </tr>
                     <% } else if (schedule.student == nome) { %>
@@ -92,6 +93,7 @@
     
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <form id="paymentForm" action="/create-payment" method="POST">
+            <input type="text" id="priceInput" name="price" value=""><span>€</span>
             <input type="hidden" id="instructorInput" name="instructor" value="">
             <input type="hidden" id="timeInput" name="time" value="">
             <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
@@ -148,6 +150,7 @@ $(function() {
         const paymentModal = document.getElementById('paymentModal');
         const instructorInput = document.getElementById('instructorInput');
         const timeInput = document.getElementById('timeInput');
+        const priceInput = document.getElementById('priceInput');
         // Gestore per prenotare una lezione
         const bookButtons = document.querySelectorAll('.book');
         bookButtons.forEach(async(button) => {
@@ -158,8 +161,10 @@ $(function() {
             const button = event.currentTarget;
             const instructor = button.dataset.instructor;
             const time = button.dataset.time;
+            const price = button.dataset.price;
             instructorInput.value = instructor;
             timeInput.value = time;
+            priceInput.value = price;
             paymentModal.style.display = 'block';
         }
 

@@ -149,11 +149,14 @@ app.post('/removebooking', async (req, res) => {
 
 
 app.post('/create-payment', (req, res) =>{
+   
     const instructor = req.body.instructor;
     const time = req.body.time;
+    const price = req.body.price;
     const student = req.body.student;
+
     console.log('sta per pagare ', req.body);
-    const returnUrl = `http://localhost:5000/success?instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(time)}&student=${encodeURIComponent(student)}`;
+    const returnUrl = `http://localhost:5000/success?instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(time)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}`;
 
     const create_payment_json = {
         intent: "sale",
@@ -171,7 +174,7 @@ app.post('/create-payment', (req, res) =>{
                         {
                             name: "Lezione di Guida",
                             sku: "Item SKU",
-                            price: "12.00",
+                            price: price,
                             currency: "EUR",
                             quantity: 1
                         }
@@ -179,9 +182,9 @@ app.post('/create-payment', (req, res) =>{
                 },
                 amount: {
                     currency: "EUR",
-                    total: "12.00"
+                    total: price
                 },
-                description: "Pagamento effettuato per la lezione di guida"
+                description: "Pagamento per la lezione di guida in AutoScuolaCentrale"
             }
         ]
         
@@ -205,14 +208,14 @@ app.post('/create-payment', (req, res) =>{
 app.get('/success', async (req, res) =>{
     const payerId = req.query.PayerID;
     const paymentId = req.query.paymentId;
-
+    const price = req.query.price;
     const execute_payment_json = {
         payer_id: payerId,
         transactions: [
             {
                 amount: {
                     currency: "EUR",
-                    total: "12.00"
+                    total: price
                 }
             }
         ]

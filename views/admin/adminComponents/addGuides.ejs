@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/styles/adminguides.css">
     <link rel="stylesheet" href="/styles/addGuides.css">
     <title><%= title %></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 </head>
 <body>
     <%- include('header.ejs') %>
@@ -52,7 +53,21 @@
             <button type="submit">pubblica</button>
         </form>
     </div>
-    
+    <script type="text/javascript">
+        $(function(){
+    var dtToday = new Date();
+ 
+    var month = dtToday.getMonth() + 1;
+    var day = dtToday.getDate();
+    var year = dtToday.getFullYear();
+    if(month < 10)
+        month = '0' + month.toString();
+    if(day < 10)
+     day = '0' + day.toString();
+    var maxDate = year + '-' + month + '-' + day;
+    $('#day').attr('min', maxDate);
+});
+        </script>
     <script>
         function roundToNearestHalfHour(time) {
             var timeSplit = time.split(':');
