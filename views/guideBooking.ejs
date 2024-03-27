@@ -17,15 +17,32 @@
     <header class="header">
         <!-- <img src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px"> -->
         <h2>Benvenuto <%= nome %></h2>
+        
     </header>
     <aside>
             <!-- <label for="data"> -->
                 <div class="esami">
                     <nav>Prenotazione esami di guida</nav>
-                    <div>1° Esame: <strong>DA PAGARE</strong>  </div>
+                    <% const esame = esami.exams; %>
+                    <% for( let i = 0; i < esame.length; i++ ) { %>
+                        <% if (i<3) { %>
+                            <div class="esame">
+                                <p><%= i+1 %>° Esame: 
+                                    <% if (esame[i].paid == true) { %>
+                                        <strong class="pagato">PAGATO</strong>  
+                                    <% } else { %>
+                                        <strong data-esame="<%= i %>" class="daPagare">DA PAGARE</strong>  
+                                    <% } %>
+                                </p>
+                            </div>
+                        <% } %>
+                    <% } %>
+
                 </div>
                 <span  class="material-symbols-outlined" id="data" name="data" readonly></span>
-                <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. At omnis excepturi, placeat mollitia esse labore, vel corporis repudiandae quam iste porro voluptatum commodi magnam reprehenderit vero. Itaque quasi dolore modi.</p>
+                <div class="bacheca">
+                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. At omnis excepturi, placeat mollitia esse labore, vel corporis repudiandae quam iste porro voluptatum commodi magnam reprehenderit vero. Itaque quasi dolore modi.</p>
+                </div>
                 
 
                 </span>
@@ -94,13 +111,15 @@
     
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <form id="paymentForm" action="/create-payment" method="POST">
+            <input type="hidden" id="causeInput" name="cause" value="">
             <div class="form-group">
                 <label for="price" id="priceLabel">Procedi con l'acquisto della lezione. <br> Il totale è di </label>
                 <input type="hidden" id="priceInput" name="price" value="">
-            </div>
-                <input type="hidden" id="instructorInput" name="instructor" value="">
-                <input type="hidden" id="timeInput" name="time" value="">
                 <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
+            </div>
+                    <input type="hidden" id="instructorInput" name="instructor" value="">
+                    <input type="hidden" id="timeInput" name="time" value="">
+                    <input type="hidden" id="numEsameInput" name="numEsame" value=""> 
             <button id="payButton" type="submit" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
         </form>
     </div>
@@ -157,6 +176,8 @@ $(function() {
         const timeInput = document.getElementById('timeInput');
         const priceInput = document.getElementById('priceInput');
         const priceLabel = document.getElementById('priceLabel');
+        const causeInput = document.getElementById('causeInput');
+        const numEsameInput = document.getElementById('numEsameInput');
         // Gestore per prenotare una lezione
         const bookButtons = document.querySelectorAll('.book');
         bookButtons.forEach(async(button) => {
@@ -168,9 +189,9 @@ $(function() {
             const instructor = button.dataset.instructor;
             const time = button.dataset.time;
             const price = button.dataset.price;
+            causeInput.value = 'lesson';
             instructorInput.value = instructor;
             timeInput.value = time;
-            priceInput.value = price;
             priceLabel.append(price + '€');
             paymentModal.style.display = 'flex';
             setTimeout(() =>{
@@ -187,7 +208,6 @@ $(function() {
         today = dd + '/' + mm + '/' + yyyy;
         document.addEventListener('DOMContentLoaded', () =>{
             const section = document.querySelectorAll('.section');
-            // setTimeout(() =>{
                 section.forEach((section) => {
                     if(section.dataset.date == today){
                         section.style.display = 'block';
@@ -197,13 +217,23 @@ $(function() {
                         console.log('diverso da oggi');
                     }
                 });
-                
-            // }, 500);
+
            
         });
 
 
-
+        const examBtn = document.querySelector('.daPagare');
+        examBtn.addEventListener('click', () =>{
+            const numEsame = examBtn.dataset.esame;
+            causeInput.value = 'exam'; 
+            numEsameInput.value = numEsame;
+            priceLabel.append(5 + '€');
+            paymentModal.style.display = 'flex';
+            setTimeout(() =>{
+                paymentModal.style.opacity = 1;
+            }, 100)
+            
+        });
 
 
 

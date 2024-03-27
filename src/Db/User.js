@@ -16,7 +16,15 @@ const LoginSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    exams: [
+        {
+            paid: {
+                type: Boolean,
+                required: true
+            }
+        }
+    ]
 });
 
 const credentials = new mongoose.model('users', LoginSchema);

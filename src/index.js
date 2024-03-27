@@ -15,6 +15,7 @@ const adminRoutes = require('./adminRoute/adminRoutes');
 // Aggiungi cookie-parser come middleware per gestire i cookie
 
 paypal.configure({
+    //da cambiare in produzione
     mode: "sandbox",
     client_id: "AQ_o9Yz9c5nvarfJulXNOBctDZHOPZd4_KsotSdq7K4lcwlDi1gRBi_kJaNICV93KP5n2cmAdxBKngpi",
     client_secret: "ELznTnRYt4XSn1bNM00e56zPWFbZm_kROe-J5YOAKpO9mQCC-iz0RoblN6fktd6Ojjw5tFgY5XpLzlga"
@@ -46,7 +47,8 @@ app.get('/', (req, res) =>{
 app.post("/signup", async (req, res) =>{
     const data = {
         userName: req.body.username,
-        password: req.body.password
+        password: req.body.password,
+        exams: [{ paid: false }]
     }
     //check if the user already exist
     const existingUser = await credentials.findOne({userName: data.userName});
@@ -59,7 +61,8 @@ app.post("/signup", async (req, res) =>{
 
         data.password = hashedPassword;
 
-        const userData = await credentials.insertMany(data);
+        const newUser = new credentials(data);
+        await newUser.save();
         console.log('nuovo utente registrato: ', data.userName);
         res.redirect('/');
     }
@@ -106,7 +109,8 @@ app.post('/login', async (req, res) => {
 app.get('/profile/:username', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();
     const nome = req.params.username.replace(':', '');
-    res.render('guideBooking', { nome, lezioni});
+    const esami = await credentials.findOne({ userName: nome }, { exams: 1 });
+    res.render('guideBooking', { nome, lezioni, esami});
 });
 app.post('/book', async (req, res) => {
     try {
@@ -125,6 +129,33 @@ app.post('/book', async (req, res) => {
         res.status(500).send('Errore durante la prenotazione');
     }
 });
+
+app.post('/bookExam', async (req, res) => {
+    try {
+        const userName = req.body.student;
+        let numEsame = req.body.numEsame;
+        numEsame = parseInt(numEsame);
+        console.log(numEsame);
+        await credentials.findOneAndUpdate(
+            { "userName": userName },
+            { $set: { ["exams." + numEsame + ".paid"]: true } }
+        );
+        
+        await credentials.findOneAndUpdate(
+            { "userName": userName },
+            { $push: { "exams": { "paid": false } } }
+        );
+
+        console.log('Esame ', numEsame+1, ' prenotato con successo');
+        res.sendStatus(200);
+    } catch (error) {
+        console.error('Errore durante la prenotazione dell\'Esame :', error);
+        res.status(500).send('Errore durante la prenotazione dell\'Esame ');
+    }
+});
+
+
+
 
 app.post('/removebooking', async (req, res) => {
     try {
@@ -148,60 +179,92 @@ app.post('/removebooking', async (req, res) => {
 
 
 
-app.post('/create-payment', (req, res) =>{
-   
-    const instructor = req.body.instructor;
-    const time = req.body.time;
-    const price = req.body.price;
-    const student = req.body.student;
+app.post('/create-payment', async (req, res) =>{
+    try {
+        const student = req.body.student;
+        const cause = req.body.cause;
+        console.log(cause);
+        let price, description, returnUrl;
+        if(cause == 'lesson'){
+        const instructor = req.body.instructor;
+        const timeParts = req.body.time.split(' - '); 
+        const day = timeParts[0];
+        const hour = timeParts[1];
+        const guides = await guide.findOne({ instructor: instructor });
+        if (!guides) {
+            return res.status(404).json({ error: "Instructor not found" });
+        }
 
-    console.log('sta per pagare ', req.body);
-    const returnUrl = `http://localhost:5000/success?instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(time)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}`;
+        const schedule = guides.book.find(item => item.day === day);
+        if (!schedule) {
+            return res.status(404).json({ error: "Schedule not found" });
+        }
+        const lesson = schedule.schedule.find(item => item.hour === hour);
+        if (!lesson) {
+            return res.status(404).json({ error: "Lesson not found" });
+        }
+        price = lesson.price;
+        description = "Pagamento per la lezione di guida in AutoScuolaCentrale";
+        console.log('sta per pagare ', req.body);
+        //da cambiare in produzione
+        returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}`;
+        }else if(cause == 'exam'){
+            price = 5;
+            const numEsame = req.body.numEsame;
+            description = "Pagamento per l'esame di guida in AutoScuolaCentrale";
+            //da cambiare in produzione
+            returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
 
-    const create_payment_json = {
-        intent: "sale",
-        payer: {
-            payment_method: "paypal"
-        },
-        redirect_urls: {
-            return_url: returnUrl,
-            cancel_url: "http://localhost:5000/cancel",
-        },
-        transactions: [
-            {
-                item_list: {
-                    items: [
-                        {
-                            name: "Lezione di Guida",
-                            sku: "Item SKU",
-                            price: price,
-                            currency: "EUR",
-                            quantity: 1
-                        }
-                    ]
-                },
-                amount: {
-                    currency: "EUR",
-                    total: price
-                },
-                description: "Pagamento per la lezione di guida in AutoScuolaCentrale"
-            }
-        ]
-        
-    };
+        }
+        const create_payment_json = {
+            intent: "sale",
+            payer: {
+                payment_method: "paypal"
+            },
+            redirect_urls: {
+                return_url: returnUrl,
+                //da cambiare in produzione
+                cancel_url: "http://localhost:5000/cancel",
+            },
+            transactions: [
+                {
+                    item_list: {
+                        items: [
+                            {
+                                name: "Lezione di Guida",
+                                sku: "Item SKU",
+                                price: price,
+                                currency: "EUR",
+                                quantity: 1
+                            }
+                        ]
+                    },
+                    amount: {
+                        currency: "EUR",
+                        total: price
+                    },
+                    description: description 
+                }
+            ]
+        };
 
-    paypal.payment.create(create_payment_json, (error, payment)=>{
-        if(error){
-            throw error;
-        } else{
-            for(i = 0; i < payment.links.length; i++){
-                if(payment.links[i].rel === "approval_url"){
-                    res.redirect(payment.links[i].href);
+        paypal.payment.create(create_payment_json, (error, payment) => {
+            if (error) {
+                throw error;
+            } else {
+                for (let i = 0; i < payment.links.length; i++) {
+                    if (payment.links[i].rel === "approval_url") {
+                        res.redirect(payment.links[i].href);
+                    }
                 }
             }
-        }
-    });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 });
+
 
 
 
@@ -226,33 +289,65 @@ app.get('/success', async (req, res) =>{
             console.error(error.response);
             throw error
         } else{
-            const instructor = req.query.instructor;
-            const time = req.query.time;
+            const cause = req.query.cause;
             const student = req.query.student;
-
-            fetch('http://localhost:5000/book', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ instructor, time, student })
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
-                    // Reindirizza l'utente alla pagina del profilo
-                    res.redirect(`/profile/${req.cookies.username}`);
-                } else {
-                    console.error('Errore durante la prenotazione dopo il pagamento');
+            if(cause == 'lesson'){
+                const instructor = req.query.instructor;
+                const time = req.query.time;
+                //da cambiare in produzione
+                fetch('http://localhost:5000/book', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ instructor, time, student })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
+                        // Reindirizza l'utente alla pagina del profilo
+                        res.redirect(`/profile/${req.cookies.username}`);
+                    } else {
+                        console.error('Errore durante la prenotazione dopo il pagamento');
+                        // Gestisci l'errore in modo appropriato
+                        res.redirect(`/profile/${req.cookies.username}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore durante la prenotazione dopo il pagamento:', error);
                     // Gestisci l'errore in modo appropriato
                     res.redirect(`/profile/${req.cookies.username}`);
-                }
-            })
-            .catch(error => {
-                console.error('Errore durante la prenotazione dopo il pagamento:', error);
-                // Gestisci l'errore in modo appropriato
-                res.redirect(`/profile/${req.cookies.username}`);
-            });
+                });
+            }else if(cause == 'exam'){
+                const numEsame = req.query.numEsame;
+                //da cambiare in produzione
+                fetch('http://localhost:5000/bookExam', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ student, numEsame })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento', req.query);
+                        // Reindirizza l'utente alla pagina del profilo
+                        res.redirect(`/profile/${req.cookies.username}`);
+                    } else {
+                        console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
+                        // Gestisci l'errore in modo appropriato
+                        res.redirect(`/profile/${req.cookies.username}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore durante la prenotazione dell\'esame dopo il pagamento:', error);
+                    // Gestisci l'errore in modo appropriato
+                    res.redirect(`/profile/${req.cookies.username}`);
+                });
+            }
+
+
+            
         }
     });
 });
