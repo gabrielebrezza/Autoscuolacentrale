@@ -21,7 +21,7 @@
                     <tr>
                         <th>Giorno</th>
                         <th>Ora</th>
-                        <th>Studente</th>
+                        <th>Prenotata</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,7 +32,13 @@
                             <tr>
                                 <td><%= day.day %></td>
                                 <td><%= schedule.hour %></td>
-                                <td><%= schedule.student || 'Nessuno' %></td>
+                                <td>
+                                    <% if(schedule.student){ %>
+                                        <span class="si">SI</span>
+                                    <% } else { %>
+                                        <span class="no">NO</span>
+                                    <% } %>
+                                </td>
                             </tr>
                         <% } %>
                     <% } %>

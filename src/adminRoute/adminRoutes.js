@@ -101,23 +101,18 @@ router.get('/admin', authenticateJWT, async (req, res) => {
 });
 
 router.get('/admin/guides', authenticateJWT, async (req, res) => {
+    
     try {
+        const istruttore = req.user.username;
         const guides = await guide.find();
-        const groupedGuides = {}; // Dati organizzati per istruttore
-        // guides.forEach(g => {
-        //     if (!groupedGuides[g.instructor]) {
-        //         groupedGuides[g.instructor] = [];
-        //     }
-        //     groupedGuides[g.instructor].push(g);
-        // });
-        res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides });
+
+        res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides , istruttore});
     } catch (error) {
         console.error('Errore durante il recupero delle guide:', error);
         res.status(500).json({ message: 'Errore durante il recupero delle guide' });
     }
 });
 
-// Aggiungi questa route per la pagina degli utenti
 router.get('/admin/users',authenticateJWT , async (req, res) => {
     try {
         const utenti = await credentials.find({}, { userName: 1, _id: 0 });
@@ -131,16 +126,18 @@ router.get('/admin/users',authenticateJWT , async (req, res) => {
 
 
 router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
-    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide'});
+    const instructor = req.user.username;
+    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor});
 });
 
 router.post('/create-guide', authenticateJWT, async (req, res) => {
-    const { instructor, day, startHour, lessonsNumber, duration } = req.body;
+    const {day, startHour, lessonsNumber, duration } = req.body;
+    const instructor = req.user.username;
     try {
         let oraDiInizio = startHour;
         let schedule = [];
         const price = (45/60) * duration;
-        // Calcola gli orari di inizio e fine delle lezioni e aggiungili all'array schedule
+        // Calcolo orari di inizio e fine delle lezioni
         for (let i = 1; i <= lessonsNumber; i++) {
             var [startHours, startMinutes] = oraDiInizio.split(':').map(Number);
             let totalMinutes = startMinutes + Number(duration);
@@ -159,13 +156,11 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
         let existingGuide = await guide.findOne({ instructor: instructor, 'book.day': newDay });
 
         if (existingGuide) {
-            // Se esiste già una guida per quell'istruttore e giorno, aggiorna l'orario della lezione
             await guide.updateOne(
                 { instructor: instructor, 'book.day': newDay },
                 { $push: { 'book.$.schedule': { $each: schedule } } }
             );
         } else {
-            // Se non esiste, crea una nuova guida per quell'istruttore con il giorno e l'orario specificati
             await guide.updateOne(
                 { instructor: instructor },
                 { $push: { book: { day: newDay, schedule: schedule } } },
@@ -177,6 +172,24 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
     } catch (error) {
         console.error('Errore durante la creazione della guida:', error);
         res.status(500).json({ message: 'Errore durante la creazione della guida' });
+    }
+});
+
+
+router.post('/removeguide', authenticateJWT, async (req, res) => {
+    try {
+        const { instructor, time } = req.body;
+
+        const updatedGuide = await guide.findOneAndUpdate(
+            { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
+            { $unset: { "book.$.schedule.$[elem].student": "" } },
+            { arrayFilters: [{ "elem.hour": time.split(' - ')[1] }] }
+        );
+
+        res.sendStatus(200);
+    } catch (error) {
+        console.error('Errore durante la rimozione della prenotazione:', error);
+        res.status(500).send('Errore durante la rimozione della prenotazione');
     }
 });
 
