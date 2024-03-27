@@ -6,6 +6,7 @@
     <title>Prenota Guide</title>
     <link rel="stylesheet" href="/styles/guideBooking.css">
     <!-- icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <!-- calendario -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -93,13 +94,17 @@
     
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <form id="paymentForm" action="/create-payment" method="POST">
-            <input type="text" id="priceInput" name="price" value=""><span>€</span>
-            <input type="hidden" id="instructorInput" name="instructor" value="">
-            <input type="hidden" id="timeInput" name="time" value="">
-            <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
-            <button id="payButton" type="submit">Paga con PayPal</button>
+            <div class="form-group">
+                <label for="price" id="priceLabel">Procedi con l'acquisto della lezione. <br> Il totale è di </label>
+                <input type="hidden" id="priceInput" name="price" value="">
+            </div>
+                <input type="hidden" id="instructorInput" name="instructor" value="">
+                <input type="hidden" id="timeInput" name="time" value="">
+                <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
+            <button id="payButton" type="submit" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
         </form>
     </div>
+    
     <script>
 $(function() {
     $("#data").datepicker({
@@ -151,6 +156,7 @@ $(function() {
         const instructorInput = document.getElementById('instructorInput');
         const timeInput = document.getElementById('timeInput');
         const priceInput = document.getElementById('priceInput');
+        const priceLabel = document.getElementById('priceLabel');
         // Gestore per prenotare una lezione
         const bookButtons = document.querySelectorAll('.book');
         bookButtons.forEach(async(button) => {
@@ -165,7 +171,11 @@ $(function() {
             instructorInput.value = instructor;
             timeInput.value = time;
             priceInput.value = price;
-            paymentModal.style.display = 'block';
+            priceLabel.append(price + '€');
+            paymentModal.style.display = 'flex';
+            setTimeout(() =>{
+                paymentModal.style.opacity = 1;
+            }, 100)
         }
 
 

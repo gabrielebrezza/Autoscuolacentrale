@@ -50,3 +50,7 @@ h2 {
     font-weight: 700;
     color: red;
 }
+.material-symbols-outlined{
+    color: red;
+    cursor: pointer;
+}

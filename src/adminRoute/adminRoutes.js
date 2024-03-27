@@ -176,20 +176,19 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
 });
 
 
-router.post('/removeguide', authenticateJWT, async (req, res) => {
+router.post('/adminRemovebooking', authenticateJWT, async (req, res) => {
     try {
         const { instructor, time } = req.body;
 
         const updatedGuide = await guide.findOneAndUpdate(
-            { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
-            { $unset: { "book.$.schedule.$[elem].student": "" } },
-            { arrayFilters: [{ "elem.hour": time.split(' - ')[1] }] }
+            { "instructor": instructor, "book.day": time.split(' - ')[0] },
+            { $pull: { "book.$.schedule": { "hour": time.split(' - ')[1] } } }
         );
-
+        
         res.sendStatus(200);
     } catch (error) {
-        console.error('Errore durante la rimozione della prenotazione:', error);
-        res.status(500).send('Errore durante la rimozione della prenotazione');
+        console.error('Errore durante la rimozione della lezione di guida:', error);
+        res.status(500).send('Errore durante la rimozione della lezione di guida');
     }
 });
 
