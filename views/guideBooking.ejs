@@ -55,6 +55,15 @@
 
     <div class="container">
         <% for(var i = 0; i < lezioni.length; i++) { %>
+            <% let exclude = false %>
+            <% for( let j = 0; j < excludeInstructor.length; j++ ) { %>
+                <% if (excludeInstructor[j].instructor == lezioni[i].instructor) { %>
+                    <% exclude = true; %>
+                <% } %>
+            <% } %>
+            <% if (exclude) { %>
+                <% continue; %>
+            <% } %>
         <% let dateElaborate = []; %>
         <% let hasAvailableTime = false; %>
         <% for(j = 0; j < lezioni[i].book.length; j++) { %>

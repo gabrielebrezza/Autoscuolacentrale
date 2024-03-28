@@ -112,7 +112,9 @@ app.get('/profile/:username', isAuthenticated, async (req, res) => {
     const nome = req.params.username.replace(':', '');
     const esami = await credentials.findOne({ userName: nome }, { exams: 1 });
     const bachecaContent = await bacheca.findOne();
-    res.render('guideBooking', { nome, lezioni, esami, bachecaContent});
+    const exclude = await credentials.findOne({ userName: nome }, { exclude: 1 });
+    const excludeInstructor = exclude.exclude;
+    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor});
 });
 app.post('/book', async (req, res) => {
     try {
