@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles/adminBacheca.css">
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <div class="container">
+        <form class="bacheca" action="/bacheca" method="POST">
+            <label for="bacheca">Modifica la bacheca:</label>
+            <textarea name="bacheca" rows="5" cols="50"></textarea>
+            <button type="submit">Conferma</button>
+        </form>
+    </div>
+</body>
+</html>

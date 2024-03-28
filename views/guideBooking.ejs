@@ -30,7 +30,7 @@
                                 <p><%= i+1 %>° Esame: 
                                     <% if (esame[i].paid == true) { %>
                                         <strong class="pagato">PAGATO</strong>  
-                                    <% } else { %>
+                                    <% } else { %> 
                                         <strong data-esame="<%= i %>" class="daPagare">DA PAGARE</strong>  
                                     <% } %>
                                 </p>
@@ -41,7 +41,10 @@
                 </div>
                 <span  class="material-symbols-outlined" id="data" name="data" readonly></span>
                 <div class="bacheca">
-                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. At omnis excepturi, placeat mollitia esse labore, vel corporis repudiandae quam iste porro voluptatum commodi magnam reprehenderit vero. Itaque quasi dolore modi.</p>
+                    <nav>Bacheca</nav>
+                    <div class="bachecaText">
+                        <p><%= bachecaContent.content %></p>
+                    </div>
                 </div>
                 
 
@@ -75,13 +78,15 @@
                 <thead>
                     <tr>
                         <th>Ora</th>
-                        <!-- <th></th> -->
                     </tr>
                 </thead>
                 <tbody>
+                    <% let lessonBookedYet = 0;%>
                     <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
                     <% const schedule = lezioni[i].book[j].schedule[k]; %>
-                    <% if(!schedule.student) { %>
+
+                    
+                    <% if(!schedule.student && lessonBookedYet != 2) { %>
                     <tr>
                         <td class="hour"><%= schedule.hour %></td>
                         <td>
@@ -98,7 +103,20 @@
                                 data-instructor="<%= lezioni[i].instructor %>">Prenotato</button>
                         </td>
                     </tr>
+                    <% } else if(!schedule.student && lessonBookedYet == 2){ %>
+                        <tr>
+                            <td class="hour"><%= schedule.hour %></td>
+                            <td>
+                                <button class="bookDisabled" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
+                                    data-instructor="<%= lezioni[i].instructor %>">Disattivato</button>
+                            </td>
+                        </tr>
                     <% } %>
+                    <% if(schedule.student) { 
+                        lessonBookedYet = 1;
+                        continue;
+                    }%>
+                    <% lessonBookedYet = lessonBookedYet == 1 || lessonBookedYet== 2? 2: 0; %>
                     <% } %>
                 </tbody>
             </table>

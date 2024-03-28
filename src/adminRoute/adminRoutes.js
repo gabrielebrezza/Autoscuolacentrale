@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 
 const credentials = require('../Db/User');
 const guide = require('../Db/Guide');
+const bacheca = require('../Db/Bacheca');
 
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 // Funzione per la generazione di token JWT
@@ -192,5 +193,25 @@ router.post('/adminRemovebooking', authenticateJWT, async (req, res) => {
     }
 });
 
+router.get('/admin/bacheca',authenticateJWT , async (req, res) => {
+    const instructor = req.user.username;
+    res.render('admin/adminComponents/editBacheca', { title: 'Admin - Modifica Bacheca', instructor});
+});
+router.post('/bacheca',authenticateJWT , async (req, res) => {
+    const instructor = req.user.username;
+    const content = req.body.bacheca;
+    try {
+        const existingDocument = await bacheca.findOne(); // Cerca un documento esistente con lo stesso valore di content
+            existingDocument.content = content;
+            existingDocument.editedBy.push(instructor); // Aggiunge l'istruttore all'array editedBy
+            await existingDocument.save(); // Salva il documento aggiornato
+            res.redirect('/admin/bacheca')
+    } catch (error) {
+        console.error("Error while adding or updating bacheca entry:", error);
+        res.status(500).send('Errore durante la modifica della bacheca');
+    }
+
+
+});
 
 module.exports = router;

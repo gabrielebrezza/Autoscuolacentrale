@@ -9,6 +9,7 @@ const paypal = require('paypal-rest-sdk');
 //DB schemas
 const credentials = require('./Db/User');
 const guide = require('./Db/Guide');
+const bacheca = require('./Db/Bacheca');
 
 //routes
 const adminRoutes = require('./adminRoute/adminRoutes');
@@ -110,7 +111,8 @@ app.get('/profile/:username', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();
     const nome = req.params.username.replace(':', '');
     const esami = await credentials.findOne({ userName: nome }, { exams: 1 });
-    res.render('guideBooking', { nome, lezioni, esami});
+    const bachecaContent = await bacheca.findOne();
+    res.render('guideBooking', { nome, lezioni, esami, bachecaContent});
 });
 app.post('/book', async (req, res) => {
     try {
@@ -140,7 +142,7 @@ app.post('/bookExam', async (req, res) => {
             { "userName": userName },
             { $set: { ["exams." + numEsame + ".paid"]: true } }
         );
-        
+         
         await credentials.findOneAndUpdate(
             { "userName": userName },
             { $push: { "exams": { "paid": false } } }
