@@ -24,6 +24,14 @@ const LoginSchema = new mongoose.Schema({
                 required: true
             }
         }
+    ],
+    exclude: [
+        {
+            instructor: {
+                type: String,
+                required: false
+            }
+        }
     ]
 });
 

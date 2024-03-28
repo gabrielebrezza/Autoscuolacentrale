@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/adminguides.css">
+    <link rel="stylesheet" href="/styles/adminUsers.css">
     <title><%= title %></title>
 </head>
 <body>
@@ -12,15 +12,68 @@
         <thead>
             <tr>
                 <th>Allievo</th>
+                <% if (istruttore == 'dave') { %>
+                    <th>Esami pagati</th>
+                    <th>azioni</th>
+                <% } %>
             </tr>
         </thead>
         <tbody>
-            <% for (let i = 0; i < utenti.length; i++) { %>
-                <tr>
-                    <td> <%= utenti[i] %></td>
-                </tr>
-            <% } %>
+            <% if (istruttore == 'dave') { %>
+                <% for (let i = 0; i < utenti.length; i++) { %>
+                    <tr>
+                        <td> <%= utenti[i].userName %></td>
+
+                            <td> 
+                                <% let totEsami = utenti[i].exams.length; %>
+                                <% if (utenti[i].exams[totEsami-1] == true) { %>
+                                    <%= totEsami %>
+                                <% }else{%>
+                                    <%= totEsami - 1 %>
+                                <% } %>
+                            </td>
+                            <td> <button class="exclude" data-student="<%= utenti[i].userName %>">limita istruttori</button></td>
+                    </tr>
+                <% } %>
+            <% }else{ %>
+                <% for (let i = 0; i < utenti.length; i++) { %>
+                    <tr>
+                        <td> <%= utenti[i] %></td>
+                    </tr>
+                <% } 
+            }%>
         </tbody>
     </table>
+
+    <% if (istruttore == 'dave') { %>
+        <form action="/excludeInstructor" id="excludeForm" style="display: none;" method="POST">
+            <h2>Escludi istruttori</h2>
+            <input type="hidden" name="student" id="excludeStudentInput" value="">
+            <% for( let i = 0; i < istruttori.length; i++ ) { %>
+                <div class="instructorInput">
+                    <label for="<%= istruttori[i] %>"><%= istruttori[i] %></label>
+                    <input type="checkbox" name="istruttori" value="<%= istruttori[i] %>">
+                </div>
+            <% } %>
+            <button type="submit">Conferma</button>
+        </form>
+        <script>
+            const excludeBtn = document.querySelectorAll('.exclude');
+            const excludeStudentInput = document.getElementById('excludeStudentInput');
+            const excludeForm = document.getElementById('excludeForm');
+            excludeBtn.forEach(btn => {
+                let excludeStudent = btn.dataset.student;
+                
+                btn.addEventListener('click', () =>{
+                    excludeStudentInput.value = excludeStudent;
+                    excludeForm.style.display = "block";
+                });
+            });
+        </script>
+    <% }%>
+
+
+
+
 </body>
 </html>

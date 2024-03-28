@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt'); 
 
 const credentials = require('../Db/User');
+const Admin = require('../Db/Admin');
 const guide = require('../Db/Guide');
 const bacheca = require('../Db/Bacheca');
 
@@ -35,7 +36,7 @@ router.get('/admin/register', (req, res) => {
 });
 
 router.post('/admin/register', async (req, res) => {
-    const Admin = require('../Db/Admin');
+
     const { username, password } = req.body;
     try {
         // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
@@ -71,7 +72,7 @@ router.get('/admin/login', (req, res) => {
 });
 // Admin panel route
 router.post('/admin/login', async (req, res) => {
-    const Admin = require('../Db/Admin');
+
     const { username, password } = req.body;
     try {
         // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
@@ -116,15 +117,29 @@ router.get('/admin/guides', authenticateJWT, async (req, res) => {
 
 router.get('/admin/users',authenticateJWT , async (req, res) => {
     try {
-        const utenti = await credentials.find({}, { userName: 1, _id: 0 });
-        const usernames = utenti.map(utente => utente.userName); 
-        res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', utenti: usernames});
+        const istruttore = req.user.username;
+        const utenti = await credentials.find();
+        const listaIstruttori = await Admin.find({}, 'userName');
+        const istruttori = listaIstruttori.map(admin => admin.userName);
+        res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', istruttore, utenti, istruttori});
     } catch (error) {
         console.error('Errore durante il recupero degli utenti:', error);
         res.status(500).json({ message: 'Errore durante il recupero degli utenti' });
     }
 });
-
+router.post('/excludeInstructor', authenticateJWT, async (req, res) =>{
+    try {
+        const student = req.body.student;
+        const istruttori = Array.isArray(req.body.istruttori) ? req.body.istruttori : [req.body.istruttori];
+        console.log('Istruttori selezionati:', istruttori);
+        
+        await credentials.updateMany({userName: student}, { $addToSet: { exclude: { $each: istruttori.map(name => ({ instructor: name })) } } });
+        res.redirect('/admin/users');
+    } catch (error) {
+        console.error('Errore durante l\'esclusione degli istruttori:', error);
+        res.status(500).json({ message: 'Errore durante l\'esclusione degli istruttori' });
+    }
+});
 
 router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
