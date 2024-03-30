@@ -44,6 +44,10 @@ const LoginSchema = new mongoose.Schema({
     OTP: {
         type: String,
         required: false
+    },
+    approved: {
+        type: Boolean,
+        required: true 
     }
 });
 

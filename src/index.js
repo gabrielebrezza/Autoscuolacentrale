@@ -46,125 +46,138 @@ app.get('/', (req, res) =>{
     res.render('login');
 });
 
-function generateOTP(length) {
+async function generateOTP(length) {
     const digits = '0123456789';
     let OTP = '';
     for (let i = 0; i < length; i++) {
       OTP += digits[Math.floor(Math.random() * 10)];
     }
     return OTP;
-  }
+}
 
 //DA TOGLIERE IN PRODUZIONE
 const tls = require('tls');
-app.post('/verification', async (req, res) =>{
-    const otpCode = generateOTP(6);
-    const userEmail = req.body.email;
-    const userCell = req.body.phone;
-    const userName = req.body.username;
-    const password = req.body.password;
-    const intent = req.body.intent;
+// Middleware per l'invio dell'email
+const sendEmailMiddleware = async (otpCode, email, username, intent, res) => {
     let subject, text;
-    if(intent == 'login'){
+
+    if (intent == 'login') {
         subject = 'Codice di accesso per il tuo account di scuola guida';
-        text = 'È appena stato effettuato l\'accesso al tuo account, questo è il codice di verifica: '+ otpCode;
-    }else{
+        text = 'È appena stato effettuato l\'accesso al tuo account, questo è il codice di verifica: ' + otpCode;
+    } else {
         subject = 'Iscrizione effettuata a scuola guida';
-        text = 'Il tuo account è stato creato con successo, questo è il codice di verifica per accedere: '+ otpCode;
+        text = 'Il tuo account è stato creato con successo, questo è il codice di verifica per accedere: ' + otpCode;
     }
+
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-        //da cambiare in produzione
-          user: 'brezzagabriele0@gmail.com',
-          pass: 'cack nyhf wlmc iuox'
+            //da cambiare in produzione
+            user: 'brezzagabriele0@gmail.com',
+            pass: 'cack nyhf wlmc iuox'
         },
         //DA TOGLIERE IN PRODUZIONE
         tls: {
-          // Ignora la verifica del certificato SSL
-          rejectUnauthorized: false
+            rejectUnauthorized: false
         }
-      });
-      
-      const mailOptions = {
+    });
+
+    const mailOptions = {
         from: 'brezzagabriele0@gmail.com',
-        to: userEmail,
+        to: email,
         subject: subject,
         text: text
-      };
-      
-      transporter.sendMail(mailOptions, async function(error, info) {
+    };
+
+    transporter.sendMail(mailOptions, async function(error, info) {
         if (error) {
-          console.error('Errore nell\'invio dell\'email:', error);
-          res.send(500);
+            console.error('Errore nell\'invio dell\'email:', error);
+            res.sendStatus(500);
         } else {
-            console.log('Email inviata con successo a:', userName);
-            let saltRounds, hashedOTP;
-            if(intent == 'login'){
-                const check = await credentials.findOne({ 
-                    "userName": userName,
-                    "email": userEmail,
-                    "cell": userCell
+            console.log('Email inviata con successo a:', username);
+            res.redirect(`/verificationCode/:${username}`);
+        }
+    });
+};
+
+app.post('/verification', async (req, res) => {
+    try {
+        const otpCodePromise = generateOTP(6);
+        const otpCode = await otpCodePromise;
+        const userEmail = req.body.email;
+        const userCell = req.body.phone;
+        const userName = req.body.username;
+        const password = req.body.password;
+        const intent = req.body.intent;
+
+        let saltRounds, hashedOTP;
+        if (intent == 'login') {
+            const check = await credentials.findOne({
+                "userName": userName,
+                "email": userEmail,
+                "cell": userCell
             });
-                if(check){
-                    const isPasswordMatch = await bcrypt.compare(password, check.password);
-                    saltRounds = await bcrypt.genSalt(10);
-                    hashedOTP = await bcrypt.hash(otpCode, saltRounds);
-                    if(isPasswordMatch){
-                        const implementingOtp = await credentials.findOneAndUpdate(
-                            {
+            if (check) {
+                const isPasswordMatch = await bcrypt.compare(password, check.password);
+                saltRounds = await bcrypt.genSalt(10);
+                hashedOTP = await bcrypt.hash(String(otpCode), 10);
+                if (isPasswordMatch) {
+                    const implementingOtp = await credentials.findOneAndUpdate({
                             "cell": userCell,
-                            "email" : userEmail,
+                            "email": userEmail,
                             "userName": userName
-                        }, 
-                        {
+                        }, {
                             "OTP": hashedOTP
                         }
-                        );
-                        res.redirect(`/verificationCode/:${userName}`);
-                    }else{
-                        res.send('<h1>Password errata</h1>');
-                    }
-                }else{
-                    res.send('<h1>Credenziali errate</h1>');
+                    );
+                    sendEmailMiddleware(otpCode, userEmail, userName, intent, res, () => {
+                        res.sendStatus(200);
+                    }, req);
+                } else {
+                    res.send('<h1>Password errata</h1>');
                 }
-            }else if(intent == 'signup'){
-                saltRounds = await bcrypt.genSalt(10);
-                hashedOTP = await bcrypt.hash(otpCode, saltRounds);
-                const data = {
-                    email: userEmail,
-                    cell: userCell,
-                    userName: userName,
-                    password: password,
-                    exams: [{ paid: false }],
-                    OTP: hashedOTP
-                }
-                console.log(data.cell);
-                const existingUser = await credentials.findOne({userName: data.userName});
-                const existingEmail = await credentials.findOne({email: data.email});
-                const existingPhoneNumber = await credentials.findOne({cell: data.cell});
-                if(existingUser){
-                    res.send('<h1>Esiste già un account con questo username</h1>');
-                }else if(existingEmail){
-                    res.send('<h1>Esiste già un account con questa email</h1>');
-                }else if(existingPhoneNumber){
-                    res.send('<h1>Esiste già un account con questo numero di cellulare</h1>');
-                }else{
-                    //encrypting password
-                    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
-
-                    data.password = hashedPassword;
-
-                    const newUser = new credentials(data);
-                    await newUser.save();
-                    console.log('nuovo utente registrato: ', data.userName);
-                    res.redirect(`/verificationCode/:${userName}`);
-                }
+            } else {
+                res.send('<h1>Credenziali errate</h1>');
             }
-        }   
-      });
-      
+        } else if (intent == 'signup') {
+            saltRounds = await bcrypt.genSalt(10);
+            hashedOTP = await bcrypt.hash(String(otpCode), 10);
+            const data = {
+                email: userEmail,
+                cell: userCell,
+                userName: userName,
+                password: password,
+                exams: [{paid: false}],
+                OTP: hashedOTP,
+                approved: false
+            }
+            const existingUser = await credentials.findOne({userName: data.userName});
+            const existingEmail = await credentials.findOne({email: data.email});
+            const existingPhoneNumber = await credentials.findOne({cell: data.cell});
+            if (existingUser) {
+                res.send('<h1>Esiste già un account con questo username</h1>');
+            } else if (existingEmail) {
+                res.send('<h1>Esiste già un account con questa email</h1>');
+            } else if (existingPhoneNumber) {
+                res.send('<h1>Esiste già un account con questo numero di cellulare</h1>');
+            } else {
+                const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+                data.password = hashedPassword;
+
+                const newUser = new credentials(data);
+                await newUser.save();
+                console.log('nuovo utente registrato in attesa di approvazione: ', data.userName);
+                sendEmailMiddleware(otpCode, userEmail, userName, intent, res, () => {
+                    res.sendStatus(200);
+                }, req);
+            }
+        }
+    } catch (error) {
+        console.error('Si è verificato un errore:', error);
+        res.status(500).send('<h1>Errore interno del server</h1>');
+    }
 });
+
 
 app.get('/verificationCode/:userName', async (req, res) => {
     res.render('codiceDiVerifica', {userName: req.params.userName.replace(':', '')});
@@ -188,16 +201,18 @@ app.post('/verifica_otp', async (req, res) =>{
 });
 
 // Middleware per controllare l'autenticazione
-const isAuthenticated = (req, res, next) => {
+const isAuthenticated = async (req, res, next) => {
     const usernameCookie = req.cookies.userName;
-    const usernameURL = req.params.userName;
-
-    if (usernameCookie && usernameCookie === usernameURL.replace(":", "")) {
-        // User authenticated
-        return next();
-    } else {
-        // User not authenticated
-        res.redirect('/');
+    const usernameURL = (req.params.userName).replace(":", "");
+    const isApproved = await credentials.findOne({userName: usernameURL});
+    if(isApproved){
+        if (usernameCookie && usernameCookie === usernameURL && isApproved.approved) {
+            // User authenticated
+            return next();
+        } else {
+            // User not authenticated
+            res.redirect('/');
+        }
     }
 };
 
@@ -314,6 +329,7 @@ app.post('/create-payment', async (req, res) =>{
             returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
 
         }
+        console.log('returnUrl:', returnUrl);
         const create_payment_json = {
             intent: "sale",
             payer: {
@@ -330,7 +346,7 @@ app.post('/create-payment', async (req, res) =>{
                         items: [
                             {
                                 name: "Lezione di Guida",
-                                sku: "Item SKU",
+                                sku: "1",
                                 price: price,
                                 currency: "EUR",
                                 quantity: 1
@@ -344,7 +360,7 @@ app.post('/create-payment', async (req, res) =>{
                     description: description 
                 }
             ]
-        };
+        }; 
 
         paypal.payment.create(create_payment_json, (error, payment) => {
             if (error) {
@@ -367,87 +383,80 @@ app.post('/create-payment', async (req, res) =>{
 
 
 app.get('/success', async (req, res) =>{
-    const payerId = req.query.PayerID;
-    const paymentId = req.query.paymentId;
-    const price = req.query.price;
-    const execute_payment_json = {
-        payer_id: payerId,
-        transactions: [
-            {
-                amount: {
-                    currency: "EUR",
-                    total: price
+    try {
+        const payerId = req.query.PayerID;
+        const paymentId = req.query.paymentId;
+        const price = req.query.price;
+        const execute_payment_json = {
+            payer_id: payerId,
+            transactions: [
+                {
+                    amount: {
+                        currency: "EUR",
+                        total: price
+                    }
                 }
-            }
-        ]
-    };
+            ]
+        };
 
-    paypal.payment.execute(paymentId, execute_payment_json, async (error, payment) =>{
-        if(error){
-            console.error(error.response);
-            throw error
-        } else{
-            const cause = req.query.cause;
-            const student = req.query.student;
-            if(cause == 'lesson'){
-                const instructor = req.query.instructor;
-                const time = req.query.time;
-                //da cambiare in produzione
-                fetch('http://localhost:5000/book', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ instructor, time, student })
-                })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
-                        // Reindirizza l'utente alla pagina del profilo
-                        res.redirect(`/profile/${req.cookies.username}`);
-                    } else {
-                        console.error('Errore durante la prenotazione dopo il pagamento');
+        paypal.payment.execute(paymentId, execute_payment_json, async (error, payment) =>{
+            if(error){
+                console.error(error.response);
+                throw error
+            } else{
+                const cause = req.query.cause;
+                const student = req.query.student;
+                if(cause == 'lesson'){
+                    const instructor = req.query.instructor;
+                    const time = req.query.time;
+                    //da cambiare in produzione
+                    fetch('http://localhost:5000/book', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ instructor, time, student })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
+                            // Reindirizza l'utente alla pagina del profilo
+                            res.redirect(`/profile/${req.cookies.username}`);
+                        } else {
+                            console.error('Errore durante la prenotazione dopo il pagamento');
+                            // Gestisci l'errore in modo appropriato
+                            res.redirect(`/profile/${req.cookies.username}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Errore durante la prenotazione dopo il pagamento:', error);
                         // Gestisci l'errore in modo appropriato
                         res.redirect(`/profile/${req.cookies.username}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Errore durante la prenotazione dopo il pagamento:', error);
-                    // Gestisci l'errore in modo appropriato
-                    res.redirect(`/profile/${req.cookies.username}`);
-                });
-            }else if(cause == 'exam'){
-                const numEsame = req.query.numEsame;
-                //da cambiare in produzione
-                fetch('http://localhost:5000/bookExam', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ student, numEsame })
-                })
-                .then(response => {
+                    });
+                }else if(cause == 'exam'){
+                    const numEsame = req.query.numEsame;
+                    //da cambiare in produzione
+                    const response = await fetch('http://localhost:5000/bookExam', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ student, numEsame })
+                    });
                     if (response.ok) {
                         console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento', req.query);
-                        // Reindirizza l'utente alla pagina del profilo
                         res.redirect(`/profile/${req.cookies.username}`);
                     } else {
                         console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
-                        // Gestisci l'errore in modo appropriato
                         res.redirect(`/profile/${req.cookies.username}`);
                     }
-                })
-                .catch(error => {
-                    console.error('Errore durante la prenotazione dell\'esame dopo il pagamento:', error);
-                    // Gestisci l'errore in modo appropriato
-                    res.redirect(`/profile/${req.cookies.username}`);
-                });
+                }
             }
-
-
-            
-        }
-    });
+        });
+    } catch (error) {
+        console.error('Errore generale:', error);
+        res.redirect(`/profile/${req.cookies.username}`);
+    }
 });
 
 app.get('/cancel', async (req, res) =>{

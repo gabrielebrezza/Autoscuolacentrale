@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/authUsers.css">
+    <title><%= title %></title>
+    
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <div id="cards">
+        <% needApproval.forEach(function(item) { %>
+          <div class="user-card">
+            <div class="user-card-header">
+              <h3><%= item.userName %></h3>
+            </div>
+            <ul class="user-info">
+              <li><strong>Email:</strong> <%= item.email %></li>
+              <li><strong>Cell:</strong> <%= item.cell %></li>
+            </ul>
+            <div class="buttons">
+                <form action="/approveUser" method="POST">
+                  <input type="hidden" name="userName" value="<%= item.userName %>">
+                  <input type="hidden" name="email" value="<%= item.email %>">
+                  <input type="hidden" name="cell" value="<%= item.cell %>">
+                  <button type="submit" class="approve-button">Approva</button>
+                </form>
+                <form action="/disapproveUser" method="POST">
+                  <input type="hidden" name="userName" value="<%= item.userName %>">
+                  <input type="hidden" name="email" value="<%= item.email %>">
+                  <input type="hidden" name="cell" value="<%= item.cell %>">
+                  <button type="submit" class="disapprove-button">Disapprova</button>
+                </form>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+      
+</body>
+</html>

@@ -46,13 +46,9 @@
                         <p><%= bachecaContent.content %></p>
                     </div>
                 </div>
-                
-
                 </span>
-            <!-- </label> -->
-            <!-- <input  type="hidden" id="data" name="data" readonly> -->
     </aside>
-
+    <%if(esame[0].paid == true){ %>
     <div class="container">
         <% for(var i = 0; i < lezioni.length; i++) { %>
             <% let exclude = false %>
@@ -135,7 +131,9 @@
         <% } %>
         <% } %>
     </div>
-    
+    <% }else{ %>
+        <h1 class="warning">Devi pagare almeno il primo esame per poter prenotare le lezioni di guida</h1>
+    <% } %>
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <form id="paymentForm" action="/create-payment" method="POST">
             <input type="hidden" id="causeInput" name="cause" value="">

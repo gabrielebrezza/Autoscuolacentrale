@@ -12,7 +12,7 @@ const bacheca = require('../Db/Bacheca');
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 // Funzione per la generazione di token JWT
 function generateToken(username) {
-    return jwt.sign({ username }, JWT_SECRET, { expiresIn: '3h' }); // Token scade dopo 3 ore
+    return jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' }); // Token scade dopo 3 ore
 }
 
 // Middleware per l'autenticazione JWT
@@ -251,5 +251,53 @@ router.post('/bacheca',authenticateJWT , async (req, res) => {
 
 
 });
+router.get('/admin/approvazioneUtenti',authenticateJWT , async (req, res)=>{
+    const needApproval = await credentials.find({approved: false});
+    res.render('admin/adminComponents/authUsers', { title: 'Admin - Approva Utenti', needApproval});
+});
+router.post('/approveUser', async (req, res) =>{
+    const userName = req.body.userName;
+    const email = req.body.email;
+    const cell = req.body.cell;
+    const approve = await credentials.findOneAndUpdate({
+        "userName": userName,
+        "email": email,
+        "cell": cell
+    },
+    {
+        approved: true
+    }
+    );
+    res.redirect('/admin/approvazioneUtenti')
+});
+router.post('/disapproveUser', async (req, res) =>{
+    const userName = req.body.userName;
+    const email = req.body.email;
+    const cell = req.body.cell;
+    const disapprove = await credentials.deleteOne({
+        "userName": userName,
+        "email": email,
+        "cell": cell
+    },
+    {
+        approved: true
+    }
+    );
+    res.redirect('/admin/approvazioneUtenti')
+});
 
+router.get('/admin/fattura',authenticateJWT , async (req, res)=>{
+    res.render('admin/adminComponents/creaFattura');
+});
+router.post('/createFattura', authenticateJWT, async (req, res) =>{
+    const codiceFiscale = req.body.codiceFiscale;
+    const nome = req.body.nome;
+    const cognome = req.body.cognome;
+    const indirizzo = req.body.indirizzo;
+    const cap = req.body.cap;
+    const comune = req.body.comune;
+    const provincia = req.body.provincia;
+    const nazione = req.body.nazione;
+    
+});
 module.exports = router;

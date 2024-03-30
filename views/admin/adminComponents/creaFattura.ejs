@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore Fattura Elettronica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+        }
+
+        form {
+            width: 75%;
+            margin-top: 20px;
+        }
+
+        fieldset {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        legend {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"] {
+            width: calc(100% - 10px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 1.2rem;
+            background-color: #989393;
+            border-radius: 5px;
+            box-sizing: border-box;
+            caret-color: #fff;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            font-size: 1.3rem;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generatore Fattura Elettronica</h1>
+    <form id="fatturaForm" method="POST" action="/createFattura">
+        <fieldset>
+            <legend>Dati Trasmissione</legend>
+            <label for="IdCodice">IdCodice</label>
+            <input type="text" name="IdCodice" id="IdCodice" value="06498290011">
+            <label for="progressivoInvio">Progressivo Invio:</label><br>
+            <input type="text" id="progressivoInvio" name="progressivoInvio" value="d0312"><br><br>
+            
+            <label for="formatoTrasmissione">Formato Trasmissione:</label><br>
+            <input type="text" id="formatoTrasmissione" name="formatoTrasmissione" value="FPR12"><br><br>
+
+            <label for="codiceDestinatario">Codice Destinatario:</label><br>
+            <input type="text" id="codiceDestinatario" name="codiceDestinatario"><br><br>
+
+            <fieldset>
+                <legend>Contatti Trasmittente</legend>
+                <label for="telefonoTrasmittente">Telefono:</label><br>
+                <input type="text" id="telefonoTrasmittente" name="telefonoTrasmittente" value="0116507136"><br><br>
+                
+                <label for="emailTrasmittente">Email:</label><br>
+                <input type="email" id="emailTrasmittente" name="emailTrasmittente" value="autoscuola.centrale@libero.it"><br><br>
+            </fieldset>
+        </fieldset>
+
+        <fieldset>
+            <legend>Dati Cedente/Prestatore</legend>
+            <label for="codiceFiscaleCedente">Codice Fiscale Cedente:</label><br>
+            <input type="text" id="codiceFiscaleCedente" name="codiceFiscaleCedente" value="DMLNTN67S12L738X"><br><br>
+            
+            <label for="denominazioneCedente">Denominazione Cedente:</label><br>
+            <input type="text" id="denominazioneCedente" name="denominazioneCedente" value="D'Amelio Antonio"><br><br>
+
+            <label for="regimeFiscaleCedente">Regime Fiscale Cedente:</label><br>
+            <input type="text" id="regimeFiscaleCedente" name="regimeFiscaleCedente" value="RF01"><br><br>
+
+            <fieldset>
+                <legend>Sede Cedente/Prestatore</legend>
+                <label for="indirizzoSedeCedente">Indirizzo:</label><br>
+                <input type="text" id="indirizzoSedeCedente" name="indirizzoSedeCedente" value="Corso Guglielmo Marconi, 33"><br><br>
+
+                <label for="capSedeCedente">CAP:</label><br>
+                <input type="text" id="capSedeCedente" name="capSedeCedente" value="10125"><br><br>
+
+                <label for="comuneSedeCedente">Comune:</label><br>
+                <input type="text" id="comuneSedeCedente" name="comuneSedeCedente" value="TORINO"><br><br>
+
+                <label for="provinciaSedeCedente">Provincia:</label><br>
+                <input type="text" id="provinciaSedeCedente" name="provinciaSedeCedente" value="TO"><br><br>
+
+                <label for="nazioneSedeCedente">Nazione:</label><br>
+                <input type="text" id="nazioneSedeCedente" name="nazioneSedeCedente" value="IT"><br><br>
+            </fieldset>
+        </fieldset>
+
+        <fieldset>
+            <legend>Dati Cessionario/Committente</legend>
+
+            <label for="nomeCliente">Nome Cliente:</label><br>
+            <input type="text" id="nomeCliente" name="nomeCliente"><br><br>
+            
+            <label for="cognomeCliente">Cognome Cliente:</label><br>
+            <input type="text" id="cognomeCliente" name="cognomeCliente"><br><br>
+
+            <label for="codiceFiscaleCliente">Codice Fiscale Cliente:</label><br>
+            <input type="text" id="codiceFiscaleCliente" name="codiceFiscaleCliente"><br><br>
+            <fieldset>
+                <legend>Sede Cessionario/Committente</legend>
+                <label for="indirizzoSedeCliente">Indirizzo:</label><br>
+                <input type="text" id="indirizzoSedeCliente" name="indirizzoSedeCliente"><br><br>
+
+                <label for="capSedeCliente">CAP:</label><br>
+                <input type="text" id="capSedeCliente" name="capSedeCliente"><br><br>
+
+                <label for="comuneSedeCliente">Comune:</label><br>
+                <input type="text" id="comuneSedeCliente" name="comuneSedeCliente"><br><br>
+
+                <label for="provinciaSedeCliente">Provincia:</label><br>
+                <input type="text" id="provinciaSedeCliente" name="provinciaSedeCliente"><br><br>
+
+                <label for="nazioneSedeCliente">Nazione:</label><br>
+                <input type="text" id="nazioneSedeCliente" name="nazioneSedeCliente" value="IT"><br><br>
+            </fieldset>
+        </fieldset>
+
+        <fieldset>
+            <legend>Dati Generici Documento</legend>
+            <label for="tipoDocumento">Tipo Documento:</label><br>
+            <input type="text" id="tipoDocumento" name="tipoDocumento"><br><br>
+
+            <label for="divisa">Divisa:</label><br>
+            <input type="text" id="divisa" name="divisa"><br><br>
+
+            <label for="data">Data:</label><br>
+            <input type="date" id="data" name="data"><br><br>
+
+            <label for="numeroDocumento">Numero Documento:</label><br>
+            <input type="text" id="numeroDocumento" name="numeroDocumento"><br><br>
+
+            <label for="importoTotaleDocumento">Importo Totale Documento:</label><br>
+            <input type="text" id="importoTotaleDocumento" name="importoTotaleDocumento"><br><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Dati Beni e Servizi</legend>
+            <fieldset>
+                <legend>Dettaglio Linee</legend>
+                <label for="numeroLinea">Numero Linea:</label><br>
+                <input type="text" id="numeroLinea" name="numeroLinea"><br><br>
+
+                <label for="descrizione">Descrizione:</label><br>
+                <input type="text" id="descrizione" name="descrizione"><br><br>
+
+                <label for="prezzoUnitario">Prezzo Unitario:</label><br>
+                <input type="text" id="prezzoUnitario" name="prezzoUnitario"><br><br>
+
+                <label for="prezzoTotale">Prezzo Totale:</label><br>
+                <input type="text" id="prezzoTotale" name="prezzoTotale"><br><br>
+
+                <label for="aliquotaIVA">Aliquota IVA:</label><br>
+                <input type="text" id="aliquotaIVA" name="aliquotaIVA"><br><br>
+
+                <label for="natura">Natura:</label><br>
+                <input type="text" id="natura" name="natura"><br><br>
+            </fieldset>
+
+            <fieldset>
+                <legend>Dati Riepilogo</legend>
+                <label for="aliquotaIVARiepilogo">Aliquota IVA:</label><br>
+                <input type="text" id="aliquotaIVARiepilogo" name="aliquotaIVARiepilogo"><br><br>
+
+                <label for="imponibileImporto">Imponibile Importo:</label><br>
+                <input type="text" id="imponibileImporto" name="imponibileImporto"><br><br>
+
+                <label for="imposta">Imposta:</label><br>
+                <input type="text" id="imposta" name="imposta"><br><br>
+
+                <label for="esigibilitaIVA">Esigibilita IVA:</label><br>
+                <input type="text" id="esigibilitaIVA" name="esigibilitaIVA"><br><br>
+
+                <label for="riferimentoNormativo">Riferimento Normativo:</label><br>
+                <input type="text" id="riferimentoNormativo" name="riferimentoNormativo"><br><br>
+            </fieldset>
+        </fieldset>
+
+        <fieldset>
+            <legend>Dati Pagamento</legend>
+            <label for="condizioniPagamento">Condizioni Pagamento:</label><br>
+            <input type="text" id="condizioniPagamento" name="condizioniPagamento"><br><br>
+
+            <fieldset>
+                <legend>Dettaglio Pagamento</legend>
+                <label for="modalitaPagamento">Modalita Pagamento:</label><br>
+                <input type="text" id="modalitaPagamento" name="modalitaPagamento"><br><br>
+
+                <label for="importoPagamento">Importo Pagamento:</label><br>
+                <input type="text" id="importoPagamento" name="importoPagamento"><br><br>
+            </fieldset>
+        </fieldset>
+
+        <input type="submit" value="Genera Fattura">
+    </form>
+</body>
+</html>

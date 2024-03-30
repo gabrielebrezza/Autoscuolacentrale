@@ -16,7 +16,19 @@ const AdminSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    Ore: [
+        {        
+            durata:{
+                type: Number,
+                required: false
+            },
+            data:{
+                type: String,
+                required: false
+            }
+        }
+    ]
 });
 
 const adminCredentials = new mongoose.model('Admin', AdminSchema);

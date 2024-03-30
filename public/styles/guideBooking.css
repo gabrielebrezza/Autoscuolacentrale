@@ -95,7 +95,16 @@ th, td {
 .book:hover{
     opacity: 0.8;
 }
-
+.warning{
+    margin-top: 25px;
+    text-align: center;
+    color: red;
+    text-transform: capitalize;
+    font-family: "Bebas Neue", sans-serif !important;
+    font-weight: 50;
+    word-spacing: 5px;
+    font-style: normal !important;
+}
 aside{
     display: flex;
     flex-wrap: wrap;
