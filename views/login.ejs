@@ -10,18 +10,22 @@
     <div class="container">
         <div id="login" class="auth-form">
             <h1>Login</h1>
-            <form method="post" action="/login">
-                <input type="text" name="username" placeholder="Username" required /><br>
-                <input type="password" name="password" placeholder="Password" required /><br>
+            <form method="post" action="/verification">
+                <input type="hidden" name="intent" value="login">
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
                 <button type="submit"><span>Log In</span></button>
             </form>
             <p id="signupBtn"><a onclick="toggleForm('signup')">Registrati</a></p>
         </div>
         <div id="signup" class="auth-form" >
             <h1>Sign Up</h1>
-            <form method="post" action="/signup">
-                <input type="text" name="username" placeholder="Username" required /><br>
-                <input type="password" name="password" placeholder="Password" required /><br>
+            <form method="post" action="/verification">
+                <input type="hidden" name="intent" value="signup">
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
                 <button type="submit"><span>Sign Up</span></button>
             </form>
             <p id="loginBtn"><a onclick="toggleForm('login')">Accedi</a></p>

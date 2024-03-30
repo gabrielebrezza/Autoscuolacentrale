@@ -9,6 +9,10 @@ connect.then(() =>{
 });
 
 const LoginSchema = new mongoose.Schema({
+    email:{
+        type: String,
+        required: true
+    },
     userName:{
         type: String,
         required: true
@@ -32,7 +36,11 @@ const LoginSchema = new mongoose.Schema({
                 required: false
             }
         }
-    ]
+    ],
+    OTP: {
+        type: String,
+        required: false
+    }
 });
 
 const credentials = new mongoose.model('users', LoginSchema);

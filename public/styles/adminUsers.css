@@ -37,52 +37,66 @@ tr:hover {
 }
 
 
-.exclude{
+.limitation{
     cursor: pointer;
 }
 
 
 
-#excludeForm {
-    background-color: #f9f9f9;
+#formContainer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    max-width: 500px;
+    width: 100%;
+    background-color: #fff;
     padding: 20px;
-    border-radius: 5px;
-    width: 300px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-#excludeForm h2 {
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.instructorInput{
+    border-radius: 8px;
+    filter: drop-shadow(5px 5px 5px #000000ae);
     display: flex;
-    align-items: baseline;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
 }
 
-#excludeForm label {
-    display: block;
-    margin-bottom: 10px;
-    padding-inline: 10px;
-}
-
-#excludeForm input[type="checkbox"] {
-    margin-right: 5px;
-}
-
-#excludeForm button {
+button {
     background-color: #007bff;
     color: #fff;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
 }
 
-#excludeForm button:hover {
-    background-color: #0056b3;
+.form {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: column;
+}
+
+
+.form h2 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.instructorInput{
+    margin-block: 5px;
+}
+
+label{
+    font-size: 1rem;
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
+    accent-color: #28a745;
+}
+
+button[type="submit"] {
+    margin-top: 5px;
+    background-color: #28a745;
 }

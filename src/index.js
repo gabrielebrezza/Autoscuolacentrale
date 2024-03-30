@@ -5,6 +5,8 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const paypal = require('paypal-rest-sdk');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 //DB schemas
 const credentials = require('./Db/User');
@@ -44,6 +46,129 @@ app.get('/', (req, res) =>{
     res.render('login');
 });
 
+function generateOTP(length) {
+    const digits = '0123456789';
+    let OTP = '';
+    for (let i = 0; i < length; i++) {
+      OTP += digits[Math.floor(Math.random() * 10)];
+    }
+    return OTP;
+  }
+
+//DA TOGLIERE IN PRODUZIONE
+const tls = require('tls');
+app.post('/verification', async (req, res) =>{
+    const otpCode = generateOTP(6);
+    const userEmail = req.body.email;
+    const userName = req.body.username;
+    const password = req.body.password;
+    const intent = req.body.intent;
+    let subject, text;
+    if(intent == 'login'){
+        subject = 'Codice di accesso per il tuo account di scuola guida';
+        text = 'È appena stato effettuato l\'accesso al tuo account, questo è il codice di verifica: '+ otpCode;
+    }else{
+        subject = 'Iscrizione effettuata a scuola guida';
+        text = 'Il tuo account è stato creato con successo, questo è il codice di verifica per accedere: '+ otpCode;
+    }
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+        //da cambiare in produzione
+          user: 'brezzagabriele0@gmail.com',
+          pass: 'cack nyhf wlmc iuox'
+        },
+        //DA TOGLIERE IN PRODUZIONE
+        tls: {
+          // Ignora la verifica del certificato SSL
+          rejectUnauthorized: false
+        }
+      });
+      
+      const mailOptions = {
+        from: 'brezzagabriele0@gmail.com',
+        to: userEmail,
+        subject: subject,
+        text: text
+      };
+      
+      transporter.sendMail(mailOptions, async function(error, info) {
+        if (error) {
+          console.error('Errore nell\'invio dell\'email:', error);
+          res.send(500);
+        } else {
+            console.log('Email inviata con successo a:', userName);
+            let saltRounds, hashedOTP;
+            if(intent == 'login'){
+                const check = await credentials.findOne({ "userName": userName });
+                const isPasswordMatch = await bcrypt.compare(password, check.password);
+                saltRounds = await bcrypt.genSalt(10);
+                hashedOTP = await bcrypt.hash(otpCode, saltRounds);
+                if(isPasswordMatch){
+                    const implementingOtp = await credentials.findOneAndUpdate(
+                        {
+                        "email" : userEmail,
+                        "userName": userName
+                    }, 
+                    {
+                        "OTP": hashedOTP
+                    }
+                    );
+                    res.redirect(`/verificationCode/:${userName}`);
+                }else{
+                    res.json('password errata');
+                }
+            }else if(intent == 'signup'){
+                saltRounds = await bcrypt.genSalt(10);
+                hashedOTP = await bcrypt.hash(otpCode, saltRounds);
+                const data = {
+                    email: userEmail,
+                    userName: userName,
+                    password: password,
+                    exams: [{ paid: false }],
+                    OTP: hashedOTP
+                }
+                const existingUser = await credentials.findOne({userName: data.userName});
+                if(existingUser){
+                    res.send('<h1>Esiste già un account con questo username</h1>');
+                }else{
+                    //encrypting password
+                    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+
+                    data.password = hashedPassword;
+
+                    const newUser = new credentials(data);
+                    await newUser.save();
+                    console.log('nuovo utente registrato: ', data.userName);
+                    res.redirect(`/verificationCode/:${userName}`);
+                }
+            }
+        }   
+      });
+      
+});
+
+app.get('/verificationCode/:userName', async (req, res) => {
+    res.render('codiceDiVerifica', {userName: req.params.userName.replace(':', '')});
+});
+app.post('/verifica_otp', async (req, res) =>{
+    const userName = req.body.userName;
+    const insertedOTP = Object.values(req.body).slice(-6);
+    let otpString = '';
+    for (const key in insertedOTP) {
+        otpString += insertedOTP[key];
+    }
+    const check = await credentials.findOne({ "userName": userName });
+    const isOTPMatched = await bcrypt.compare(otpString, check.OTP);
+    if(isOTPMatched){
+        const sixMonths = 180 * 24 * 60 * 60 * 1000;
+        res.cookie('userName', userName, { maxAge: sixMonths,httpOnly: true });//da controllare se mettere httpsOnly
+        res.redirect(`/profile/:${req.body.userName}`);
+    }else{
+        res.json('Il codice OTP inserito è errato');
+    }
+});
+
 //Register user
 app.post("/signup", async (req, res) =>{
     const data = {
@@ -72,8 +197,8 @@ app.post("/signup", async (req, res) =>{
 
 // Middleware per controllare l'autenticazione
 const isAuthenticated = (req, res, next) => {
-    const usernameCookie = req.cookies.username;
-    const usernameURL = req.params.username;
+    const usernameCookie = req.cookies.userName;
+    const usernameURL = req.params.userName;
 
     if (usernameCookie && usernameCookie === usernameURL.replace(":", "")) {
         // User authenticated
@@ -91,12 +216,10 @@ app.post('/login', async (req, res) => {
             res.send('This username does not exist');
         }
 
-        // Check the password
         const sixMonths = 180 * 24 * 60 * 60 * 1000;
         const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
         if (isPasswordMatch) {
-            // Imposta il cookie di autenticazione
-            res.cookie('username', req.body.username, { maxAge: sixMonths, httpOnly: true });
+            res.cookie('username', req.body.username, { maxAge: sixMonths,httpOnly: true });//da controllare se mettere httpsOnly
             console.log('Nuovo utente loggato: ', req.body.username);
             res.redirect(`/profile/:${req.body.username}`);
         } else {
@@ -107,9 +230,9 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/profile/:username', isAuthenticated, async (req, res) => {
+app.get('/profile/:userName', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();
-    const nome = req.params.username.replace(':', '');
+    const nome = req.params.userName.replace(':', '');
     const esami = await credentials.findOne({ userName: nome }, { exams: 1 });
     const bachecaContent = await bacheca.findOne();
     const exclude = await credentials.findOne({ userName: nome }, { exclude: 1 });

@@ -98,10 +98,10 @@
  .auth-form form{
      display: flex;
      align-items: center;
-     justify-content: space-between;
+     justify-content: space-evenly;
      flex-direction: column;
 }
- .auth-form form [type="text"],[type="password"]{
+ .auth-form form [type="text"],[type="password"],[type="email"]{
      outline: #0000;
      background: #0000;
      border: 0px solid #0000;

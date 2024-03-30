@@ -101,7 +101,7 @@
                         <td>
                             <button class="book" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
                                 data-instructor="<%= lezioni[i].instructor %>"
-                                data-price="<%= schedule.price %>">Prenota</button>
+                                data-price="<%= schedule.price %>">Prenota <%= schedule.price %>€</button>
                         </td>
                     </tr>
                     <% } else if (schedule.student == nome) { %>

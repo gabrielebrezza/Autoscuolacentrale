@@ -141,6 +141,25 @@ router.post('/excludeInstructor', authenticateJWT, async (req, res) =>{
     }
 });
 
+router.post('/includeInstructor', authenticateJWT, async (req, res) =>{
+    try {
+        const student = req.body.student;
+        const istruttori = Array.isArray(req.body.istruttori) ? req.body.istruttori : [req.body.istruttori];
+        console.log('Istruttori selezionati:', istruttori);
+        console.log('utente selezionato:', student);
+        const include = await credentials.updateMany(
+          { userName: student },
+          { $pull: { exclude: { instructor: { $in: istruttori } } } }
+        );
+        console.log(include);
+        res.redirect('/admin/users');
+        
+    } catch (error) {
+        console.error('Errore durante l\'esclusione degli istruttori:', error);
+        res.status(500).json({ message: 'Errore durante l\'esclusione degli istruttori' });
+    }
+});
+
 router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
     res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor});

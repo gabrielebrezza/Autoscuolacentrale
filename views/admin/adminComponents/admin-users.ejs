@@ -32,7 +32,7 @@
                                     <%= totEsami - 1 %>
                                 <% } %>
                             </td>
-                            <td> <button class="exclude" data-student="<%= utenti[i].userName %>">limita istruttori</button></td>
+                            <td> <button class="limitation" data-student="<%= utenti[i].userName %>">limita istruttori</button></td>
                     </tr>
                 <% } %>
             <% }else{ %>
@@ -46,28 +46,61 @@
     </table>
 
     <% if (istruttore == 'dave') { %>
-        <form action="/excludeInstructor" id="excludeForm" style="display: none;" method="POST">
-            <h2>Escludi istruttori</h2>
-            <input type="hidden" name="student" id="excludeStudentInput" value="">
-            <% for( let i = 0; i < istruttori.length; i++ ) { %>
-                <div class="instructorInput">
-                    <label for="<%= istruttori[i] %>"><%= istruttori[i] %></label>
-                    <input type="checkbox" name="istruttori" value="<%= istruttori[i] %>">
-                </div>
-            <% } %>
-            <button type="submit">Conferma</button>
-        </form>
+        <div id="formContainer" style="display: none;">
+            <div class="limitationButtons">
+                <button id="activateExcludeForm">Aggiungi limitazioni</button>
+                <button id="activateIncludeForm">Rimuovi limitazioni</button>
+            </div>
+            <form action="/excludeInstructor" id="excludeForm" class="form" method="POST" style="display: none;">
+                <h2>Escludi istruttori</h2>
+                <input type="hidden" name="student" class="studentInput" id="excludeStudentInput" value="">
+                <% for( let i = 0; i < istruttori.length; i++ ) { %>
+                    <div class="instructorInput">
+                        <label for="<%= istruttori[i] %>"><%= istruttori[i] %></label>
+                        <input type="checkbox" name="istruttori" value="<%= istruttori[i] %>">
+                    </div>
+                <% } %>
+                <button type="submit">Conferma</button>
+            </form>
+            <form action="/includeInstructor" id="includeForm" class="form" method="POST" style="display: none;">
+                <h2>Includi istruttori</h2>
+                <input type="hidden" name="student" class="studentInput" id="includeStudentInput" value="">
+                <% for( let i = 0; i < istruttori.length; i++ ) { %>
+                    <div class="instructorInput">
+                        <label for="<%= istruttori[i] %>"><%= istruttori[i] %></label>
+                        <input type="checkbox" name="istruttori" value="<%= istruttori[i] %>">
+                    </div>
+                <% } %>
+                <button type="submit">Conferma</button>
+            </form>
+        </div>
         <script>
-            const excludeBtn = document.querySelectorAll('.exclude');
+
+            const limitationBtn = document.querySelectorAll('.limitation');
+            const container = document.getElementById('formContainer');
             const excludeStudentInput = document.getElementById('excludeStudentInput');
+            const includeStudentInput = document.getElementById('includeStudentInput');
             const excludeForm = document.getElementById('excludeForm');
-            excludeBtn.forEach(btn => {
-                let excludeStudent = btn.dataset.student;
+            const includeForm = document.getElementById('includeForm');
+            const activateExcludeForm = document.getElementById('activateExcludeForm');    
+            const activateIncludeForm = document.getElementById('activateIncludeForm');
+            limitationBtn.forEach(btn => {
+                
                 
                 btn.addEventListener('click', () =>{
-                    excludeStudentInput.value = excludeStudent;
-                    excludeForm.style.display = "block";
+                    let student = btn.dataset.student;
+                    includeStudentInput.value = student;
+                    excludeStudentInput.value = student;
+                    container.style.display = "flex";
                 });
+            });
+            activateExcludeForm.addEventListener('click', () =>{
+                excludeForm.style.display = 'flex';
+                includeForm.style.display = 'none';
+            });
+            activateIncludeForm.addEventListener('click', () =>{
+                includeForm.style.display = 'flex';
+                excludeForm.style.display = 'none';
             });
         </script>
     <% }%>

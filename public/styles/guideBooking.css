@@ -54,7 +54,6 @@ table {
 }
 
 section:has(.removeBooking) tr:has(.book, .bookDisabled){
-    color:  red;
     display: none;
 }
 
@@ -73,8 +72,7 @@ th, td {
 }
 
 .book, .removeBooking, .bookDisabled {
-    
-    padding: 8px 16px;
+    padding: 8px 8px;
     border-radius: 4px;
     outline: #0000;
     border: 2px solid #0000;
