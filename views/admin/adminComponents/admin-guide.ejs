@@ -51,13 +51,18 @@
                                         <% } %>
                                     <% } %>
                                 </td>
-                                
                                     <% if(guide.instructor == istruttore){ %>
                                         <td>
                                             <span class="material-symbols-outlined deleteGuide" data-instructor="<%=istruttore%>" data-time="<%= day.day %> - <%= schedule.hour %>">delete</span>
+                                            <% if(schedule.student){ %>
+                                                <% for( let n = 0; n < infos.length; n++ ) { %>
+                                                    <% if(infos[n].userName == schedule.student){ %>
+                                                        <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>
+                                                    <% } %>
+                                                <% } %>
+                                            <% } %>
                                         </td>
                                     <% } %>
-                                
                             </tr>
                         <% } %>
                     <% } %>
@@ -65,32 +70,60 @@
             </table>
         <% } %>
 
-    <script>
-        const deleteBtn = document.querySelectorAll('.deleteGuide');
-        deleteBtn.forEach((btn) => {
-            btn.addEventListener('click', () =>{
-                const deleteInstructor = btn.dataset.instructor;
-                const deleteTime = btn.dataset.time;
-            fetch('/adminRemovebooking', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ instructor: deleteInstructor, time: deleteTime})
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Lezione di guida rimossa con successo');
-                } else {
-                    alert('Errore durante la rimozione della lezione di guida');
-                }
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Errore durante la rimozione della lezione di guida:', error);
+        <div id="infosContainer" style="display: none;">
+            <h2>info allievo</h2>
+            <div class="field">
+                <h3>Email:</h3>
+                <p id="inputEmail"></p>
+            </div>
+            <div class="field">
+                <h3>Cell:</h3>
+                <p id="inputCell"></p>
+            </div>
+        </div>
+            
+        <script>
+            const deleteBtn = document.querySelectorAll('.deleteGuide');
+            deleteBtn.forEach((btn) => {
+                btn.addEventListener('click', () =>{
+                    const deleteInstructor = btn.dataset.instructor;
+                    const deleteTime = btn.dataset.time;
+                fetch('/adminRemovebooking', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ instructor: deleteInstructor, time: deleteTime})
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Lezione di guida rimossa con successo');
+                    } else {
+                        alert('Errore durante la rimozione della lezione di guida');
+                    }
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Errore durante la rimozione della lezione di guida:', error);
+                });
             });
-        });
-        });
-    </script>
+            });
+
+
+            const userInfo = document.querySelectorAll('.userInfo');
+            const infosContainer = document.getElementById('infosContainer');
+            const inputEmail = document.getElementById('inputEmail');
+            const inputCell = document.getElementById('inputCell');
+            userInfo.forEach((btn) =>{
+                btn.addEventListener('click', () =>{
+                    const email = btn.dataset.email;
+                    const cell = btn.dataset.cell;
+                    inputEmail.innerText = email;
+                    inputCell.innerText = cell;
+                    infosContainer.style.display = 'flex';
+                });
+            });
+        </script>
+
 </body>
 </html>

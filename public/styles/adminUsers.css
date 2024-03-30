@@ -4,9 +4,7 @@
     box-sizing: border-box;
 }
 body {
-
     background-color: #121212;
-    padding: 20px;
 }
 
 table {
@@ -91,9 +89,10 @@ label{
     font-size: 1rem;
 }
 
-input[type="checkbox"] {
+input[type="checkbox"]{
     margin-right: 5px;
     accent-color: #28a745;
+    cursor: pointer;
 }
 
 button[type="submit"] {

@@ -4,7 +4,9 @@
     padding: 0;
     box-sizing: border-box;
 }
-
+body {
+    background-color: #121212;
+}
 .container {
     max-width: 500px;
     margin: 0 auto;

@@ -4,9 +4,7 @@
     box-sizing: border-box;
 }
 body {
-
     background-color: #121212;
-    padding: 20px;
 }
 
 table {
@@ -50,7 +48,61 @@ h2 {
     font-weight: 700;
     color: red;
 }
-.material-symbols-outlined{
+.deleteGuide{
     color: red;
     cursor: pointer;
 }
+
+.userInfo{
+    color: #007bff;
+    cursor: pointer;
+}
+
+#infosContainer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    max-width: 500px;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 8px;
+    filter: drop-shadow(5px 5px 5px #000000ae);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+}
+#infosContainer h2{
+    width: 100%;
+    color: #fff;
+    background: #007bff;
+    padding: 10px;
+    text-align: center;
+    text-transform: capitalize;
+    border-radius: 8px 8px 0 0;
+}
+.field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.field h3 {
+    font-size: 1.2rem;
+    font-weight: 1100;
+    color: #121212;
+    margin: 0;
+}
+
+.field p {
+    padding-left: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    
+    color: #4e4e4eb5;
+    margin: 0;
+}
+
+

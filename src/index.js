@@ -60,6 +60,7 @@ const tls = require('tls');
 app.post('/verification', async (req, res) =>{
     const otpCode = generateOTP(6);
     const userEmail = req.body.email;
+    const userCell = req.body.phone;
     const userName = req.body.username;
     const password = req.body.password;
     const intent = req.body.intent;
@@ -100,37 +101,54 @@ app.post('/verification', async (req, res) =>{
             console.log('Email inviata con successo a:', userName);
             let saltRounds, hashedOTP;
             if(intent == 'login'){
-                const check = await credentials.findOne({ "userName": userName });
-                const isPasswordMatch = await bcrypt.compare(password, check.password);
-                saltRounds = await bcrypt.genSalt(10);
-                hashedOTP = await bcrypt.hash(otpCode, saltRounds);
-                if(isPasswordMatch){
-                    const implementingOtp = await credentials.findOneAndUpdate(
+                const check = await credentials.findOne({ 
+                    "userName": userName,
+                    "email": userEmail,
+                    "cell": userCell
+            });
+                if(check){
+                    const isPasswordMatch = await bcrypt.compare(password, check.password);
+                    saltRounds = await bcrypt.genSalt(10);
+                    hashedOTP = await bcrypt.hash(otpCode, saltRounds);
+                    if(isPasswordMatch){
+                        const implementingOtp = await credentials.findOneAndUpdate(
+                            {
+                            "cell": userCell,
+                            "email" : userEmail,
+                            "userName": userName
+                        }, 
                         {
-                        "email" : userEmail,
-                        "userName": userName
-                    }, 
-                    {
-                        "OTP": hashedOTP
+                            "OTP": hashedOTP
+                        }
+                        );
+                        res.redirect(`/verificationCode/:${userName}`);
+                    }else{
+                        res.send('<h1>Password errata</h1>');
                     }
-                    );
-                    res.redirect(`/verificationCode/:${userName}`);
                 }else{
-                    res.json('password errata');
+                    res.send('<h1>Credenziali errate</h1>');
                 }
             }else if(intent == 'signup'){
                 saltRounds = await bcrypt.genSalt(10);
                 hashedOTP = await bcrypt.hash(otpCode, saltRounds);
                 const data = {
                     email: userEmail,
+                    cell: userCell,
                     userName: userName,
                     password: password,
                     exams: [{ paid: false }],
                     OTP: hashedOTP
                 }
+                console.log(data.cell);
                 const existingUser = await credentials.findOne({userName: data.userName});
+                const existingEmail = await credentials.findOne({email: data.email});
+                const existingPhoneNumber = await credentials.findOne({cell: data.cell});
                 if(existingUser){
                     res.send('<h1>Esiste già un account con questo username</h1>');
+                }else if(existingEmail){
+                    res.send('<h1>Esiste già un account con questa email</h1>');
+                }else if(existingPhoneNumber){
+                    res.send('<h1>Esiste già un account con questo numero di cellulare</h1>');
                 }else{
                     //encrypting password
                     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
@@ -169,32 +187,6 @@ app.post('/verifica_otp', async (req, res) =>{
     }
 });
 
-//Register user
-app.post("/signup", async (req, res) =>{
-    const data = {
-        userName: req.body.username,
-        password: req.body.password,
-        exams: [{ paid: false }]
-    }
-    //check if the user already exist
-    const existingUser = await credentials.findOne({userName: data.userName});
-    if(existingUser){
-        res.send('<h1>Esiste già un account con questo nome</h1>');
-    }else{
-        //encrypting password
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(data.password, saltRounds);
-
-        data.password = hashedPassword;
-
-        const newUser = new credentials(data);
-        await newUser.save();
-        console.log('nuovo utente registrato: ', data.userName);
-        res.redirect('/');
-    }
-});
-
-
 // Middleware per controllare l'autenticazione
 const isAuthenticated = (req, res, next) => {
     const usernameCookie = req.cookies.userName;
@@ -208,27 +200,6 @@ const isAuthenticated = (req, res, next) => {
         res.redirect('/');
     }
 };
-
-app.post('/login', async (req, res) => {
-    try {
-        const check = await credentials.findOne({ userName: req.body.username });
-        if (!check) {
-            res.send('This username does not exist');
-        }
-
-        const sixMonths = 180 * 24 * 60 * 60 * 1000;
-        const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
-        if (isPasswordMatch) {
-            res.cookie('username', req.body.username, { maxAge: sixMonths,httpOnly: true });//da controllare se mettere httpsOnly
-            console.log('Nuovo utente loggato: ', req.body.username);
-            res.redirect(`/profile/:${req.body.username}`);
-        } else {
-            res.send('Password errata');
-        }
-    } catch {
-        res.send('Credenziali sbagliate');
-    }
-});
 
 app.get('/profile/:userName', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();

@@ -107,8 +107,9 @@ router.get('/admin/guides', authenticateJWT, async (req, res) => {
     try {
         const istruttore = req.user.username;
         const guides = await guide.find();
-
-        res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides , istruttore});
+        const infos = await credentials.find({}, { email: 1, userName: 1, cell: 1 });
+        console.log(infos);
+        res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides , istruttore, infos});
     } catch (error) {
         console.error('Errore durante il recupero delle guide:', error);
         res.status(500).json({ message: 'Errore durante il recupero delle guide' });
@@ -131,10 +132,12 @@ router.post('/excludeInstructor', authenticateJWT, async (req, res) =>{
     try {
         const student = req.body.student;
         const istruttori = Array.isArray(req.body.istruttori) ? req.body.istruttori : [req.body.istruttori];
-        console.log('Istruttori selezionati:', istruttori);
-        
-        await credentials.updateMany({userName: student}, { $addToSet: { exclude: { $each: istruttori.map(name => ({ instructor: name })) } } });
-        res.redirect('/admin/users');
+        if(istruttori === undefined){
+            await credentials.updateMany({userName: student}, { $addToSet: { exclude: { $each: istruttori.map(name => ({ instructor: name })) } } });
+            res.redirect('/admin/users');
+        }else{
+            res.redirect('/admin/users');
+        }
     } catch (error) {
         console.error('Errore durante l\'esclusione degli istruttori:', error);
         res.status(500).json({ message: 'Errore durante l\'esclusione degli istruttori' });
@@ -145,18 +148,18 @@ router.post('/includeInstructor', authenticateJWT, async (req, res) =>{
     try {
         const student = req.body.student;
         const istruttori = Array.isArray(req.body.istruttori) ? req.body.istruttori : [req.body.istruttori];
-        console.log('Istruttori selezionati:', istruttori);
-        console.log('utente selezionato:', student);
-        const include = await credentials.updateMany(
-          { userName: student },
-          { $pull: { exclude: { instructor: { $in: istruttori } } } }
-        );
-        console.log(include);
-        res.redirect('/admin/users');
-        
+        if(istruttori === undefined){
+            const include = await credentials.updateMany(
+              { userName: student },
+              { $pull: { exclude: { instructor: { $in: istruttori } } } }
+            );
+            res.redirect('/admin/users');
+        }else{
+            res.redirect('/admin/users');
+        }   
     } catch (error) {
         console.error('Errore durante l\'esclusione degli istruttori:', error);
-        res.status(500).json({ message: 'Errore durante l\'esclusione degli istruttori' });
+        res.status(500).json({ message: 'Errore durante l\'inclusione degli istruttori' });
     }
 });
 
@@ -229,7 +232,8 @@ router.post('/adminRemovebooking', authenticateJWT, async (req, res) => {
 
 router.get('/admin/bacheca',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
-    res.render('admin/adminComponents/editBacheca', { title: 'Admin - Modifica Bacheca', instructor});
+    const bachecaContent = await bacheca.find();
+    res.render('admin/adminComponents/editBacheca', { title: 'Admin - Modifica Bacheca',bachecaContent , instructor});
 });
 router.post('/bacheca',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;

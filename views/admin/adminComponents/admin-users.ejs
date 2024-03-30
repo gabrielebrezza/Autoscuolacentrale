@@ -12,6 +12,8 @@
         <thead>
             <tr>
                 <th>Allievo</th>
+                <th>Email</th>
+                <th>Cellulare</th>
                 <% if (istruttore == 'dave') { %>
                     <th>Esami pagati</th>
                     <th>azioni</th>
@@ -23,7 +25,8 @@
                 <% for (let i = 0; i < utenti.length; i++) { %>
                     <tr>
                         <td> <%= utenti[i].userName %></td>
-
+                        <td><%= utenti[i].email %></td>
+                        <td><%= utenti[i].cell %></td>
                             <td> 
                                 <% let totEsami = utenti[i].exams.length; %>
                                 <% if (utenti[i].exams[totEsami-1] == true) { %>
@@ -32,13 +35,15 @@
                                     <%= totEsami - 1 %>
                                 <% } %>
                             </td>
-                            <td> <button class="limitation" data-student="<%= utenti[i].userName %>">limita istruttori</button></td>
+                            <td> <button class="limitation" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
                     </tr>
                 <% } %>
             <% }else{ %>
                 <% for (let i = 0; i < utenti.length; i++) { %>
                     <tr>
-                        <td> <%= utenti[i] %></td>
+                        <td><%= utenti[i].userName %></td>
+                        <td><%= utenti[i].email %></td>
+                        <td><%= utenti[i].cell %></td>
                     </tr>
                 <% } 
             }%>
@@ -52,30 +57,31 @@
                 <button id="activateIncludeForm">Rimuovi limitazioni</button>
             </div>
             <form action="/excludeInstructor" id="excludeForm" class="form" method="POST" style="display: none;">
-                <h2>Escludi istruttori</h2>
+                <h2>Istruttori esclusi</h2>
                 <input type="hidden" name="student" class="studentInput" id="excludeStudentInput" value="">
                 <% for( let i = 0; i < istruttori.length; i++ ) { %>
                     <div class="instructorInput">
                         <label for="<%= istruttori[i] %>"><%= istruttori[i] %></label>
-                        <input type="checkbox" name="istruttori" value="<%= istruttori[i] %>">
+                        <input type="checkbox" class="instructorCheckBox" name="istruttori" value="<%= istruttori[i] %>">
                     </div>
                 <% } %>
                 <button type="submit">Conferma</button>
             </form>
             <form action="/includeInstructor" id="includeForm" class="form" method="POST" style="display: none;">
-                <h2>Includi istruttori</h2>
+                <h2>Istruttori inclusi</h2>
                 <input type="hidden" name="student" class="studentInput" id="includeStudentInput" value="">
                 <% for( let i = 0; i < istruttori.length; i++ ) { %>
                     <div class="instructorInput">
                         <label for="<%= istruttori[i] %>"><%= istruttori[i] %></label>
-                        <input type="checkbox" name="istruttori" value="<%= istruttori[i] %>">
+                        <input type="checkbox" class="instructorCheckBox" name="istruttori" value="<%= istruttori[i] %>">
                     </div>
                 <% } %>
                 <button type="submit">Conferma</button>
             </form>
         </div>
         <script>
-
+            const istruttori = Array('<%= istruttori %>');
+            console.log(istruttori);
             const limitationBtn = document.querySelectorAll('.limitation');
             const container = document.getElementById('formContainer');
             const excludeStudentInput = document.getElementById('excludeStudentInput');
@@ -84,23 +90,47 @@
             const includeForm = document.getElementById('includeForm');
             const activateExcludeForm = document.getElementById('activateExcludeForm');    
             const activateIncludeForm = document.getElementById('activateIncludeForm');
+            const instructorCheckBox = document.querySelectorAll('.instructorCheckBox');
+            let excludedInstructors;
             limitationBtn.forEach(btn => {
-                
-                
                 btn.addEventListener('click', () =>{
                     let student = btn.dataset.student;
+                    excludedInstructors = JSON.parse(btn.dataset.exclude);
                     includeStudentInput.value = student;
                     excludeStudentInput.value = student;
                     container.style.display = "flex";
+                    // Preseleziona i checkbox degli istruttori esclusi
+                    
                 });
             });
+
             activateExcludeForm.addEventListener('click', () =>{
                 excludeForm.style.display = 'flex';
                 includeForm.style.display = 'none';
+                instructorCheckBox.forEach(checkbox => {
+                    const instructorName = checkbox.value;
+                    if (excludedInstructors.includes(instructorName)) {
+                        checkbox.checked = true;
+                        checkbox.disabled = true;
+                    } else {
+                        checkbox.checked = false;
+                        checkbox.disabled = false;
+                    }
+                }); 
             });
             activateIncludeForm.addEventListener('click', () =>{
                 includeForm.style.display = 'flex';
                 excludeForm.style.display = 'none';
+                instructorCheckBox.forEach(checkbox => {
+                    const instructorName = checkbox.value;
+                    if (excludedInstructors.includes(instructorName)) {
+                        checkbox.checked = false;
+                        checkbox.disabled = false;
+                    } else {
+                        checkbox.checked = true;
+                        checkbox.disabled = true;
+                    }
+                }); 
             });
         </script>
     <% }%>

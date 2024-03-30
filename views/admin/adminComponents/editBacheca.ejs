@@ -11,7 +11,7 @@
     <div class="container">
         <form class="bacheca" action="/bacheca" method="POST">
             <label for="bacheca">Modifica la bacheca:</label>
-            <textarea name="bacheca" rows="5" cols="50"></textarea>
+            <textarea name="bacheca" rows="5" cols="50"><%= bachecaContent[0].content %></textarea>
             <button type="submit">Conferma</button>
         </form>
     </div>

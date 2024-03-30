@@ -13,6 +13,7 @@
             <form method="post" action="/verification">
                 <input type="hidden" name="intent" value="login">
                 <input type="email" name="email" placeholder="Email" required>
+                <input type="tel" id="phone" name="phone" placeholder="Cellulare" pattern="[0-9]{3}[0-9]{3}[0-9]{4}">
                 <input type="text" name="username" placeholder="Username" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit"><span>Log In</span></button>
@@ -24,6 +25,7 @@
             <form method="post" action="/verification">
                 <input type="hidden" name="intent" value="signup">
                 <input type="email" name="email" placeholder="Email" required>
+                <input type="tel" id="phone" name="phone" placeholder="Cellulare" pattern="[0-9]{3}[0-9]{3}[0-9]{4}">
                 <input type="text" name="username" placeholder="Username" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit"><span>Sign Up</span></button>
