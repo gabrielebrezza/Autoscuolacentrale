@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        input[type="date"],input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #oreContainer {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <div class="oreDiTuttiGliIstruttori" style="display: none;"><%= JSON.stringify(oreIstruttori) %></div>
+
+    <div class="container">
+        <h2>Ore svolte dagli istruttori</h2>
+        <select id="instructor">
+            <% for( let i = 0; i < oreIstruttori.length; i++ ) { %>
+                 <option value="<%= oreIstruttori[i].userName %>"><%= oreIstruttori[i].userName %></option>
+            <% } %>
+        </select>
+        <label for="fromDate">Da data:</label>
+        <input type="date" id="fromDate" name="fromDate">
+        
+        <label for="toDate">A data:</label>
+        <input type="date" id="toDate" name="toDate">
+        
+        <label for="price">Pagamento all'ora:</label>
+        <input type="number" id="price" name="price" placeholder="€">
+        <button id="visualizzaOreBtn">Visualizza ore</button>
+
+        <div id="oreContainer">
+            <!-- Qui verrà visualizzato il totale delle ore svolte -->
+        </div>
+    </div>
+
+    <script>
+document.getElementById('visualizzaOreBtn').addEventListener('click', function() {
+    const oreIstruttori = JSON.parse(document.querySelector('.oreDiTuttiGliIstruttori').textContent);
+    const selectedInstructor = document.getElementById('instructor').value;
+    const fromDate = new Date((document.getElementById('fromDate').value).split('-').reverse().join('/'));
+    const toDate = new Date((document.getElementById('toDate').value).split('-').reverse().join('/'));
+    const price = document.getElementById('price').value;
+    var oreFiltrate = oreIstruttori.find(function(istruttore) {
+        return istruttore.userName === selectedInstructor;
+    });
+
+    var oreSvolte = oreFiltrate.ore.filter(function(ora) {
+        var dataOra = new Date(ora.data);
+        return dataOra >= fromDate && dataOra <= toDate;
+    });
+
+    var totaleOre = 0;
+oreSvolte.forEach(function(ora) {
+    totaleOre += ora.totOreGiorno;
+});
+var costoTot = (totaleOre*price).toFixed(2);
+var ore = Math.floor(totaleOre); // Ottieni il numero di ore arrotondando per difetto
+var minuti = Math.round((totaleOre - ore) * 60); // Ottieni il numero di minuti
+
+document.getElementById('oreContainer').innerText = 'Totale ore svolte: ' + ore + ' ore e ' + minuti + ' minuti. Il pagamento dovrà essere di ' + costoTot + '€.';
+
+});
+
+    </script>
+</body>
+</html>

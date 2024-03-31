@@ -17,9 +17,9 @@ const AdminSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    Ore: [
+    ore: [
         {        
-            durata:{
+            totOreGiorno:{
                 type: Number,
                 required: false
             },

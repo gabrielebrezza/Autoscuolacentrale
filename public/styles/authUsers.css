@@ -10,6 +10,9 @@ body {
     flex-direction: column;
 
 }
+h1{
+  color: #fff;
+}
 #cards{
   display: flex;
   justify-content: space-evenly;

@@ -108,7 +108,6 @@ router.get('/admin/guides', authenticateJWT, async (req, res) => {
         const istruttore = req.user.username;
         const guides = await guide.find();
         const infos = await credentials.find({}, { email: 1, userName: 1, cell: 1 });
-        console.log(infos);
         res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides , istruttore, infos});
     } catch (error) {
         console.error('Errore durante il recupero delle guide:', error);
@@ -286,6 +285,13 @@ router.post('/disapproveUser', async (req, res) =>{
     res.redirect('/admin/approvazioneUtenti')
 });
 
+router.get('/admin/oreIstruttori', authenticateJWT, async (req, res) => {
+    const oreIstruttori = await Admin.find({}, {userName : 1, ore : 1});
+    res.render('admin/adminComponents/oreIstruttori', {title: 'Admin - Orari Istruttori', oreIstruttori});
+});
+
+
+
 router.get('/admin/fattura',authenticateJWT , async (req, res)=>{
     res.render('admin/adminComponents/creaFattura');
 });
@@ -298,6 +304,5 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
     const comune = req.body.comune;
     const provincia = req.body.provincia;
     const nazione = req.body.nazione;
-    
 });
 module.exports = router;

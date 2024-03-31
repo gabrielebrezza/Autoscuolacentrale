@@ -9,6 +9,7 @@
 </head>
 <body>
     <%- include('header.ejs') %>
+    <%if(!needApproval) { %>
     <div id="cards">
         <% needApproval.forEach(function(item) { %>
           <div class="user-card">
@@ -36,6 +37,8 @@
           </div>
         <% }); %>
       </div>
-      
+      <% } else{ %>
+        <h1>Non ci sono utenti in attesa di approvazione</h1>
+      <% } %>
 </body>
 </html>

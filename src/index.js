@@ -10,6 +10,7 @@ const crypto = require('crypto');
 
 //DB schemas
 const credentials = require('./Db/User');
+const admin = require('./Db/Admin');
 const guide = require('./Db/Guide');
 const bacheca = require('./Db/Bacheca');
 
@@ -227,15 +228,31 @@ app.get('/profile/:userName', isAuthenticated, async (req, res) => {
 });
 app.post('/book', async (req, res) => {
     try {
-        const { instructor, time, student } = req.body;
-
+        const { instructor, time, day, duration, student } = req.body;
+        console.log(duration);
+        const durationInHour = duration/60;
+        console.log(durationInHour);
         // Aggiorna il documento della guida
         const updatedGuide = await guide.findOneAndUpdate(
             { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
             { $set: { "book.$.schedule.$[elem].student": student } },
             { arrayFilters: [{ "elem.hour": time.split(' - ')[1] }] }
         );
+        const existingOrario = await admin.findOne({"userName": instructor, "ore.data": day});
 
+        if (existingOrario) {
+            const updatedOrari = await admin.findOneAndUpdate(
+                {"userName": instructor, "ore.data": day},
+                {$inc: {"ore.$.totOreGiorno": durationInHour}},
+                {new: true}
+            );
+        } else {
+            const updatedOrari = await admin.findOneAndUpdate(
+                {"userName": instructor},
+                {$addToSet: {"ore": {"data": day, "totOreGiorno": durationInHour}}},
+                {new: true}
+            );
+        }
         res.sendStatus(200);
     } catch (error) {
         console.error('Errore durante la prenotazione:', error);
@@ -409,13 +426,31 @@ app.get('/success', async (req, res) =>{
                 if(cause == 'lesson'){
                     const instructor = req.query.instructor;
                     const time = req.query.time;
+                    const [day, timePart] = time.split(' - ');
+                    const [startTime, endTime] = timePart.split('-').map(t => t.trim());
+                    
+                    console.log("Giorno:", day);
+                    console.log("Orario iniziale:", startTime);
+                    console.log("Orario finale:", endTime);
+                    
+                    const [startHour, startMin] = startTime.split(':').map(Number);
+                    const [endHour, endMin] = endTime.split(':').map(Number);
+                    
+                    let duration;
+                    if (endHour > startHour || (endHour === startHour && endMin >= startMin)) {
+                        duration = (endHour - startHour) * 60 + (endMin - startMin);
+                    } else {
+                        duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
+                    }
+                    
+                    console.log("Durata:", duration, "minuti");
                     //da cambiare in produzione
                     fetch('http://localhost:5000/book', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ instructor, time, student })
+                        body: JSON.stringify({ instructor, time, day, duration, student })
                     })
                     .then(response => {
                         if (response.ok) {
