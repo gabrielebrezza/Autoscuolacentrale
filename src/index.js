@@ -229,9 +229,7 @@ app.get('/profile/:userName', isAuthenticated, async (req, res) => {
 app.post('/book', async (req, res) => {
     try {
         const { instructor, time, day, duration, student } = req.body;
-        console.log(duration);
         const durationInHour = duration/60;
-        console.log(durationInHour);
         // Aggiorna il documento della guida
         const updatedGuide = await guide.findOneAndUpdate(
             { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
@@ -265,7 +263,6 @@ app.post('/bookExam', async (req, res) => {
         const userName = req.body.student;
         let numEsame = req.body.numEsame;
         numEsame = parseInt(numEsame);
-        console.log(numEsame);
         await credentials.findOneAndUpdate(
             { "userName": userName },
             { $set: { ["exams." + numEsame + ".paid"]: true } }
@@ -275,8 +272,6 @@ app.post('/bookExam', async (req, res) => {
             { "userName": userName },
             { $push: { "exams": { "paid": false } } }
         );
-
-        console.log('Esame ', numEsame+1, ' prenotato con successo');
         res.sendStatus(200);
     } catch (error) {
         console.error('Errore durante la prenotazione dell\'Esame :', error);
@@ -313,13 +308,14 @@ app.post('/create-payment', async (req, res) =>{
     try {
         const student = req.body.student;
         const cause = req.body.cause;
-        console.log(cause);
-        let price, description, returnUrl;
+        let instructor;
+        let price, description, returnUrl, day, hour, numEsame;
         if(cause == 'lesson'){
-        const instructor = req.body.instructor;
+        instructor = req.body.instructor;
+        numEsame = '';
         const timeParts = req.body.time.split(' - '); 
-        const day = timeParts[0];
-        const hour = timeParts[1];
+        day = timeParts[0];
+        hour = timeParts[1];
         const guides = await guide.findOne({ instructor: instructor });
         if (!guides) {
             return res.status(404).json({ error: "Instructor not found" });
@@ -334,19 +330,18 @@ app.post('/create-payment', async (req, res) =>{
             return res.status(404).json({ error: "Lesson not found" });
         }
         price = lesson.price;
-        description = "Pagamento per la lezione di guida in AutoScuolaCentrale";
-        console.log('sta per pagare ', req.body);
         //da cambiare in produzione
         returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}`;
         }else if(cause == 'exam'){
             price = 5;
-            const numEsame = req.body.numEsame;
-            description = "Pagamento per l'esame di guida in AutoScuolaCentrale";
+            instructor = '';
+            day = '';
+            hour = '';
+            numEsame = req.body.numEsame;
             //da cambiare in produzione
             returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
 
         }
-        console.log('returnUrl:', returnUrl);
         const create_payment_json = {
             intent: "sale",
             payer: {
@@ -374,11 +369,10 @@ app.post('/create-payment', async (req, res) =>{
                         currency: "EUR",
                         total: price
                     },
-                    description: description 
+                    description: "Pagamento per l'esame di guida in AutoScuolaCentrale" 
                 }
             ]
         }; 
-
         paypal.payment.create(create_payment_json, (error, payment) => {
             if (error) {
                 throw error;
@@ -429,10 +423,6 @@ app.get('/success', async (req, res) =>{
                     const [day, timePart] = time.split(' - ');
                     const [startTime, endTime] = timePart.split('-').map(t => t.trim());
                     
-                    console.log("Giorno:", day);
-                    console.log("Orario iniziale:", startTime);
-                    console.log("Orario finale:", endTime);
-                    
                     const [startHour, startMin] = startTime.split(':').map(Number);
                     const [endHour, endMin] = endTime.split(':').map(Number);
                     
@@ -443,7 +433,6 @@ app.get('/success', async (req, res) =>{
                         duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
                     }
                     
-                    console.log("Durata:", duration, "minuti");
                     //da cambiare in produzione
                     fetch('http://localhost:5000/book', {
                         method: 'POST',
