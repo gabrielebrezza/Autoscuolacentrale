@@ -220,15 +220,43 @@ const isAuthenticated = async (req, res, next) => {
 app.get('/profile/:userName', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();
     const nome = req.params.userName.replace(':', '');
-    const esami = await credentials.findOne({ userName: nome }, { exams: 1 });
+    const esami = await credentials.findOne({ "userName": nome }, { exams: 1 });
+    const personalData = await credentials.findOne({ "userName": nome }, { billingInfo: 1});
     const bachecaContent = await bacheca.findOne();
-    const exclude = await credentials.findOne({ userName: nome }, { exclude: 1 });
+    const exclude = await credentials.findOne({ "userName": nome }, { exclude: 1 });
     const excludeInstructor = exclude.exclude;
-    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor});
+    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData});
 });
+
+app.post('/updatePersonalData', async (req, res) => {
+    const {nome, cognome, codiceFiscale, via, nCivico, CAP, citta, provincia, stato} = req.body;
+    const user = req.cookies.userName;
+    console.log(nome, cognome, codiceFiscale, via, nCivico, CAP, citta, provincia, stato);
+    console.log(user);
+    const updateData = await credentials.findOneAndUpdate(
+        {"userName": user},
+        {
+            $set: {
+                "billingInfo": {
+                    "nome": nome,
+                    "cognome": cognome,
+                    "codiceFiscale": codiceFiscale,
+                    "via": via,
+                    "nCivico": nCivico,
+                    "CAP": CAP,
+                    "citta": citta,
+                    "provincia": provincia,
+                    "stato": stato
+                }   
+            }
+        }
+    );
+    console.log(updateData);
+});
+
 app.post('/book', async (req, res) => {
     try {
-        const { instructor, time, day, duration, student } = req.body;
+        const { instructor, time, day, duration, student, price } = req.body;
         const durationInHour = duration/60;
         const giorno = time.split(' - ')[0];
         const hour = time.split(' - ')[1];
@@ -265,6 +293,16 @@ app.post('/book', async (req, res) => {
                 {new: true}
             );
         }
+        const today = new Date();
+        const d = String(today.getDate()).padStart(2, '0'); 
+        const month = String(today.getMonth() + 1).padStart(2, '0'); 
+        const year = today.getFullYear(); 
+        const dataFatturazione = `${d}/${month}/${year}`;
+        const updateDataFatturazione = await credentials.findOneAndUpdate(
+            {"userName": student},
+            {$addToSet: {"fatturaDaFare": {"tipo": 'lezione di guida', "data": dataFatturazione, "importo": price, "emessa": false}}},
+            {new: true}
+        );
         res.sendStatus(200);
     } catch (error) {
         console.error('Errore durante la prenotazione:', error);
@@ -274,6 +312,7 @@ app.post('/book', async (req, res) => {
 
 app.post('/bookExam', async (req, res) => {
     try {
+        const price = req.body.price;
         const userName = req.body.student;
         let numEsame = req.body.numEsame;
         numEsame = parseInt(numEsame);
@@ -285,6 +324,16 @@ app.post('/bookExam', async (req, res) => {
         await credentials.findOneAndUpdate(
             { "userName": userName },
             { $push: { "exams": { "paid": false, "bocciato": false } } }
+        );
+        const today = new Date();
+        const d = String(today.getDate()).padStart(2, '0'); 
+        const month = String(today.getMonth() + 1).padStart(2, '0'); 
+        const year = today.getFullYear(); 
+        const dataFatturazione = `${d}/${month}/${year}`;
+        const updateDataFatturazione = await credentials.findOneAndUpdate(
+            {"userName": userName},
+            {$addToSet: {"fatturaDaFare": {"tipo": 'Esame di guida', "data": dataFatturazione, "importo": price, "emessa": false}}},
+            {new: true}
         );
         res.sendStatus(200); 
     } catch (error) {
@@ -318,7 +367,7 @@ app.post('/removebooking', async (req, res) => {
 
 
 
-app.post('/create-payment', async (req, res) =>{
+app.post('/create-payment',  async (req, res) =>{
     try {
         const student = req.body.student;
         const cause = req.body.cause;
@@ -406,7 +455,7 @@ app.post('/create-payment', async (req, res) =>{
     }
 });
 
-app.get('/success', async (req, res) =>{
+app.get('/success',  async (req, res) =>{
     try {
         const payerId = req.query.PayerID;
         const paymentId = req.query.paymentId;
@@ -452,7 +501,7 @@ app.get('/success', async (req, res) =>{
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ instructor, time, day, duration, student })
+                        body: JSON.stringify({ instructor, time, day, duration, student, price })
                     })
                     .then(response => {
                         if (response.ok) {
@@ -478,7 +527,7 @@ app.get('/success', async (req, res) =>{
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ student, numEsame })
+                        body: JSON.stringify({ student, numEsame, price})
                     });
                     if (response.ok) {
                         console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento', req.query);

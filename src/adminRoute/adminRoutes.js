@@ -3,6 +3,9 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken'); 
 const bcrypt = require('bcrypt'); 
+const bodyParser = require('body-parser');
+const { create } = require('xmlbuilder2');
+const fs = require('fs');
 
 const credentials = require('../Db/User');
 const Admin = require('../Db/Admin');
@@ -14,7 +17,10 @@ const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 function generateToken(username) {
     return jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' }); // Token scade dopo 3 ore
 }
+router.use(bodyParser.urlencoded({ extended: false }));
 
+// Parse application/json
+router.use(bodyParser.json());
 // Middleware per l'autenticazione JWT
 function authenticateJWT(req, res, next) {
     const token = req.cookies.token;
@@ -298,19 +304,136 @@ router.get('/admin/oreIstruttori', authenticateJWT, async (req, res) => {
     res.render('admin/adminComponents/oreIstruttori', {title: 'Admin - Orari Istruttori', oreIstruttori});
 });
 
+router.get('/admin/fatture/:utente',authenticateJWT , async (req, res)=>{
+    const userName = req.params.utente.replace(':', '');
+    const operazioniDaFatturare = await credentials.findOne(
+        {"userName": userName},
+        {"fatturaDaFare": 1}
+    );
+        const dati = operazioniDaFatturare.fatturaDaFare;
+    res.render('admin/adminComponents/fattureDaFare', {title: 'Admin - Fatture Da Emettere', dati, userName});
+});
 
-
-router.get('/admin/fattura',authenticateJWT , async (req, res)=>{
-    res.render('admin/adminComponents/creaFattura');
+router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT , async (req, res)=>{
+    const userName = req.params.utente;
+    const tipo = req.params.tipo;
+    const data = decodeURIComponent(req.params.data);
+    const importo = req.params.importo;
+    const datiFatturazione = await credentials.findOne(
+        {"userName": userName},
+        {"billingInfo": 1}
+    );
+        const dati = datiFatturazione.billingInfo;
+    
+    res.render('admin/adminComponents/creaFattura', {dati: dati, userName, tipo, data, importo});
 });
 router.post('/createFattura', authenticateJWT, async (req, res) =>{
-    const codiceFiscale = req.body.codiceFiscale;
-    const nome = req.body.nome;
-    const cognome = req.body.cognome;
-    const indirizzo = req.body.indirizzo;
-    const cap = req.body.cap;
-    const comune = req.body.comune;
-    const provincia = req.body.provincia;
-    const nazione = req.body.nazione;
+    // Estrai i dati dalla richiesta
+    const dati = req.body;
+
+    // Costruisci il documento XML della fattura elettronica
+    const xml = create({ version: '1.0', encoding: 'UTF-8' })
+    .ele('p:FatturaElettronica xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versione="FPR12" xsi:schemaLocation="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_file_xml_FatturaPA_versione_1.2.xsd"')
+        .ele('FatturaElettronicaHeader')
+            .ele('DatiTrasmissione')
+                .ele('IdTrasmittente')
+                    .ele('IdPaese').txt(dati.IdPaese).up()
+                    .ele('IdCodice').txt(dati.IdCodice).up()
+                .up()
+                .ele('ProgressivoInvio').txt(dati.progressivoInvio).up()
+                .ele('FormatoTrasmissione').txt(dati.formatoTrasmissione).up()
+                .ele('CodiceDestinatario').txt(dati.codiceDestinatario).up()
+                .ele('ContattiTrasmittente')
+                    .ele('Telefono').txt(dati.telefonoTrasmittente).up()
+                    .ele('Email').txt(dati.emailTrasmittente).up()
+                .up()
+            .up()
+            .ele('CedentePrestatore')
+                .ele('DatiAnagrafici')
+                    .ele('IdFiscaleIVA')
+                        .ele('IdPaese').txt(dati.IdPaese).up()
+                        .ele('IdCodice').txt(dati.IdCodice).up()
+                    .up()
+                    .ele('CodiceFiscale').txt(dati.codiceFiscaleCedente).up()
+                    .ele('Anagrafica')
+                        .ele('Denominazione').txt(dati.denominazioneCedente).up()
+                    .up()
+                    .ele('RegimeFiscale').txt(dati.regimeFiscaleCedente).up()
+                .up()
+                .ele('Sede')
+                    .ele('Indirizzo').txt(dati.indirizzoSedeCedente).up()
+                    .ele('CAP').txt(dati.capSedeCedente).up()
+                    .ele('Comune').txt(dati.comuneSedeCedente).up()
+                    .ele('Provincia').txt(dati.provinciaSedeCedente).up()
+                    .ele('Nazione').txt(dati.nazioneSedeCedente).up()
+                .up()
+            .up()
+            .ele('CessionarioCommittente')
+                .ele('DatiAnagrafici')
+                    .ele('CodiceFiscale').txt(dati.codiceFiscaleCliente).up()
+                    .ele('Anagrafica')
+                        .ele('Nome').txt(dati.nomeCliente).up()
+                        .ele('Cognome').txt(dati.cognomeCliente).up()
+                    .up()
+                .up()
+                .ele('Sede')
+                    .ele('Indirizzo').txt(dati.indirizzoSedeCliente).up()
+                    .ele('CAP').txt(dati.capSedeCliente).up()
+                    .ele('Comune').txt(dati.comuneSedeCliente).up()
+                    .ele('Provincia').txt(dati.provinciaSedeCliente).up()
+                    .ele('Nazione').txt(dati.nazioneSedeCliente).up()
+                .up()
+            .up()
+        .up()
+        .ele('FatturaElettronicaBody')
+            .ele('DatiGenerali')
+                .ele('DatiGeneraliDocumento')
+                    .ele('TipoDocumento').txt(dati.tipoDocumento).up()
+                    .ele('Divisa').txt(dati.divisa).up()
+                    .ele('Data').txt(dati.data).up()
+                    .ele('Numero').txt(dati.numeroDocumento).up()
+                    .ele('ImportoTotaleDocumento').txt(dati.importoTotaleDocumento).up()
+            .up()
+            .ele('DatiBeniServizi')
+                .ele('DettaglioLinee')
+                    .ele('NumeroLinea').txt(dati.numeroLinea1).up()
+                    .ele('Descrizione').txt(dati.descrizione1).up()
+                    .ele('PrezzoUnitario').txt(dati.prezzoUnitario1).up()
+                    .ele('PrezzoTotale').txt(dati.prezzoTotale1).up()
+                    .ele('AliquotaIVA').txt(dati.aliquotaIVA1).up()
+                    .ele('Natura').txt(dati.natura1).up()
+                .up()
+                .ele('DettaglioLinee')
+                    .ele('NumeroLinea').txt(dati.numeroLinea2).up()
+                    .ele('Descrizione').txt(dati.descrizione2).up()
+                    .ele('PrezzoUnitario').txt(dati.prezzoUnitario2).up()
+                    .ele('PrezzoTotale').txt(dati.prezzoTotale2).up()
+                    .ele('AliquotaIVA').txt(dati.aliquotaIVA2).up()
+                .up()
+                .ele('DatiRiepilogo')
+                    .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo1).up()
+                    .ele('ImponibileImporto').txt(dati.imponibileImporto1).up()
+                    .ele('Imposta').txt(dati.imposta1).up()
+                    .ele('EsigibilitaIVA').txt(dati.esigibilitaIVARiepilogo).up()
+                .up()
+                .ele('DatiRiepilogo')
+                    .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo2).up()
+                    .ele('Natura').txt(dati.naturaRiepilogo).up()
+                    .ele('ImponibileImporto').txt(dati.imponibileImporto2).up()
+                    .ele('Imposta').txt(dati.imposta2).up()
+                    .ele('RiferimentoNormativo').txt(dati.riferimentoNormativo).up()
+                .up()
+            .up()
+            .ele('DatiPagamento')
+                .ele('CondizioniPagamento').txt(dati.condizioniPagamento).up()
+                .ele('DettaglioPagamento')
+                    .ele('ModalitaPagamento').txt(dati.modalitaPagamento).up()
+                    .ele('ImportoPagamento').txt(dati.importoPagamento);
+    // Converti il documento XML in una stringa
+    const xmlString = xml.end({ prettyPrint: true });
+
+    // Invia la stringa XML come risposta
+    res.set('Content-Type', 'application/xml');
+    res.send(xmlString);
 });
 module.exports = router;

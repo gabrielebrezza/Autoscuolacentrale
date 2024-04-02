@@ -18,6 +18,7 @@
                     <th>Esami pagati</th>
                     <th>Limitazioni</th>
                     <th>Boccia</th>
+                    <th>Fatture</th>
                 <% } %>
             </tr>
         </thead>
@@ -36,8 +37,10 @@
                                     <%= totEsami - 1 %>
                                 <% } %>
                             </td>
+                            <% let collegamento = '/admin/fatture/:'+ utenti[i].userName; %>
                             <td> <button class="limitation" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
                             <td> <button class="boccia" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
+                            <td> <a href=" <%= collegamento %> "><button class="fatture" data-student="<%= utenti[i].userName %>">Fatture</button></a></td>
                         </tr>
                 <% } %>
             <% }else{ %>

@@ -52,7 +52,67 @@ const LoginSchema = new mongoose.Schema({
     approved: {
         type: Boolean,
         required: true 
-    }
+    },
+    billingInfo:[
+        {
+            nome: {
+                type:String,
+                required: false
+            },
+            cognome: {
+                type:String,
+                required: false
+            },
+            codiceFiscale: {
+                type:String,
+                required: false
+            },
+            via: {
+                type:String,
+                required: false
+            },
+            nCivico: {
+                type:String,
+                required: false
+            },
+            CAP: {
+                type:String,
+                required: false
+            },
+            citta: {
+                type:String,
+                required: false
+            },
+            provincia: {
+                type: String,
+                required: false
+            },
+            stato: {
+                type: String,
+                required: false
+            }
+        }
+    ],
+    fatturaDaFare: [
+        {
+            tipo: {
+                type: String,
+                required: false
+            },
+            data: {
+                type: String,
+                required: false
+            },
+            importo: {
+                type: Number,
+                required: false
+            },
+            emessa: {
+                type: Boolean,
+                required: false
+            }
+        }
+    ]
 });
 
 const credentials = new mongoose.model('users', LoginSchema);

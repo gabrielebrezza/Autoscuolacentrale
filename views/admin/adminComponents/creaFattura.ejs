@@ -90,6 +90,8 @@
     <form id="fatturaForm" method="POST" action="/createFattura">
         <fieldset>
             <legend>Dati Trasmissione</legend>
+            <label for="IdPaese">IdCodice</label>
+            <input type="text" name="IdPaese" id="IdPaese" value="IT">
             <label for="IdCodice">IdCodice</label>
             <input type="text" name="IdCodice" id="IdCodice" value="06498290011">
             <label for="progressivoInvio">Progressivo Invio:</label><br>
@@ -99,7 +101,7 @@
             <input type="text" id="formatoTrasmissione" name="formatoTrasmissione" value="FPR12"><br><br>
 
             <label for="codiceDestinatario">Codice Destinatario:</label><br>
-            <input type="text" id="codiceDestinatario" name="codiceDestinatario"><br><br>
+            <input type="text" id="codiceDestinatario" name="codiceDestinatario" value="0000000"><br><br>
 
             <fieldset>
                 <legend>Contatti Trasmittente</legend>
@@ -145,48 +147,48 @@
             <legend>Dati Cessionario/Committente</legend>
 
             <label for="nomeCliente">Nome Cliente:</label><br>
-            <input type="text" id="nomeCliente" name="nomeCliente"><br><br>
+            <input type="text" id="nomeCliente" name="nomeCliente" value="<%= dati[0].nome %>"><br><br>
             
             <label for="cognomeCliente">Cognome Cliente:</label><br>
-            <input type="text" id="cognomeCliente" name="cognomeCliente"><br><br>
+            <input type="text" id="cognomeCliente" name="cognomeCliente" value="<%= dati[0].cognome %>"><br><br>
 
             <label for="codiceFiscaleCliente">Codice Fiscale Cliente:</label><br>
-            <input type="text" id="codiceFiscaleCliente" name="codiceFiscaleCliente"><br><br>
+            <input type="text" id="codiceFiscaleCliente" name="codiceFiscaleCliente" value="<%= dati[0].codiceFiscale %>"><br><br>
             <fieldset>
                 <legend>Sede Cessionario/Committente</legend>
                 <label for="indirizzoSedeCliente">Indirizzo:</label><br>
-                <input type="text" id="indirizzoSedeCliente" name="indirizzoSedeCliente"><br><br>
+                <input type="text" id="indirizzoSedeCliente" name="indirizzoSedeCliente" value="<%= dati[0].via + dati[0].nCivico%>"><br><br>
 
                 <label for="capSedeCliente">CAP:</label><br>
-                <input type="text" id="capSedeCliente" name="capSedeCliente"><br><br>
+                <input type="text" id="capSedeCliente" name="capSedeCliente" value="<%= dati[0].CAP %>"><br><br>
 
                 <label for="comuneSedeCliente">Comune:</label><br>
-                <input type="text" id="comuneSedeCliente" name="comuneSedeCliente"><br><br>
+                <input type="text" id="comuneSedeCliente" name="comuneSedeCliente" value="<%= dati[0].citta %>"><br><br>
 
                 <label for="provinciaSedeCliente">Provincia:</label><br>
-                <input type="text" id="provinciaSedeCliente" name="provinciaSedeCliente"><br><br>
+                <input type="text" id="provinciaSedeCliente" name="provinciaSedeCliente" value="<%= dati[0].provincia %>"><br><br>
 
                 <label for="nazioneSedeCliente">Nazione:</label><br>
-                <input type="text" id="nazioneSedeCliente" name="nazioneSedeCliente" value="IT"><br><br>
+                <input type="text" id="nazioneSedeCliente" name="nazioneSedeCliente" value="<%= dati[0].stato %>"><br><br>
             </fieldset>
         </fieldset>
 
         <fieldset>
             <legend>Dati Generici Documento</legend>
             <label for="tipoDocumento">Tipo Documento:</label><br>
-            <input type="text" id="tipoDocumento" name="tipoDocumento"><br><br>
+            <input type="text" id="tipoDocumento" name="tipoDocumento" value="TD01"><br><br>
 
             <label for="divisa">Divisa:</label><br>
-            <input type="text" id="divisa" name="divisa"><br><br>
+            <input type="text" id="divisa" name="divisa" value="EUR"><br><br>
 
             <label for="data">Data:</label><br>
-            <input type="date" id="data" name="data"><br><br>
+            <input type="text" id="data" name="data" value="<%= data %>"><br><br>
 
             <label for="numeroDocumento">Numero Documento:</label><br>
-            <input type="text" id="numeroDocumento" name="numeroDocumento"><br><br>
+            <input type="text" id="numeroDocumento" name="numeroDocumento" value="d0312"><br><br>
 
             <label for="importoTotaleDocumento">Importo Totale Documento:</label><br>
-            <input type="text" id="importoTotaleDocumento" name="importoTotaleDocumento"><br><br>
+            <input type="text" id="importoTotaleDocumento" name="importoTotaleDocumento" value="<%= Number(importo).toFixed(2) %>"><br><br>
         </fieldset>
 
         <fieldset>
@@ -194,55 +196,86 @@
             <fieldset>
                 <legend>Dettaglio Linee</legend>
                 <label for="numeroLinea">Numero Linea:</label><br>
-                <input type="text" id="numeroLinea" name="numeroLinea"><br><br>
+                <input type="text" id="numeroLinea" name="numeroLinea1" value="1"><br><br>
 
                 <label for="descrizione">Descrizione:</label><br>
-                <input type="text" id="descrizione" name="descrizione"><br><br>
+                <input type="text" id="descrizione" name="descrizione1" value="Pagamento bollettini c/c 9001 (diritti Motorizzazione) e c/c 4028 (imposta di bollo)"><br><br>
 
                 <label for="prezzoUnitario">Prezzo Unitario:</label><br>
-                <input type="text" id="prezzoUnitario" name="prezzoUnitario"><br><br>
+                <input type="text" id="prezzoUnitario" name="prezzoUnitario1" value="<%= importo %>"><br><br>
 
                 <label for="prezzoTotale">Prezzo Totale:</label><br>
-                <input type="text" id="prezzoTotale" name="prezzoTotale"><br><br>
+                <input type="text" id="prezzoTotale" name="prezzoTotale1" value="<%= importo %>"><br><br>
 
                 <label for="aliquotaIVA">Aliquota IVA:</label><br>
-                <input type="text" id="aliquotaIVA" name="aliquotaIVA"><br><br>
+                <input type="text" id="aliquotaIVA" name="aliquotaIVA1" value="0.00"><br><br>
 
                 <label for="natura">Natura:</label><br>
-                <input type="text" id="natura" name="natura"><br><br>
+                <input type="text" id="natura" name="natura" value="N1"><br><br>
             </fieldset>
+            <fieldset>
+                <legend>Dettaglio Linee</legend>
+                <label for="numeroLinea">Numero Linea:</label><br>
+                <input type="text" id="numeroLinea" name="numeroLinea2" value="2"><br><br>
 
+                <label for="descrizione">Descrizione:</label><br>
+                <input type="text" id="descrizione" name="descrizione2" value="Costo Servizio"><br><br>
+
+                <label for="prezzoUnitario">Prezzo Unitario:</label><br>
+                <input type="text" id="prezzoUnitario" name="prezzoUnitario2" value="24.59"><br><br>
+
+                <label for="prezzoTotale">Prezzo Totale:</label><br>
+                <input type="text" id="prezzoTotale" name="prezzoTotale2" value="24.59"><br><br>
+
+                <label for="aliquotaIVA">Aliquota IVA:</label><br>
+                <input type="text" id="aliquotaIVA" name="aliquotaIVA2" value="22.00"><br><br>
+            </fieldset>
             <fieldset>
                 <legend>Dati Riepilogo</legend>
                 <label for="aliquotaIVARiepilogo">Aliquota IVA:</label><br>
-                <input type="text" id="aliquotaIVARiepilogo" name="aliquotaIVARiepilogo"><br><br>
+                <input type="text" id="aliquotaIVARiepilogo" name="aliquotaIVARiepilogo1" value="22.00"><br><br>
 
                 <label for="imponibileImporto">Imponibile Importo:</label><br>
-                <input type="text" id="imponibileImporto" name="imponibileImporto"><br><br>
+                <input type="text" id="imponibileImporto" name="imponibileImporto1" value="24.59"><br><br>
 
                 <label for="imposta">Imposta:</label><br>
-                <input type="text" id="imposta" name="imposta"><br><br>
+                <input type="text" id="imposta" name="imposta1" value="5.41"><br><br>
 
                 <label for="esigibilitaIVA">Esigibilita IVA:</label><br>
-                <input type="text" id="esigibilitaIVA" name="esigibilitaIVA"><br><br>
+                <input type="text" id="esigibilitaIVA" name="esigibilitaIVA" value="I"><br><br>
+
+            </fieldset>
+            <fieldset>
+                <legend>Dati Riepilogo</legend>
+                <label for="aliquotaIVARiepilogo">Aliquota IVA:</label><br>
+                <input type="text" id="aliquotaIVARiepilogo" name="aliquotaIVARiepilogo2" value="00.00"><br><br>
+
+                <label for="naturaRiepilogo">Imponibile Importo:</label><br>
+                <input type="text" id="naturaRiepilogo" name="naturaRiepilogo" value="N1"><br><br>
+
+                <label for="imponibileImporto">Imponibile Importo:</label><br>
+                <input type="text" id="imponibileImporto" name="imponibileImporto2" value="30.00"><br><br>
+
+                <label for="imposta">Imposta:</label><br>
+                <input type="text" id="imposta" name="imposta2" value="0.00"><br><br>
 
                 <label for="riferimentoNormativo">Riferimento Normativo:</label><br>
-                <input type="text" id="riferimentoNormativo" name="riferimentoNormativo"><br><br>
+                <input type="text" id="riferimentoNormativo" name="riferimentoNormativo" value="Anticipazioni conto cliente art. 15 DPR 633/72"><br><br>
             </fieldset>
         </fieldset>
 
         <fieldset>
             <legend>Dati Pagamento</legend>
             <label for="condizioniPagamento">Condizioni Pagamento:</label><br>
-            <input type="text" id="condizioniPagamento" name="condizioniPagamento"><br><br>
+            <input type="text" id="condizioniPagamento" name="condizioniPagamento" value="TP02"><br><br>
 
             <fieldset>
                 <legend>Dettaglio Pagamento</legend>
                 <label for="modalitaPagamento">Modalita Pagamento:</label><br>
-                <input type="text" id="modalitaPagamento" name="modalitaPagamento"><br><br>
+                <input type="text" id="modalitaPagamento" name="modalitaPagamento" value="Paypal"><br><br>
 
                 <label for="importoPagamento">Importo Pagamento:</label><br>
-                <input type="text" id="importoPagamento" name="importoPagamento"><br><br>
+                <input type="text" id="importoPagamento" name="importoPagamento" value="<%= importo %>"><br><br>
             </fieldset>
         </fieldset>
 

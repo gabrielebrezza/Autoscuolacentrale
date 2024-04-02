@@ -17,10 +17,9 @@
     <header class="header">
         <!-- <img src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px"> -->
         <h2>Benvenuto <%= nome %></h2>
-        
+        <button class="datiPersonali">Inserisci i tuoi dati</button>
     </header>
     <aside>
-            <!-- <label for="data"> -->
                 <div class="esami">
                     <nav>Prenotazione esami di guida</nav>
                     <% const esame = esami.exams; %>
@@ -61,7 +60,7 @@
                 </div>
                 </span>
     </aside>
-    <%if(esame[0].paid == true){ %>
+    <%if(esame[0].paid == true && personalData.billingInfo != ''){ %>
     <div class="container">
         <% for(var i = 0; i < lezioni.length; i++) { %>
             <% let exclude = false %>
@@ -144,7 +143,9 @@
         <% } %>
         <% } %>
     </div>
-    <% }else{ %>
+    <% }else if(personalData.billingInfo == ''){ %>
+        <h1 class="warning">Devi prima inserire i tuoi dati personali per poter prenotare le lezioni di guida e l'esame</h1>
+    <% }else if(esame[0].paid == true){ %>
         <h1 class="warning">Devi pagare almeno il primo esame per poter prenotare le lezioni di guida</h1>
     <% } %>
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
@@ -162,23 +163,68 @@
         </form>
     </div>
     
+    <div id="personalDataForm" style="display: none;">
+        <form action="/updatePersonalData" method="POST">
+            <div class="dataFormFields">
+                <div class="dataFormField">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="cognome">Cognome:</label>
+                    <input type="text" id="cognome" name="cognome" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="codiceFiscale">Codice Fiscale:</label>
+                    <input type="text" id="codiceFiscale" name="codiceFiscale" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="via">Via:</label>
+                    <input type="text" id="via" name="via" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="nCivico">Numero Civico:</label>
+                    <input type="text" id="nCivico" name="nCivico" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="CAP">CAP:</label>
+                    <input type="text" id="CAP" name="CAP" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="citta">Città:</label>
+                    <input type="text" id="citta" name="citta" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="provincia">Provincia:</label>
+                    <input type="text" id="provincia" name="provincia" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="stato">Stato:</label>
+                    <input type="text" id="stato" name="stato" required>
+                </div>
+            </div>
+            <button type="submit">Aggiorna Dati Personali</button>
+        </form>        
+    </div>
+
+
+
+
     <script>
 $(function() {
     $("#data").datepicker({
-        dateFormat: 'dd/mm/yy', // Imposta il formato della data nel datepicker
-        minDate: 0, // Imposta la data minima come oggi
+        dateFormat: 'dd/mm/yy',
+        minDate: 0, // oggi
         beforeShowDay: function(date) {
             var day = date.getDate();
             var month = date.getMonth() + 1;
             var year = date.getFullYear();
 
-            // Formatta la data nel formato dd/mm/yy
+            // Formattazione data
             var dateString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
             
-            // Verifica se esiste un elemento .section con la data corrispondente
             var sectionExists = $('.section[data-date="' + dateString + '"]').length > 0;
 
-            // Verifica se ci sono guide disponibili per quella data
             if (sectionExists) {
                 return [true, "greenDate", "Ci sono guide libere"];
             } else {
@@ -261,19 +307,26 @@ $(function() {
 
 
         const examBtn = document.querySelector('.daPagare');
-        examBtn.addEventListener('click', () =>{
-            const numEsame = examBtn.dataset.esame;
-            causeInput.value = 'exam'; 
-            numEsameInput.value = numEsame;
-            priceLabel.append(100 + '€');
-            paymentModal.style.display = 'flex';
-            setTimeout(() =>{
-                paymentModal.style.opacity = 1;
-            }, 100)
-            
-        });
+        if(examBtn){
+            examBtn.addEventListener('click', () =>{
+                const numEsame = examBtn.dataset.esame;
+                causeInput.value = 'exam'; 
+                numEsameInput.value = numEsame;
+                priceLabel.append(100 + '€');
+                paymentModal.style.display = 'flex';
+                setTimeout(() =>{
+                    paymentModal.style.opacity = 1;
+                }, 100)
+
+            });
+        }
 
 
+    const personalDataBtn = document.querySelector('.datiPersonali');
+    const personalDataForm = document.getElementById('personalDataForm');
+    personalDataBtn.addEventListener('click', () => {
+        personalDataForm.style.display = 'block';
+    });
 
 
         // // Gestore per cancellare una prenotazione
