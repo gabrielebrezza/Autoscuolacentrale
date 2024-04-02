@@ -164,7 +164,8 @@ router.post('/includeInstructor', authenticateJWT, async (req, res) =>{
 
 router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
-    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor});
+    const guides = await guide.find();
+    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor, guides});
 });
 
 router.post('/create-guide', authenticateJWT, async (req, res) => {

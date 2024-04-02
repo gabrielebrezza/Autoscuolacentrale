@@ -34,7 +34,9 @@ header {
 
 .section-title{
     text-transform: capitalize;
+    text-align: center;
 }
+
 
 section {
     background-color: white;
@@ -56,7 +58,9 @@ table {
 section:has(.removeBooking) tr:has(.book, .bookDisabled){
     display: none;
 }
-
+section:has(.bookDisabled) tr:has(.bookDisabled){
+    display: none;
+}
 th, td {
     padding: 10px;
     border-bottom: 1px solid #dee2e6;
@@ -76,10 +80,6 @@ th, td {
     border-radius: 4px;
     outline: #0000;
     border: 2px solid #0000;
-}
-.bookDisabled{
-    background-color: #80909f;
-    color: white;
 }
 .book {
     cursor: pointer;
@@ -128,7 +128,7 @@ aside span{
     font-style: normal !important;
 }
 aside .esami, aside .bacheca{
-    background: #80909f;
+    background: #0000;
     max-width: 400px;
     width: fit-content;
     height: fit-content;
@@ -221,6 +221,7 @@ aside .bacheca p{
     border: 2px solid #0000 !important;
 }
 .greenDate a {
+    border: 2px solid #0000 !important;
     font-size: 1rem;
     padding: 5px !important;
     text-align: center !important;
@@ -230,6 +231,7 @@ aside .bacheca p{
 
 /* Stili per le date non disponibili */
 .redDate a {
+    border: 2px solid #0000 !important;
     padding: 5px !important;
     /* border: 2px solid red !important; */
     font-size: 1rem;

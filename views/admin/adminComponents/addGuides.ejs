@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles/adminguides.css">
+    <!-- <link rel="stylesheet" href="/styles/adminguides.css"> -->
     <link rel="stylesheet" href="/styles/addGuides.css">
     <title><%= title %></title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -15,7 +15,7 @@
 
 
     
-    
+    <section>
     <div class="container">
         <h2>Crea una Nuova Guida</h2>
         <form action="/create-guide" method="POST">
@@ -50,6 +50,35 @@
             <button type="submit">pubblica</button>
         </form>
     </div>
+
+    <% for (let i = 0; i < guides.length; i++) { %>
+        <% const guide = guides[i]; %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Giorno</th>
+                    <th>Ora</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (let j = 0; j < guide.book.length; j++) { %>
+                    <% const day = guide.book[j]; %>
+                    <% for (let k = 0; k < day.schedule.length; k++) { %>
+                        <% const schedule = day.schedule[k]; %>
+                        <tr>
+                            <td><%= day.day %></td>
+                            <td><%= schedule.hour %></td>
+                        </tr>
+                    <% } %>
+                <% } %>
+            </tbody>
+        </table>
+    <% } %>
+</section>
+
+
+
+
 
     <script type="text/javascript">
         $(function(){

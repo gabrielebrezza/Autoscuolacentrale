@@ -110,9 +110,9 @@ app.post('/verification', async (req, res) => {
         const userName = req.body.username;
         const password = req.body.password;
         const intent = req.body.intent;
-
+        console.log(otpCode);
         let saltRounds, hashedOTP;
-        if (intent == 'login') {
+        if (intent == 'login') { 
             const check = await credentials.findOne({
                 "userName": userName,
                 "email": userEmail,
@@ -349,7 +349,7 @@ app.post('/create-payment', async (req, res) =>{
         //da cambiare in produzione
         returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}`;
         }else if(cause == 'exam'){
-            price = 5;
+            price = 100;
             numEsame = req.body.numEsame;
             description: "Pagamento per l'esame di guida in AutoScuolaCentrale"; 
             name = "Esame di Guida";

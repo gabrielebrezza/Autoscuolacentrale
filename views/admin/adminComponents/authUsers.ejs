@@ -9,7 +9,8 @@
 </head>
 <body>
     <%- include('header.ejs') %>
-    <%if(!needApproval) { %>
+
+    <%if(needApproval != '') { %>
     <div id="cards">
         <% needApproval.forEach(function(item) { %>
           <div class="user-card">

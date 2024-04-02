@@ -78,7 +78,7 @@
     
         <% if(hasAvailableTime || hasStudentBooking) { %>
         <section class="section" data-date="<%= lezioni[i].book[j].day %>">
-            <h2 class="section-title"><%= lezioni[i].instructor %> - <%= lezioni[i].book[j].day %></h2>
+            <h2 class="section-title"> <span>Istruttore: <%= lezioni[i].instructor %></span> <br> Data: <%= lezioni[i].book[j].day %></h2>
             <table class="table">
                 <thead>
                     <tr>
@@ -138,7 +138,7 @@
         <form id="paymentForm" action="/create-payment" method="POST">
             <input type="hidden" id="causeInput" name="cause" value="">
             <div class="form-group">
-                <label for="price" id="priceLabel">Procedi con l'acquisto della lezione. <br> Il totale è di </label>
+                <label for="price" id="priceLabel">Procedi con il pagamento per la lezione di guida. <br> Il totale è di </label>
                 <input type="hidden" id="priceInput" name="price" value="">
                 <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
             </div>
@@ -252,7 +252,7 @@ $(function() {
             const numEsame = examBtn.dataset.esame;
             causeInput.value = 'exam'; 
             numEsameInput.value = numEsame;
-            priceLabel.append(5 + '€');
+            priceLabel.append(100 + '€');
             paymentModal.style.display = 'flex';
             setTimeout(() =>{
                 paymentModal.style.opacity = 1;
