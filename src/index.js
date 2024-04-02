@@ -148,7 +148,7 @@ app.post('/verification', async (req, res) => {
                 cell: userCell,
                 userName: userName,
                 password: password,
-                exams: [{paid: false}],
+                exams: [{paid: false, bocciato: false}],
                 OTP: hashedOTP,
                 approved: false
             }
@@ -284,9 +284,9 @@ app.post('/bookExam', async (req, res) => {
          
         await credentials.findOneAndUpdate(
             { "userName": userName },
-            { $push: { "exams": { "paid": false } } }
+            { $push: { "exams": { "paid": false, "bocciato": false } } }
         );
-        res.sendStatus(200);
+        res.sendStatus(200); 
     } catch (error) {
         console.error('Errore durante la prenotazione dell\'Esame :', error);
         res.status(500).send('Errore durante la prenotazione dell\'Esame ');

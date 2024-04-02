@@ -24,17 +24,30 @@
                 <div class="esami">
                     <nav>Prenotazione esami di guida</nav>
                     <% const esame = esami.exams; %>
+                    <% var print = true; %>
                     <% for( let i = 0; i < esame.length; i++ ) { %>
+                        
                         <% if (i<3) { %>
+                            
                             <div class="esame">
-                                <p><%= i+1 %>° Esame: 
+                                <% if(print == true){ %>
+                                <p><%= i+1 %>° Esame:  
                                     <% if (esame[i].paid == true) { %>
+                                        <% if (esame[i].bocciato == true) { %>
+                                            <% print = true %>
+                                        <% } else{
+                                            print = false;
+                                        }%>
+                                        
                                         <strong class="pagato">PAGATO</strong>  
-                                    <% } else { %> 
+                                    <% } else{ %> 
+                                        <% print = false %>
                                         <strong data-esame="<%= i %>" class="daPagare">DA PAGARE</strong>  
                                     <% } %>
                                 </p>
+                                <% } %>
                             </div>
+                            
                         <% } %>
                     <% } %>
 

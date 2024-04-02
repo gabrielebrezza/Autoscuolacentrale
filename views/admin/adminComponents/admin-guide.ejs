@@ -53,8 +53,9 @@
                                 </td>
                                     <% if(guide.instructor == istruttore){ %>
                                         <td>
-                                            <span class="material-symbols-outlined deleteGuide" data-instructor="<%=istruttore%>" data-time="<%= day.day %> - <%= schedule.hour %>">delete</span>
-                                            <% if(schedule.student){ %>
+                                            <% if (!schedule.student) { %>
+                                                <span class="material-symbols-outlined deleteGuide" data-instructor="<%=istruttore%>" data-time="<%= day.day %> - <%= schedule.hour %>">delete</span>
+                                            <% } else{ %>
                                                 <% for( let n = 0; n < infos.length; n++ ) { %>
                                                     <% if(infos[n].userName == schedule.student){ %>
                                                         <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>

@@ -16,7 +16,8 @@
                 <th>Cellulare</th>
                 <% if (istruttore == 'dave') { %>
                     <th>Esami pagati</th>
-                    <th>azioni</th>
+                    <th>Limitazioni</th>
+                    <th>Boccia</th>
                 <% } %>
             </tr>
         </thead>
@@ -36,7 +37,8 @@
                                 <% } %>
                             </td>
                             <td> <button class="limitation" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
-                    </tr>
+                            <td> <button class="boccia" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
+                        </tr>
                 <% } %>
             <% }else{ %>
                 <% for (let i = 0; i < utenti.length; i++) { %>
@@ -132,6 +134,51 @@
                     }
                 }); 
             });
+
+
+            document.querySelectorAll('.boccia').forEach(button => {
+    button.addEventListener('click', () => {
+        const dataEsame = button.dataset.esame;
+        const esami = JSON.parse(dataEsame);
+        let posizioneBocciato;
+
+        for (let i = 0; i < esami.length; i++) {
+            const esame = esami[i];
+            if (esame.paid && !esame.bocciato) {
+                posizioneBocciato = i;
+                break;
+            }
+        }
+        const studente = button.dataset.student;
+        if (confirm(`Sei sicuro di voler bocciare ${studente}?`)) {
+            fetch('/boccia', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ studente, posizioneBocciato })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Errore nella richiesta');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data);
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Si è verificato un errore:', error);
+            });
+        } else {
+
+        }
+        
+    });
+});
+
+
         </script>
     <% }%>
 

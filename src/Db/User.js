@@ -30,6 +30,10 @@ const LoginSchema = new mongoose.Schema({
             paid: {
                 type: Boolean,
                 required: true
+            },
+            bocciato: {
+                type: Boolean,
+                required: true
             }
         }
     ],

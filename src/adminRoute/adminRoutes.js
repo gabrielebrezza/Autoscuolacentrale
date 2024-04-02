@@ -131,7 +131,7 @@ router.post('/excludeInstructor', authenticateJWT, async (req, res) =>{
     try {
         const student = req.body.student;
         const istruttori = Array.isArray(req.body.istruttori) ? req.body.istruttori : [req.body.istruttori];
-        if(istruttori === undefined){
+        if(istruttori !== undefined){
             await credentials.updateMany({userName: student}, { $addToSet: { exclude: { $each: istruttori.map(name => ({ instructor: name })) } } });
             res.redirect('/admin/users');
         }else{
@@ -147,7 +147,7 @@ router.post('/includeInstructor', authenticateJWT, async (req, res) =>{
     try {
         const student = req.body.student;
         const istruttori = Array.isArray(req.body.istruttori) ? req.body.istruttori : [req.body.istruttori];
-        if(istruttori === undefined){
+        if(istruttori !== undefined){
             const include = await credentials.updateMany(
               { userName: student },
               { $pull: { exclude: { instructor: { $in: istruttori } } } }
@@ -161,7 +161,14 @@ router.post('/includeInstructor', authenticateJWT, async (req, res) =>{
         res.status(500).json({ message: 'Errore durante l\'inclusione degli istruttori' });
     }
 });
-
+router.post('/boccia', authenticateJWT, async (req, res) =>{
+    const {studente, posizioneBocciato} = req.body;
+    const esameBocciato = await credentials.findOneAndUpdate(
+        {"userName" : studente},
+        {$set: { ["exams." + posizioneBocciato + ".bocciato"] : true}}
+    );
+    res.json('Utente Bocciato con successo');
+});
 router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
     const guides = await guide.find();

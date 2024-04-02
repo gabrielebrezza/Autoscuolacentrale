@@ -172,10 +172,20 @@ aside .bacheca p{
 }
 .esame p:has(.pagato){
     color: green;
+    transition: .5s;
+}
+.esame p:has(.pagato):hover{
+    color: #fff;
+    background-color: green;
 }
 .esame p:has(.daPagare){
     color: rgb(114, 29, 29);
     cursor: pointer;
+    transition: .5s;
+}
+.esame p:has(.daPagare):hover{
+    color: #fff;
+    background-color: rgb(114, 29, 29);
 }
 .esame:last-of-type{
     border-bottom: 2px solid #343a40;
@@ -220,12 +230,14 @@ aside .bacheca p{
     background: #0000 !important;
     border: 2px solid #0000 !important;
 }
+.ui-state-disabled, .ui-datepicker-unselectable, .ui-state-default{
+    border: none !important;
+}
 .greenDate a {
     border: 2px solid #0000 !important;
     font-size: 1rem;
     padding: 5px !important;
     text-align: center !important;
-    /* border: 2px solid green !important; */
     color: green !important;
 }
 
@@ -233,7 +245,6 @@ aside .bacheca p{
 .redDate a {
     border: 2px solid #0000 !important;
     padding: 5px !important;
-    /* border: 2px solid red !important; */
     font-size: 1rem;
     text-align: center !important;
     color: red !important;
