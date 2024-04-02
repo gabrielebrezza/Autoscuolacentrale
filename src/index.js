@@ -230,11 +230,25 @@ app.post('/book', async (req, res) => {
     try {
         const { instructor, time, day, duration, student } = req.body;
         const durationInHour = duration/60;
-        // Aggiorna il documento della guida
+        const giorno = time.split(' - ')[0];
+        const hour = time.split(' - ')[1];
         const updatedGuide = await guide.findOneAndUpdate(
-            { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
-            { $set: { "book.$.schedule.$[elem].student": student } },
-            { arrayFilters: [{ "elem.hour": time.split(' - ')[1] }] }
+            { 
+                "instructor": instructor, 
+                "book.day": giorno, 
+                "book.schedule.hour": hour 
+            },
+            { 
+                $set: { 
+                    "book.$[bookElem].schedule.$[scheduleElem].student": student 
+                } 
+            },
+            { 
+                arrayFilters: [
+                    { "bookElem.day": giorno },
+                    { "scheduleElem.hour": hour }
+                ] 
+            }
         );
         const existingOrario = await admin.findOne({"userName": instructor, "ore.data": day});
 
@@ -309,10 +323,9 @@ app.post('/create-payment', async (req, res) =>{
         const student = req.body.student;
         const cause = req.body.cause;
         let instructor;
-        let price, description, returnUrl, day, hour, numEsame;
+        let price, description, returnUrl, day, hour, numEsame, name, sku;
         if(cause == 'lesson'){
         instructor = req.body.instructor;
-        numEsame = '';
         const timeParts = req.body.time.split(' - '); 
         day = timeParts[0];
         hour = timeParts[1];
@@ -330,14 +343,17 @@ app.post('/create-payment', async (req, res) =>{
             return res.status(404).json({ error: "Lesson not found" });
         }
         price = lesson.price;
+        description: "Pagamento per la lezione di guida in AutoScuolaCentrale"; 
+        name = "Lezione di Guida";
+        sku = 1;
         //da cambiare in produzione
         returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}`;
         }else if(cause == 'exam'){
             price = 5;
-            instructor = '';
-            day = '';
-            hour = '';
             numEsame = req.body.numEsame;
+            description: "Pagamento per l'esame di guida in AutoScuolaCentrale"; 
+            name = "Esame di Guida";
+            sku = 2;
             //da cambiare in produzione
             returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
 
@@ -357,8 +373,8 @@ app.post('/create-payment', async (req, res) =>{
                     item_list: {
                         items: [
                             {
-                                name: "Lezione di Guida",
-                                sku: "1",
+                                name: name,
+                                sku: sku,
                                 price: price,
                                 currency: "EUR",
                                 quantity: 1
@@ -369,7 +385,7 @@ app.post('/create-payment', async (req, res) =>{
                         currency: "EUR",
                         total: price
                     },
-                    description: "Pagamento per l'esame di guida in AutoScuolaCentrale" 
+                    description: description
                 }
             ]
         }; 
@@ -389,9 +405,6 @@ app.post('/create-payment', async (req, res) =>{
         res.status(500).json({ error: "Internal server error" });
     }
 });
-
-
-
 
 app.get('/success', async (req, res) =>{
     try {
@@ -432,7 +445,7 @@ app.get('/success', async (req, res) =>{
                     } else {
                         duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
                     }
-                    
+
                     //da cambiare in produzione
                     fetch('http://localhost:5000/book', {
                         method: 'POST',
@@ -444,18 +457,18 @@ app.get('/success', async (req, res) =>{
                     .then(response => {
                         if (response.ok) {
                             console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
-                            // Reindirizza l'utente alla pagina del profilo
-                            res.redirect(`/profile/${req.cookies.username}`);
+
+                            res.redirect(`/profile/:${req.cookies.userName}`);
                         } else {
                             console.error('Errore durante la prenotazione dopo il pagamento');
-                            // Gestisci l'errore in modo appropriato
-                            res.redirect(`/profile/${req.cookies.username}`);
+
+                            res.redirect(`/profile/:${req.cookies.userName}`);
                         }
                     })
                     .catch(error => {
                         console.error('Errore durante la prenotazione dopo il pagamento:', error);
-                        // Gestisci l'errore in modo appropriato
-                        res.redirect(`/profile/${req.cookies.username}`);
+
+                        res.redirect(`/profile/:${req.cookies.userName}`);
                     });
                 }else if(cause == 'exam'){
                     const numEsame = req.query.numEsame;
@@ -469,17 +482,20 @@ app.get('/success', async (req, res) =>{
                     });
                     if (response.ok) {
                         console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento', req.query);
-                        res.redirect(`/profile/${req.cookies.username}`);
+                        
+                        res.redirect(`/profile/:${req.cookies.userName}`);
                     } else {
                         console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
-                        res.redirect(`/profile/${req.cookies.username}`);
+                        
+                        res.redirect(`/profile/:${req.cookies.userName}`);
                     }
                 }
             }
         });
     } catch (error) {
         console.error('Errore generale:', error);
-        res.redirect(`/profile/${req.cookies.username}`);
+
+        res.redirect(`/profile/:${req.cookies.userName}`);
     }
 });
 
@@ -493,9 +509,9 @@ app.get('/cancel', async (req, res) =>{
 
 
 
-app.post('/payPP', async (req, res) => {
-    res.json({ message: 'Form data received successfully'})
-});
+// app.post('/payPP', async (req, res) => {
+//     res.json({ message: 'Form data received successfully'})
+// });
 
 
 
