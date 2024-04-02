@@ -330,11 +330,15 @@ router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT ,
 router.post('/createFattura', authenticateJWT, async (req, res) =>{
     // Estrai i dati dalla richiesta
     const dati = req.body;
-
+ 
     // Costruisci il documento XML della fattura elettronica
     const xml = create({ version: '1.0', encoding: 'UTF-8' })
-    .ele('p:FatturaElettronica xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versione="FPR12" xsi:schemaLocation="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_file_xml_FatturaPA_versione_1.2.xsd"')
-        .ele('FatturaElettronicaHeader')
+    .ele('p:FatturaElettronica')
+    .att('xmlns:ds', 'http://www.w3.org/2000/09/xmldsig#')
+    .att('xmlns:p', 'http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2')
+    .att('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+    .att('versione', 'FPR12')
+    .att('xsi:schemaLocation', 'http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_file_xml_FatturaPA_versione_1.2.xsd')        .ele('FatturaElettronicaHeader')
             .ele('DatiTrasmissione')
                 .ele('IdTrasmittente')
                     .ele('IdPaese').txt(dati.IdPaese).up()
@@ -428,7 +432,11 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                 .ele('CondizioniPagamento').txt(dati.condizioniPagamento).up()
                 .ele('DettaglioPagamento')
                     .ele('ModalitaPagamento').txt(dati.modalitaPagamento).up()
-                    .ele('ImportoPagamento').txt(dati.importoPagamento);
+                    .ele('ImportoPagamento').txt(dati.importoPagamento)
+                .up()
+            .up()
+        .up();
+
     // Converti il documento XML in una stringa
     const xmlString = xml.end({ prettyPrint: true });
 
