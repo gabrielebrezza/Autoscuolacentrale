@@ -183,7 +183,7 @@ router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
 });
 
 router.post('/create-guide', authenticateJWT, async (req, res) => {
-    const {day, startHour, lessonsNumber, duration } = req.body;
+    const {day, startHour, lessonsNumber, duration, locationLink} = req.body;
     const instructor = req.user.username;
     try {
         let oraDiInizio = startHour;
@@ -197,7 +197,7 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
             let finalMinutes = totalMinutes % 60;
             let endTime = `${finalHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`;
             let ora = `${oraDiInizio}-${endTime}`
-            schedule.push({ hour: ora, price: price, student: null }); // assuming student is null initially
+            schedule.push({ hour: ora, price: price, student: null, locationLink: locationLink }); // assuming student is null initially
             oraDiInizio = endTime;
         }
 
@@ -413,7 +413,6 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                     .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo1).up()
                     .ele('ImponibileImporto').txt(dati.imponibileImporto1).up()
                     .ele('Imposta').txt(dati.imposta1).up()
-                    .ele('RiferimentoNormativo').txt(dati.RiferimentoNormativo).up()
                     .ele('TotaleDocumento').txt(dati.TotaleDocumento).up()
                 .up()
             .up()

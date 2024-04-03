@@ -29,6 +29,10 @@ const guideSchema = new mongoose.Schema({
                         type: Number,
                         required: true
                     },
+                    locationLink: {
+                        type: String,
+                        required: false
+                    },
                     student: {
                         type: String,
                         required: false

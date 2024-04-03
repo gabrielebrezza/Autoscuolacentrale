@@ -211,7 +211,7 @@
                 <input type="text" id="prezzoTotale" name="prezzoTotale1" value="<%= Number(importo).toFixed(2) %>"><br><br>
 
                 <label for="aliquotaIVA">Aliquota IVA:</label><br>
-                <input type="text" id="aliquotaIVA" name="aliquotaIVA1" value="0.00"><br><br>
+                <input type="text" id="aliquotaIVA" name="aliquotaIVA1" value="22.00"><br><br>
 
                 <label for="natura">Natura:</label><br>
                 <input type="text" id="natura" name="natura1" value="N01"><br><br>
@@ -219,19 +219,20 @@
             <fieldset>
                 <legend>Dati Riepilogo</legend>
                 <label for="aliquotaIVARiepilogo">Aliquota IVA:</label><br>
-                <input type="text" id="aliquotaIVARiepilogo" name="aliquotaIVARiepilogo1" value="0.00"><br><br>
+                <input type="text" id="aliquotaIVARiepilogo" name="aliquotaIVARiepilogo1" value="22.00"><br><br>
 
                 <label for="imponibileImporto">Imponibile Importo:</label><br>
-                <input type="text" id="imponibileImporto" name="imponibileImporto1" value="<%= Number(importo).toFixed(2) %>"><br><br>
+                <input type="text" id="imponibileImporto" name="imponibileImporto1" value="<%= (Number(importo)/1.22).toFixed(2) %>"><br><br>
 
                 <label for="imposta">Imposta:</label><br>
-                <input type="text" id="imposta" name="imposta1" value="0.00"><br><br>
+                <input type="text" id="imposta" name="imposta1" value="<%= (Number(importo).toFixed(2)-(Number(importo)/1.22).toFixed(2)).toFixed(2) %>"><br><br>
 
                 <label for="esigibilitaIVA">Esigibilita IVA:</label><br>
                 <input type="text" id="esigibilitaIVA" name="esigibilitaIVA" value="I"><br><br>
 
+                <!-- //per le guide no per l'esame si
                 <label for="RiferimentoNormativo">Riferimento Normativo:</label><br>
-                <input type="text" id="RiferimentoNormativo" name="RiferimentoNormativo" value="Anticipazioni conto cliente art. 15 DPR 633/72"><br><br>
+                <input type="text" id="RiferimentoNormativo" name="RiferimentoNormativo" value="Anticipazioni conto cliente art. 15 DPR 633/72"><br><br> -->
 
                 <label for="TotaleDocumento">Totale Documento:</label><br>
                 <input type="text" id="TotaleDocumento" name="TotaleDocumento" value="<%= Number(importo).toFixed(2)%>"><br><br>
