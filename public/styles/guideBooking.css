@@ -47,6 +47,7 @@ section {
     max-width: 300px;
     height: fit-content;
     overflow: hidden;
+    display: none;
 }
 
 table {
@@ -104,6 +105,9 @@ th, td {
     font-weight: 50;
     word-spacing: 5px;
     font-style: normal !important;
+}
+.noGuide{
+    display: none;
 }
 aside{
     display: flex;
@@ -364,10 +368,15 @@ aside .bacheca p{
     display: block;
     margin-bottom: 5px;
 }
-
- #personalDataForm input[type="text"] {
-    width: fit-content;
-     padding: 8px;
+#personalDataForm select{
+    padding-inline: 50px;
+    color: rebeccapurple;
+    font-size: 1rem;
+}
+ #personalDataForm input[type="text"],#personalDataForm select {
+    max-width: 200px;
+    width: 100%;
+    padding: 8px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 4px;

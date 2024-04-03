@@ -114,10 +114,13 @@
                 includeForm.style.display = 'none';
                 instructorCheckBox.forEach(checkbox => {
                     const instructorName = checkbox.value;
+                    var label = checkbox.parentNode;
                     if (excludedInstructors.includes(instructorName)) {
+                        label.style.color = 'red';
                         checkbox.checked = true;
                         checkbox.disabled = true;
                     } else {
+                        label.style.color = 'green';
                         checkbox.checked = false;
                         checkbox.disabled = false;
                     }
@@ -128,10 +131,13 @@
                 excludeForm.style.display = 'none';
                 instructorCheckBox.forEach(checkbox => {
                     const instructorName = checkbox.value;
+                    var label = checkbox.parentNode;
                     if (excludedInstructors.includes(instructorName)) {
+                        label.style.color = 'red';
                         checkbox.checked = false;
                         checkbox.disabled = false;
                     } else {
+                        label.style.color = 'green';
                         checkbox.checked = true;
                         checkbox.disabled = true;
                     }

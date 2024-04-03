@@ -231,8 +231,6 @@ app.get('/profile/:userName', isAuthenticated, async (req, res) => {
 app.post('/updatePersonalData', async (req, res) => {
     const {nome, cognome, codiceFiscale, via, nCivico, CAP, citta, provincia, stato} = req.body;
     const user = req.cookies.userName;
-    console.log(nome, cognome, codiceFiscale, via, nCivico, CAP, citta, provincia, stato);
-    console.log(user);
     const updateData = await credentials.findOneAndUpdate(
         {"userName": user},
         {
@@ -251,7 +249,7 @@ app.post('/updatePersonalData', async (req, res) => {
             }
         }
     );
-    console.log(updateData);
+    res.redirect(`/profile/:${req.cookies.userName}`);
 });
 
 app.post('/book', async (req, res) => {

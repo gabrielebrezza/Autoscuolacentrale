@@ -148,11 +148,12 @@
     <% }else if(esame[0].paid == true){ %>
         <h1 class="warning">Devi pagare almeno il primo esame per poter prenotare le lezioni di guida</h1>
     <% } %>
+    <h1 class="warning noGuide">Non ci sono guide in programma per il giorno selezionato</h1>
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <form id="paymentForm" action="/create-payment" method="POST">
             <input type="hidden" id="causeInput" name="cause" value="">
             <div class="form-group">
-                <label for="price" id="priceLabel">Procedi con il pagamento per la lezione di guida. <br> Il totale è di </label>
+                <label for="price" id="priceLabel"></label>
                 <input type="hidden" id="priceInput" name="price" value="">
                 <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
             </div>
@@ -196,20 +197,16 @@
                 </div>
                 <div class="dataFormField">
                     <label for="provincia">Provincia:</label>
-                    <input type="text" id="provincia" name="provincia" required>
+                    <select id="provincia" name="provincia"></select>
                 </div>
                 <div class="dataFormField">
-                    <label for="stato">Stato:</label>
-                    <input type="text" id="stato" name="stato" required>
+                    <label for="stato">Stato (Sigla):</label>
+                    <input type="text" id="stato" name="stato" value="IT" required>
                 </div>
             </div>
             <button type="submit">Aggiorna Dati Personali</button>
         </form>        
     </div>
-
-
-
-
     <script>
 $(function() {
     $("#data").datepicker({
@@ -219,12 +216,12 @@ $(function() {
             var day = date.getDate();
             var month = date.getMonth() + 1;
             var year = date.getFullYear();
-
+        
             // Formattazione data
             var dateString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
-            
-            var sectionExists = $('.section[data-date="' + dateString + '"]').length > 0;
 
+            var sectionExists = $('.section[data-date="' + dateString + '"]').length > 0;
+        
             if (sectionExists) {
                 return [true, "greenDate", "Ci sono guide libere"];
             } else {
@@ -232,23 +229,47 @@ $(function() {
             }
         },
         onSelect: function(dateText, inst) {
-            var selectedDate = this.value;
-            var Available = inst;
-            console.log(Available);
-            var sections = document.querySelectorAll('.section');
-            sections.forEach(function (section) {
-                if (section.getAttribute('data-date') === selectedDate) {
-                    section.style.display = 'block';
-                } else {
-                    section.style.display = 'none';
-                }
-            });
+            updateSectionsVisibility(dateText);
             console.log("Data selezionata: " + dateText);
         }
     });
+
+    selectFirstGreenDate();
 });
 
+function selectFirstGreenDate() {
+    console.log("Sto cercando la prima data disponibile...");
+    var firstGreenDateStr = $('.greenDate [data-date]').attr('data-date');
+    if (firstGreenDateStr) {
+        console.log("Prima data greenDate trovata:", firstGreenDateStr);
+        const oggi = (new Date()).getDay();
+        $("#data").datepicker("setDate", Number(firstGreenDateStr - oggi));
+        updateSectionsVisibility($("#data").val());
+    } else {
+        console.log("Nessuna data greenDate trovata.");
+    }
+}
 
+function updateSectionsVisibility(selectedDate) {
+    var sections = document.querySelectorAll('.section');
+    var noGuideElement = document.querySelector('.noGuide');
+    var noGuide = true;
+    
+    sections.forEach(function (section) {
+        if (section.getAttribute('data-date') === selectedDate) {
+            section.style.display = 'block';
+            noGuide = false;
+        } else {
+            section.style.display = 'none';
+        }
+    });
+
+    if (noGuide) {
+        noGuideElement.style.display = 'block';
+    } else {
+        noGuideElement.style.display = 'none';
+    }
+}
 
 
     </script>
@@ -276,7 +297,7 @@ $(function() {
             causeInput.value = 'lesson';
             instructorInput.value = instructor;
             timeInput.value = time;
-            priceLabel.append(price + '€');
+            priceLabel.innerHTML = 'Procedi con il pagamento per la lezione di guida. <br> Il totale è di ' + price + '€';
             paymentModal.style.display = 'flex';
             setTimeout(() =>{
                 paymentModal.style.opacity = 1;
@@ -285,25 +306,7 @@ $(function() {
 
 
 
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        var yyyy = today.getFullYear(); 
-        today = dd + '/' + mm + '/' + yyyy;
-        document.addEventListener('DOMContentLoaded', () =>{
-            const section = document.querySelectorAll('.section');
-                section.forEach((section) => {
-                    if(section.dataset.date == today){
-                        section.style.display = 'block';
-                        console.log('trovato oggi');
-                    }else{
-                        section.style.display = 'none';
-                        console.log('diverso da oggi');
-                    }
-                });
 
-           
-        });
 
 
         const examBtn = document.querySelector('.daPagare');
@@ -312,7 +315,7 @@ $(function() {
                 const numEsame = examBtn.dataset.esame;
                 causeInput.value = 'exam'; 
                 numEsameInput.value = numEsame;
-                priceLabel.append(100 + '€');
+                priceLabel.innerHTML = 'Procedi con il pagamento dell\'esame di guida. <br> Il totale è di ' + 100 + '€';
                 paymentModal.style.display = 'flex';
                 setTimeout(() =>{
                     paymentModal.style.opacity = 1;
@@ -364,5 +367,30 @@ $(function() {
         //     });
         // }
     </script>
+
+<script>
+    const provinceList = [
+        "AG", "AL", "AN", "AR", "AP", "AT", "AV", "BA", "BT", "BL",
+        "BN", "BG", "BI", "BO", "BZ", "BS", "BR", "CA", "CL", "CB",
+        "CI", "CE", "CT", "CZ", "CH", "CO", "CS", "CR", "KR", "CN",
+        "EN", "FM", "FE", "FI", "FG", "FC", "FR", "GE", "GO", "GR",
+        "IM", "IS", "AQ", "SP", "LT", "LE", "LC", "LI", "LO", "LU",
+        "MC", "MN", "MS", "MT", "VS", "ME", "MI", "MO", "MB", "NA",
+        "NO", "NU", "OG", "OT", "OR", "PD", "PA", "PR", "PV", "PG",
+        "PU", "PE", "PC", "PI", "PT", "PN", "PZ", "PO", "RG", "RA",
+        "RC", "RE", "RI", "RN", "RM", "RO", "SA", "SS", "SV", "SI",
+        "SR", "SO", "TA", "TE", "TR", "TO", "TP", "TN", "TV", "TS",
+        "UD", "AO", "VA", "VE", "VB", "VC", "VR", "VV", "VI", "VT"
+    ];
+
+    const selectProvince = document.getElementById("provincia");
+
+    provinceList.forEach(province => {
+        const option = document.createElement("option");
+        option.value = province;
+        option.textContent = province;
+        selectProvince.appendChild(option);
+    });
+</script>
 </body>
 </html>

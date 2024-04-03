@@ -11,6 +11,7 @@ const credentials = require('../Db/User');
 const Admin = require('../Db/Admin');
 const guide = require('../Db/Guide');
 const bacheca = require('../Db/Bacheca');
+const numeroFattura = require('../Db/NumeroFattura');
 
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 // Funzione per la generazione di token JWT
@@ -323,9 +324,10 @@ router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT ,
         {"userName": userName},
         {"billingInfo": 1}
     );
-        const dati = datiFatturazione.billingInfo;
+    const nFattura = await numeroFattura.find();
+    const dati = datiFatturazione.billingInfo;
     
-    res.render('admin/adminComponents/creaFattura', {dati: dati, userName, tipo, data, importo});
+    res.render('admin/adminComponents/creaFattura', {dati: dati, userName, tipo, data, importo, nFattura});
 });
 router.post('/createFattura', authenticateJWT, async (req, res) =>{
     // Estrai i dati dalla richiesta
@@ -407,25 +409,12 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                     .ele('AliquotaIVA').txt(dati.aliquotaIVA1).up()
                     .ele('Natura').txt(dati.natura1).up()
                 .up()
-                .ele('DettaglioLinee')
-                    .ele('NumeroLinea').txt(dati.numeroLinea2).up()
-                    .ele('Descrizione').txt(dati.descrizione2).up()
-                    .ele('PrezzoUnitario').txt(dati.prezzoUnitario2).up()
-                    .ele('PrezzoTotale').txt(dati.prezzoTotale2).up()
-                    .ele('AliquotaIVA').txt(dati.aliquotaIVA2).up()
-                .up()
                 .ele('DatiRiepilogo')
                     .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo1).up()
                     .ele('ImponibileImporto').txt(dati.imponibileImporto1).up()
                     .ele('Imposta').txt(dati.imposta1).up()
-                    .ele('EsigibilitaIVA').txt(dati.esigibilitaIVARiepilogo).up()
-                .up()
-                .ele('DatiRiepilogo')
-                    .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo2).up()
-                    .ele('Natura').txt(dati.naturaRiepilogo).up()
-                    .ele('ImponibileImporto').txt(dati.imponibileImporto2).up()
-                    .ele('Imposta').txt(dati.imposta2).up()
-                    .ele('RiferimentoNormativo').txt(dati.riferimentoNormativo).up()
+                    .ele('RiferimentoNormativo').txt(dati.RiferimentoNormativo).up()
+                    .ele('TotaleDocumento').txt(dati.TotaleDocumento).up()
                 .up()
             .up()
             .ele('DatiPagamento')
@@ -439,9 +428,33 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
 
     // Converti il documento XML in una stringa
     const xmlString = xml.end({ prettyPrint: true });
+    const cliente = dati.nomeCliente + dati.cognomeCliente;
+    const data = dati.data.replace(/\//g, '-'); 
+    const nomeFile = `${dati.IdPaese}${dati.IdCodice}_${dati.progressivoInvio}.xml`;
+    fs.writeFile(nomeFile, xmlString, async (err) => {
+    if (err) {
+        console.error('Errore durante il salvataggio del file:', err);
+        res.status(500).send('Errore durante il salvataggio del file');
+    } else {
 
-    // Invia la stringa XML come risposta
-    res.set('Content-Type', 'application/xml');
-    res.send(xmlString);
+        const updateFatturaDB = await credentials.findOneAndUpdate(
+            {
+                "userName": dati.userName,
+                "fatturaDaFare.data": dati.data,
+                "fatturaDaFare.tipo": dati.tipologiaFattura,
+                "fatturaDaFare.importo": dati.importoTotaleDocumento
+            },
+            {
+                $set: {
+                    "fatturaDaFare.$.emessa": true
+                }
+            }
+        );
+        const nFattura = await numeroFattura.updateOne({$inc: {"numero": 1}});
+        res.set('Content-Type', 'application/xml');
+        res.set('Content-Disposition', 'attachment; filename="' + nomeFile + '"');
+        res.send(xmlString); 
+    }
+});
 });
 module.exports = router;
