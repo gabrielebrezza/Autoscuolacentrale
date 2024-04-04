@@ -13,6 +13,7 @@ const credentials = require('./Db/User');
 const admin = require('./Db/Admin');
 const guide = require('./Db/Guide');
 const bacheca = require('./Db/Bacheca');
+const formatoEmail = require('./Db/formatoEmail');
 
 //routes
 const adminRoutes = require('./adminRoute/adminRoutes');
@@ -70,7 +71,14 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
         text = 'Il tuo account è stato creato con successo, questo è il codice di verifica per accedere: ' + otpCode;
     }else if(intent == 'bookGuide'){
         subject = 'Prenotazione effettuata per lezione di guida';
-        text = `Gentile ${nome} ${cognome} ti confermiamo la prenotazione della guida per il giorno ${day} nella fascia oraria ${hour}. Clicca qui per vedere il punto di partenza della tua lezione ${locationlink}`;
+        const content = await formatoEmail.find({})
+        text = content[0].content
+            .replace('(NOME)', nome)
+            .replace('(COGNOME)', cognome)
+            .replace('(DATA)', day)
+            .replace('(DAORA)', hour.split('-')[0]) 
+            .replace('(AORA)', hour.split('-')[1]) 
+            .replace('(LINKPOSIZIONE)', locationlink)
     }
 
     const transporter = nodemailer.createTransport({
@@ -99,7 +107,7 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
             res.sendStatus(500);
         } else {
             console.log('Email inviata con successo a:', username);
-            if(intent == 'signup' || intent == 'signup'){
+            if(intent == 'login' || intent == 'signup'){
                 res.redirect(`/verificationCode/:${username}`);
             }else if(intent == 'bookGuide'){
                 
@@ -117,6 +125,7 @@ app.post('/verification', async (req, res) => {
         const userName = req.body.username;
         const password = req.body.password;
         const intent = req.body.intent;
+
         console.log(otpCode);
         let saltRounds, hashedOTP;
         if (intent == 'login') { 
@@ -148,6 +157,7 @@ app.post('/verification', async (req, res) => {
                 res.send('<h1>Credenziali errate</h1>');
             }
         } else if (intent == 'signup') {
+            const { nome, cognome, codiceFiscale, via, nCivico, CAP, citta, provincia, stato} = req.body;
             saltRounds = await bcrypt.genSalt(10);
             hashedOTP = await bcrypt.hash(String(otpCode), 10);
             const data = {
@@ -155,9 +165,27 @@ app.post('/verification', async (req, res) => {
                 cell: userCell,
                 userName: userName,
                 password: password,
-                exams: [{paid: false, bocciato: false}],
                 OTP: hashedOTP,
-                approved: false
+                approved: false,
+                exams: [
+                    {
+                        paid: false, 
+                        bocciato: false
+                    }
+                ],
+                billingInfo: [
+                    {
+                        nome: nome,
+                        cognome: cognome,
+                        codiceFiscale: codiceFiscale,
+                        via: via,
+                        nCivico: nCivico,
+                        CAP: CAP,
+                        citta: citta,
+                        provincia: provincia,
+                        stato: stato
+                    }
+                ]
             }
             const existingUser = await credentials.findOne({userName: data.userName});
             const existingEmail = await credentials.findOne({email: data.email});
@@ -233,30 +261,6 @@ app.get('/profile/:userName', isAuthenticated, async (req, res) => {
     const exclude = await credentials.findOne({ "userName": nome }, { exclude: 1 });
     const excludeInstructor = exclude.exclude;
     res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData});
-});
-
-app.post('/updatePersonalData', async (req, res) => {
-    const {nome, cognome, codiceFiscale, via, nCivico, CAP, citta, provincia, stato} = req.body;
-    const user = req.cookies.userName;
-    const updateData = await credentials.findOneAndUpdate(
-        {"userName": user},
-        {
-            $set: {
-                "billingInfo": {
-                    "nome": nome,
-                    "cognome": cognome,
-                    "codiceFiscale": codiceFiscale,
-                    "via": via,
-                    "nCivico": nCivico,
-                    "CAP": CAP,
-                    "citta": citta,
-                    "provincia": provincia,
-                    "stato": stato
-                }   
-            }
-        }
-    );
-    res.redirect(`/profile/:${req.cookies.userName}`);
 });
 
 app.post('/book', async (req, res) => {

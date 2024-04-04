@@ -22,17 +22,111 @@
         </div>
         <div id="signup" class="auth-form" >
             <h1>Sign Up</h1>
-            <form method="post" action="/verification">
+            <form>
                 <input type="hidden" name="intent" value="signup">
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="tel" id="phone" name="phone" placeholder="Cellulare" pattern="[0-9]{3}[0-9]{3}[0-9]{4}">
-                <input type="text" name="username" placeholder="Username" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit"><span>Sign Up</span></button>
+                <input type="email" name="email" id="signupEmail" placeholder="Email" required>
+                <input type="tel" name="phone" id="signupPhone" placeholder="Cellulare" pattern="[0-9]{3}[0-9]{3}[0-9]{4}">
+                <input type="text" name="username" id="signupUsername" placeholder="Username" required>
+                <input type="password" name="password" id="signupPassword" placeholder="Password" required>
+                <h6 class="aggiungiDati"><span>aggiungi dati personali</span></h6>
             </form>
             <p id="loginBtn"><a onclick="toggleForm('login')">Accedi</a></p>
         </div>
     </div>
+    <script>
+
+        const addData = document.querySelector('.aggiungiDati');
+        addData.addEventListener('click', () =>{
+            const signupEmail = document.getElementById('signupEmail').value;
+            const signupPhone = document.getElementById('signupPhone').value;
+            const signupUsername = document.getElementById('signupUsername').value;
+            const signupPassword = document.getElementById('signupPassword').value;
+            const datiEmail = document.getElementById('datiEmail'); 
+            const datiPhone = document.getElementById('datiPhone');
+            const datiUsername = document.getElementById('datiUsername');
+            const datiPassword = document.getElementById('datiPassword');
+            datiEmail.value = signupEmail;
+            datiPhone.value = signupPhone;
+            datiUsername.value = signupUsername;
+            datiPassword.value = signupPassword;
+            document.getElementById('personalDataForm').style.display = 'block';
+        });
+    </script>
+
+
+        <div id="personalDataForm" style="display: none;">
+        <form action="/verification" method="POST">
+            <input type="hidden" name="intent" value="signup">
+            <input type="hidden" id="datiEmail" name="email">
+            <input type="hidden" id="datiPhone" name="phone">
+            <input type="hidden" id="datiUsername" name="username">
+            <input type="hidden" id="datiPassword" name="password">
+            <div class="dataFormFields">
+                <div class="dataFormField">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="cognome">Cognome:</label>
+                    <input type="text" id="cognome" name="cognome" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="codiceFiscale">Codice Fiscale:</label>
+                    <input type="text" id="codiceFiscale" name="codiceFiscale" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="via">Via:</label>
+                    <input type="text" id="via" name="via" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="nCivico">Numero Civico:</label>
+                    <input type="text" id="nCivico" name="nCivico" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="CAP">CAP:</label>
+                    <input type="text" id="CAP" name="CAP" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="citta">Città:</label>
+                    <input type="text" id="citta" name="citta" required>
+                </div>
+                <div class="dataFormField">
+                    <label for="provincia">Provincia:</label>
+                    <select id="provincia" name="provincia"></select>
+                </div>
+                <div class="dataFormField">
+                    <label for="stato">Stato (Sigla):</label>
+                    <input type="text" id="stato" name="stato" value="IT" required>
+                </div>
+            </div>
+            <button type="submit">Registrati</button>
+        </form>        
+    </div>
+    <script>
+        const provinceList = [
+            "AG", "AL", "AN", "AR", "AP", "AT", "AV", "BA", "BT", "BL",
+            "BN", "BG", "BI", "BO", "BZ", "BS", "BR", "CA", "CL", "CB",
+            "CI", "CE", "CT", "CZ", "CH", "CO", "CS", "CR", "KR", "CN",
+            "EN", "FM", "FE", "FI", "FG", "FC", "FR", "GE", "GO", "GR",
+            "IM", "IS", "AQ", "SP", "LT", "LE", "LC", "LI", "LO", "LU",
+            "MC", "MN", "MS", "MT", "VS", "ME", "MI", "MO", "MB", "NA",
+            "NO", "NU", "OG", "OT", "OR", "PD", "PA", "PR", "PV", "PG",
+            "PU", "PE", "PC", "PI", "PT", "PN", "PZ", "PO", "RG", "RA",
+            "RC", "RE", "RI", "RN", "RM", "RO", "SA", "SS", "SV", "SI",
+            "SR", "SO", "TA", "TE", "TR", "TO", "TP", "TN", "TV", "TS",
+            "UD", "AO", "VA", "VE", "VB", "VC", "VR", "VV", "VI", "VT"
+        ];
+    
+        const selectProvince = document.getElementById("provincia");
+    
+        provinceList.forEach(province => {
+            const option = document.createElement("option");
+            option.value = province;
+            option.textContent = province;
+            selectProvince.appendChild(option);
+        });
+    </script>
+
     <script>
     // window.addEventListener("resize", toggleForm('signup'));
 

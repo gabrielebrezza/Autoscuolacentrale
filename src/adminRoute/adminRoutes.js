@@ -12,6 +12,7 @@ const Admin = require('../Db/Admin');
 const guide = require('../Db/Guide');
 const bacheca = require('../Db/Bacheca');
 const numeroFattura = require('../Db/NumeroFattura');
+const formatoEmail = require('../Db/formatoEmail');
 
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 // Funzione per la generazione di token JWT
@@ -286,7 +287,7 @@ router.post('/approveUser', async (req, res) =>{
     );
     res.redirect('/admin/approvazioneUtenti')
 });
-router.post('/disapproveUser', async (req, res) =>{
+router.post('/disapproveUser', authenticateJWT, async (req, res) =>{
     const userName = req.body.userName;
     const email = req.body.email;
     const cell = req.body.cell;
@@ -307,6 +308,16 @@ router.get('/admin/oreIstruttori', authenticateJWT, async (req, res) => {
     res.render('admin/adminComponents/oreIstruttori', {title: 'Admin - Orari Istruttori', oreIstruttori});
 });
 
+router.get('/admin/formatoEmail', authenticateJWT, async (req, res) => {
+    const formato = await formatoEmail.find({});
+    res.render('admin/adminComponents/formatoEmail', {title: 'Admin - Formato Email', formato});
+});
+router.post('/editFormatoEmail', authenticateJWT, async (req, res) => {
+    const content = req.body.formatoField;
+
+    const editFormato = await formatoEmail.findOneAndUpdate({}, {"content": content});
+    res.redirect('/admin/formatoEmail');
+});
 router.get('/admin/fatture/:utente',authenticateJWT , async (req, res)=>{
     const userName = req.params.utente.replace(':', '');
     const operazioniDaFatturare = await credentials.findOne(
@@ -400,7 +411,6 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                     .ele('Divisa').txt(dati.divisa).up()
                     .ele('Data').txt(data).up()
                     .ele('Numero').txt(dati.numeroDocumento).up()
-                    .ele('ImportoTotaleDocumento').txt(dati.importoTotaleDocumento).up()
             .up()
         .up()
         .ele('DatiBeniServizi')
@@ -416,7 +426,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                 .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo1).up()
                 .ele('ImponibileImporto').txt(dati.imponibileImporto1).up()
                 .ele('Imposta').txt(dati.imposta1).up()
-                .ele('TotaleDocumento').txt(dati.TotaleDocumento).up()
+                // .ele('TotaleDocumento').txt(dati.TotaleDocumento).up()
             .up()
         .up()
         .ele('DatiPagamento')

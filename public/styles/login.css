@@ -112,7 +112,7 @@
      margin-inline: 10px;
      margin-block: 15px;
 }
- button {
+ button, h6{
      position: relative;
      display: inline-block;
      border-radius: 4px;
@@ -122,18 +122,18 @@
      text-align: center;
      font-size: clamp(.5rem, 5vw , 1.5rem);
      padding: 10px;
-     width: 130px;
+     width: fit-content;
      transition: all 0.5s;
      cursor: pointer;
      margin: 5px;
 }
- button span {
+ button span ,h6 span {
      cursor: pointer;
      display: inline-block;
      position: relative;
      transition: 0.5s;
 }
- button span:after {
+ button span:after,  h6 span:after {
      content: '»';
      font-size: xx-large;
      position: absolute;
@@ -141,10 +141,10 @@
      right: -15px;
      transition: 0.5s;
 }
- button:hover span {
+ button:hover span, h6:hover span{
      padding-right: 25px;
 }
- button:hover span:after {
+ button:hover span:after, h6:hover span:after {
      opacity: 1;
      right: 0;
 }
@@ -189,3 +189,67 @@
     }
 }
  
+
+
+
+
+
+#personalDataForm {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    width: 60vw;
+}
+#personalDataForm form{
+    filter: drop-shadow(15px 15px 2px #32327f93);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+.dataFormFields{
+    width: 30vw;
+    height: 500px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap:wrap;
+}
+ #personalDataForm label {
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 5px;
+}
+#personalDataForm select{
+    padding-inline: 50px;
+    color: rebeccapurple;
+    font-size: 1rem;
+}
+ #personalDataForm input[type="text"],#personalDataForm select {
+    width: 200px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1.1rem;
+} 
+
+#personalDataForm button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#personalDataForm button[type="submit"]:hover {
+    background-color: #45a049;
+}

@@ -190,8 +190,6 @@
             <label for="numeroDocumento">Numero Documento:</label><br>
             <input type="text" id="numeroDocumento" name="numeroDocumento" value="d00<%= nFattura[0].numero %>"><br><br>
 
-            <label for="importoTotaleDocumento">Importo Totale Documento:</label><br>
-            <input type="text" id="importoTotaleDocumento" name="importoTotaleDocumento" value="<%= Number(importo).toFixed(2) %>"><br><br>
         </fieldset>
 
         <fieldset>
@@ -214,7 +212,7 @@
                 <input type="text" id="aliquotaIVA" name="aliquotaIVA1" value="22.00"><br><br>
 
                 <label for="natura">Natura:</label><br>
-                <input type="text" id="natura" name="natura1" value="N01"><br><br>
+                <input type="text" id="natura" name="natura1" value="N1"><br><br>
             </fieldset>
             <fieldset>
                 <legend>Dati Riepilogo</legend>
@@ -228,14 +226,14 @@
                 <input type="text" id="imposta" name="imposta1" value="<%= (Number(importo).toFixed(2)-(Number(importo)/1.22).toFixed(2)).toFixed(2) %>"><br><br>
 
                 <label for="esigibilitaIVA">Esigibilita IVA:</label><br>
-                <input type="text" id="esigibilitaIVA" name="esigibilitaIVA" value="I"><br><br>
+                <input type="text" id="esigibilitaIVA" name="esigibilitaIVA" value="IVA ad esigibilità immediata"><br><br>
 
                 <!-- //per le guide no per l'esame si
                 <label for="RiferimentoNormativo">Riferimento Normativo:</label><br>
                 <input type="text" id="RiferimentoNormativo" name="RiferimentoNormativo" value="Anticipazioni conto cliente art. 15 DPR 633/72"><br><br> -->
 
-                <label for="TotaleDocumento">Totale Documento:</label><br>
-                <input type="text" id="TotaleDocumento" name="TotaleDocumento" value="<%= Number(importo).toFixed(2)%>"><br><br>
+                <!-- <label for="TotaleDocumento">Totale Documento:</label><br>
+                <input type="text" id="TotaleDocumento" name="TotaleDocumento" value="<# Number(importo).toFixed(2)#>"><br><br> -->
 
             </fieldset>
         </fieldset>
@@ -248,7 +246,7 @@
             <fieldset>
                 <legend>Dettaglio Pagamento</legend>
                 <label for="modalitaPagamento">Modalita Pagamento:</label><br>
-                <input type="text" id="modalitaPagamento" name="modalitaPagamento" value="Paypal"><br><br>
+                <input type="text" id="modalitaPagamento" name="modalitaPagamento" value="MP08"><br><br>
 
                 <label for="importoPagamento">Importo Pagamento:</label><br>
                 <input type="text" id="importoPagamento" name="importoPagamento" value="<%= Number(importo).toFixed(2) %>"><br><br>

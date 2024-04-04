@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="/styles/adminBacheca.css"> -->
+    <title><%= title %></title>
+    <style>
+        /* Stile per il body */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Stile per il container */
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Stile per il form */
+        form {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        /* Stile per la tabella */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+    
+        table, th, td {
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        /* Stile per i paragrafi */
+        p {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        /* Stile per i label */
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #000;
+        }
+
+        /* Stile per il textarea */
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Stile per il bottone */
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <div class="container">
+        
+        <form class="bacheca" action="/editFormatoEmail" method="POST">
+            <div class="legenda">
+                <p>Usa come segnaposto i seguenti valori che verrano sostituiti nell'email</p>
+                <table>
+                    <tr><td>(NOME)</td></tr>
+                    <tr><td>(COGNOME)</td></tr>
+                    <tr><td>(DATA)</td></tr>
+                    <tr><td>(DAORA)</td></tr>
+                    <tr><td>(AORA)</td></tr>
+                    <tr><td>(LINKPOSIZIONE)</td></tr>
+                </table>
+            </div>
+            <div class="fields">
+                <label for="formatoField">Modifica il formato per le email di prenotazione guide:</label>
+                <textarea name="formatoField" rows="5" cols="50"><%= formato[0].content %></textarea>
+                <button type="submit">Conferma</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
