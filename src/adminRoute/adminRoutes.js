@@ -183,48 +183,50 @@ router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
 });
 
 router.post('/create-guide', authenticateJWT, async (req, res) => {
-    const {day, startHour, lessonsNumber, duration, locationLink} = req.body;
+    const { startHour, lessonsNumber, duration, locationLink} = req.body;
     const instructor = req.user.username;
+    const days = req.body.day.split(", "); // Ottieni un array di date nel formato "gg/mm/aaaa"
     try {
-        let oraDiInizio = startHour;
-        let schedule = [];
         const price = (45/60) * duration;
-        // Calcolo orari di inizio e fine delle lezioni
-        for (let i = 1; i <= lessonsNumber; i++) {
-            var [startHours, startMinutes] = oraDiInizio.split(':').map(Number);
-            let totalMinutes = startMinutes + Number(duration);
-            let finalHours = Math.floor((startHours + Math.floor(totalMinutes / 60)) % 24);
-            let finalMinutes = totalMinutes % 60;
-            let endTime = `${finalHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`;
-            let ora = `${oraDiInizio}-${endTime}`
-            schedule.push({ hour: ora, price: price, student: null, locationLink: locationLink }); // assuming student is null initially
-            oraDiInizio = endTime;
+        for (const day of days) { // Itera su ogni data
+            let oraDiInizio = startHour;
+            let schedule = [];
+            // Calcolo orari di inizio e fine delle lezioni
+            for (let i = 1; i <= lessonsNumber; i++) {
+                var [startHours, startMinutes] = oraDiInizio.split(':').map(Number);
+                let totalMinutes = startMinutes + Number(duration);
+                let finalHours = Math.floor((startHours + Math.floor(totalMinutes / 60)) % 24);
+                let finalMinutes = totalMinutes % 60;
+                let endTime = `${finalHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`;
+                let ora = `${oraDiInizio}-${endTime}`
+                schedule.push({ hour: ora, price: price, student: null, locationLink: locationLink }); // assuming student is null initially
+                oraDiInizio = endTime;
+            }
+    
+            // Cerca la guida corrente nel database per l'istruttore e la data specificata
+            let existingGuide = await guide.findOne({ instructor: instructor, 'book.day': day });
+    
+            if (existingGuide) {
+                // Se la guida esiste già per quella data, aggiungi la schedule
+                await guide.updateOne(
+                    { instructor: instructor, 'book.day': day },
+                    { $push: { 'book.$.schedule': { $each: schedule } } }
+                );
+            } else {
+                // Altrimenti, crea una nuova guida per quella data
+                await guide.updateOne(
+                    { instructor: instructor },
+                    { $push: { book: { day: day, schedule: schedule } } },
+                    { upsert: true }
+                );
+            }
         }
-
-
-        const [anno, mese, giorno] = day.split('-');
-        const newDay = `${giorno}/${mese}/${anno}`;
-
-        let existingGuide = await guide.findOne({ instructor: instructor, 'book.day': newDay });
-
-        if (existingGuide) {
-            await guide.updateOne(
-                { instructor: instructor, 'book.day': newDay },
-                { $push: { 'book.$.schedule': { $each: schedule } } }
-            );
-        } else {
-            await guide.updateOne(
-                { instructor: instructor },
-                { $push: { book: { day: newDay, schedule: schedule } } },
-                { upsert: true }
-            );
-        }
-
+    
         res.redirect('/admin/addGuides');
     } catch (error) {
         console.error('Errore durante la creazione della guida:', error);
         res.status(500).json({ message: 'Errore durante la creazione della guida' });
-    }
+    }    
 });
 
 
@@ -332,7 +334,7 @@ router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT ,
 router.post('/createFattura', authenticateJWT, async (req, res) =>{
     // Estrai i dati dalla richiesta
     const dati = req.body;
- 
+    const data = (((dati.data).split('/')).reverse()).join('-'); 
     // Costruisci il documento XML della fattura elettronica
     const xml = create({ version: '1.0', encoding: 'UTF-8' })
     .ele('p:FatturaElettronica')
@@ -396,39 +398,39 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                 .ele('DatiGeneraliDocumento')
                     .ele('TipoDocumento').txt(dati.tipoDocumento).up()
                     .ele('Divisa').txt(dati.divisa).up()
-                    .ele('Data').txt(dati.data).up()
+                    .ele('Data').txt(data).up()
                     .ele('Numero').txt(dati.numeroDocumento).up()
                     .ele('ImportoTotaleDocumento').txt(dati.importoTotaleDocumento).up()
             .up()
-            .ele('DatiBeniServizi')
-                .ele('DettaglioLinee')
-                    .ele('NumeroLinea').txt(dati.numeroLinea1).up()
-                    .ele('Descrizione').txt(dati.descrizione1).up()
-                    .ele('PrezzoUnitario').txt(dati.prezzoUnitario1).up()
-                    .ele('PrezzoTotale').txt(dati.prezzoTotale1).up()
-                    .ele('AliquotaIVA').txt(dati.aliquotaIVA1).up()
-                    .ele('Natura').txt(dati.natura1).up()
-                .up()
-                .ele('DatiRiepilogo')
-                    .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo1).up()
-                    .ele('ImponibileImporto').txt(dati.imponibileImporto1).up()
-                    .ele('Imposta').txt(dati.imposta1).up()
-                    .ele('TotaleDocumento').txt(dati.TotaleDocumento).up()
-                .up()
+        .up()
+        .ele('DatiBeniServizi')
+            .ele('DettaglioLinee')
+                .ele('NumeroLinea').txt(dati.numeroLinea1).up()
+                .ele('Descrizione').txt(dati.descrizione1).up()
+                .ele('PrezzoUnitario').txt(dati.prezzoUnitario1).up()
+                .ele('PrezzoTotale').txt(dati.prezzoTotale1).up()
+                .ele('AliquotaIVA').txt(dati.aliquotaIVA1).up()
+                .ele('Natura').txt(dati.natura1).up()
             .up()
-            .ele('DatiPagamento')
-                .ele('CondizioniPagamento').txt(dati.condizioniPagamento).up()
-                .ele('DettaglioPagamento')
-                    .ele('ModalitaPagamento').txt(dati.modalitaPagamento).up()
-                    .ele('ImportoPagamento').txt(dati.importoPagamento)
-                .up()
+            .ele('DatiRiepilogo')
+                .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo1).up()
+                .ele('ImponibileImporto').txt(dati.imponibileImporto1).up()
+                .ele('Imposta').txt(dati.imposta1).up()
+                .ele('TotaleDocumento').txt(dati.TotaleDocumento).up()
             .up()
-        .up();
+        .up()
+        .ele('DatiPagamento')
+            .ele('CondizioniPagamento').txt(dati.condizioniPagamento).up()
+            .ele('DettaglioPagamento')
+                .ele('ModalitaPagamento').txt(dati.modalitaPagamento).up()
+                .ele('ImportoPagamento').txt(dati.importoPagamento)
+            .up()
+        .up()
+    .up();
 
     // Converti il documento XML in una stringa
     const xmlString = xml.end({ prettyPrint: true });
     const cliente = dati.nomeCliente + dati.cognomeCliente;
-    const data = dati.data.replace(/\//g, '-'); 
     const nomeFile = `${dati.IdPaese}${dati.IdCodice}_${dati.progressivoInvio}.xml`;
     fs.writeFile(nomeFile, xmlString, async (err) => {
     if (err) {

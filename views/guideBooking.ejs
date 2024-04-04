@@ -107,16 +107,16 @@
                     <tr>
                         <td class="hour"><%= schedule.hour %></td>
                         <td>
-                            <button class="book" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
+                            <button class="book" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
                                 data-instructor="<%= lezioni[i].instructor %>"
-                                data-price="<%= schedule.price %>">Prenota <%= schedule.price %>€</button>
+                                data-price="<%= schedule.price %>">Prenota <%= Number(schedule.price).toFixed(2) %>€</button>
                         </td>
                     </tr>
                     <% } else if (schedule.student == nome) { %>
                     <tr>
                         <td class="hour"><%= schedule.hour %></td>
                         <td>
-                            <button class="removeBooking" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
+                            <button class="removeBooking" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
                                 data-instructor="<%= lezioni[i].instructor %>">Prenotato</button>
                         </td>
                     </tr>
@@ -124,7 +124,7 @@
                         <tr>
                             <td class="hour"><%= schedule.hour %></td>
                             <td>
-                                <button class="bookDisabled" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
+                                <button class="bookDisabled" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
                                     data-instructor="<%= lezioni[i].instructor %>">Disattivato</button>
                             </td>
                         </tr>
@@ -152,6 +152,7 @@
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <form id="paymentForm" action="/create-payment" method="POST">
             <input type="hidden" id="causeInput" name="cause" value="">
+            <input type="hidden" id="locationInput" name="location" value="">
             <div class="form-group">
                 <label for="price" id="priceLabel"></label>
                 <input type="hidden" id="priceInput" name="price" value="">
@@ -225,26 +226,29 @@ $(function() {
             if (sectionExists) {
                 return [true, "greenDate", "Ci sono guide libere"];
             } else {
-                return [true, "redDate", "Non ci sono guide libere"];
+                return [true, "redDate disabled", "Non ci sono guide libere"];
             }
         },
         onSelect: function(dateText, inst) {
             updateSectionsVisibility(dateText);
-            console.log("Data selezionata: " + dateText);
         }
     });
 
     selectFirstGreenDate();
 });
 
+
 function selectFirstGreenDate() {
-    console.log("Sto cercando la prima data disponibile...");
-    var firstGreenDateStr = $('.greenDate [data-date]').attr('data-date');
-    if (firstGreenDateStr) {
-        console.log("Prima data greenDate trovata:", firstGreenDateStr);
-        const oggi = (new Date()).getDay();
-        $("#data").datepicker("setDate", Number(firstGreenDateStr - oggi));
-        updateSectionsVisibility($("#data").val());
+    var firstGreenDateStr = $('.greenDate > a').data("date");
+    if (firstGreenDateStr) {       
+        var today = (new Date()).getDate();
+        if(today == firstGreenDateStr){
+            $('.greenDate > a').datepicker("setDate", today);
+            updateSectionsVisibility($("#data").val());
+        }else{
+            $("#data").datepicker("setDate", firstGreenDateStr - today);
+            updateSectionsVisibility($("#data").val());
+        }
     } else {
         console.log("Nessuna data greenDate trovata.");
     }
@@ -254,7 +258,6 @@ function updateSectionsVisibility(selectedDate) {
     var sections = document.querySelectorAll('.section');
     var noGuideElement = document.querySelector('.noGuide');
     var noGuide = true;
-    
     sections.forEach(function (section) {
         if (section.getAttribute('data-date') === selectedDate) {
             section.style.display = 'block';
@@ -271,7 +274,6 @@ function updateSectionsVisibility(selectedDate) {
     }
 }
 
-
     </script>
 
     <script>
@@ -283,6 +285,7 @@ function updateSectionsVisibility(selectedDate) {
         const priceLabel = document.getElementById('priceLabel');
         const causeInput = document.getElementById('causeInput');
         const numEsameInput = document.getElementById('numEsameInput');
+        const locationInput = document.getElementById('locationInput');
         // Gestore per prenotare una lezione
         const bookButtons = document.querySelectorAll('.book');
         bookButtons.forEach(async(button) => {
@@ -294,9 +297,11 @@ function updateSectionsVisibility(selectedDate) {
             const instructor = button.dataset.instructor;
             const time = button.dataset.time;
             const price = button.dataset.price;
+            const location = button.dataset.location
             causeInput.value = 'lesson';
             instructorInput.value = instructor;
             timeInput.value = time;
+            locationInput.value = location;
             priceLabel.innerHTML = 'Procedi con il pagamento per la lezione di guida. <br> Il totale è di ' + price + '€';
             paymentModal.style.display = 'flex';
             setTimeout(() =>{

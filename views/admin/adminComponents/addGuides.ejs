@@ -8,7 +8,12 @@
     <!-- <link rel="stylesheet" href="/styles/adminguides.css"> -->
     <link rel="stylesheet" href="/styles/addGuides.css">
     <title><%= title %></title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-multidatespicker/1.6.6/jquery-ui.multidatespicker.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-multidatespicker/1.6.6/jquery-ui.multidatespicker.js"></script>
+    
 </head>
 <body>
     <%- include('header.ejs') %>
@@ -19,10 +24,9 @@
     <div class="container">
         <h2>Crea una Nuova Guida</h2>
         <form action="/create-guide" method="POST">
-
             <div class="form-group">
-                <label for="day">giorno:</label>
-                <input type="date" id="day" name="day" required>
+                <label for="day">Giorni:</label>
+                <input type="text" id="day" name="day" readonly required>
             </div>
             <div class="form-group">
                 <label for="startHour">ora di inizio:</label>
@@ -85,24 +89,22 @@
 </section>
 
 
+<script>
+    $(function() {
+
+        $("#day").multiDatesPicker({
+            dateFormat: "dd/mm/yy",
+            minDate: 0, // oggi
+            onSelect: function(dateText, inst) {
+                var selectedDates = $(this).multiDatesPicker('getDates');
+            }
+        });
+    });
+</script>
 
 
 
-    <script type="text/javascript">
-        $(function(){
-    var dtToday = new Date();
- 
-    var month = dtToday.getMonth() + 1;
-    var day = dtToday.getDate();
-    var year = dtToday.getFullYear();
-    if(month < 10)
-        month = '0' + month.toString();
-    if(day < 10)
-     day = '0' + day.toString();
-    var maxDate = year + '-' + month + '-' + day;
-    $('#day').attr('min', maxDate);
-});
-        </script>
+    
     <script>
         function roundToNearestHalfHour(time) {
             var timeSplit = time.split(':');

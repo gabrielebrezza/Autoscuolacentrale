@@ -117,3 +117,21 @@ table {
     border-bottom-right-radius: 20px;
     border: none;
   }
+
+.ui-state-highlight{
+    text-align: center  !important;
+    background-color: green !important;
+    border: none !important;
+
+}
+
+.ui-state-active{
+    text-align: center  !important;
+    border: none !important;
+    background-color: #0000 !important;
+}
+.ui-state-default{
+    text-align: center  !important;
+    border: none !important;
+    background-color: #0000 !important;
+}

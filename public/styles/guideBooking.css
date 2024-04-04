@@ -245,14 +245,6 @@ aside .bacheca p{
     color: green !important;
 }
 
-/* Stili per le date non disponibili */
-.redDate a {
-    border: 2px solid #0000 !important;
-    padding: 5px !important;
-    font-size: 1rem;
-    text-align: center !important;
-    color: red !important;
-}
 
 /* Stili per la data odierna */
 .ui-datepicker-today{
@@ -267,7 +259,18 @@ aside .bacheca p{
 .ui-state-active{
     background: #80909f !important;
 }
-
+/* Stili per le date non disponibili */
+.redDate a {
+    border: 2px solid #0000 !important;
+    padding: 5px !important;
+    font-size: 1rem;
+    text-align: center !important;
+    color: red !important;
+}
+.disabled{
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
 
 
 /* Stile per il modulo di pagamento */

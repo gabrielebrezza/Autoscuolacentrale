@@ -59,15 +59,18 @@ async function generateOTP(length) {
 //DA TOGLIERE IN PRODUZIONE
 const tls = require('tls');
 // Middleware per l'invio dell'email
-const sendEmailMiddleware = async (otpCode, email, username, intent, res) => {
+const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome, cognome, day, hour, locationlink) => {
     let subject, text;
 
     if (intent == 'login') {
         subject = 'Codice di accesso per il tuo account di scuola guida';
         text = 'È appena stato effettuato l\'accesso al tuo account, questo è il codice di verifica: ' + otpCode;
-    } else {
+    } else if(intent == 'signup'){
         subject = 'Iscrizione effettuata a scuola guida';
         text = 'Il tuo account è stato creato con successo, questo è il codice di verifica per accedere: ' + otpCode;
+    }else if(intent == 'bookGuide'){
+        subject = 'Prenotazione effettuata per lezione di guida';
+        text = `Gentile ${nome} ${cognome} ti confermiamo la prenotazione della guida per il giorno ${day} nella fascia oraria ${hour}. Clicca qui per vedere il punto di partenza della tua lezione ${locationlink}`;
     }
 
     const transporter = nodemailer.createTransport({
@@ -96,7 +99,11 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res) => {
             res.sendStatus(500);
         } else {
             console.log('Email inviata con successo a:', username);
-            res.redirect(`/verificationCode/:${username}`);
+            if(intent == 'signup' || intent == 'signup'){
+                res.redirect(`/verificationCode/:${username}`);
+            }else if(intent == 'bookGuide'){
+                
+            }
         }
     });
 };
@@ -131,7 +138,7 @@ app.post('/verification', async (req, res) => {
                             "OTP": hashedOTP
                         }
                     );
-                    sendEmailMiddleware(otpCode, userEmail, userName, intent, res, () => {
+                    sendEmailMiddleware(otpCode, userEmail, userName, intent, res, '', '', '', '', '', () => {
                         res.sendStatus(200);
                     }, req);
                 } else {
@@ -254,7 +261,7 @@ app.post('/updatePersonalData', async (req, res) => {
 
 app.post('/book', async (req, res) => {
     try {
-        const { instructor, time, day, duration, student, price } = req.body;
+        const { instructor, time, day, duration, student, price, location } = req.body;
         const durationInHour = duration/60;
         const giorno = time.split(' - ')[0];
         const hour = time.split(' - ')[1];
@@ -262,7 +269,8 @@ app.post('/book', async (req, res) => {
             { 
                 "instructor": instructor, 
                 "book.day": giorno, 
-                "book.schedule.hour": hour 
+                "book.schedule.hour": hour,
+                "book.schedule.locationLink": location
             },
             { 
                 $set: { 
@@ -276,6 +284,20 @@ app.post('/book', async (req, res) => {
                 ] 
             }
         );
+        const user = await credentials.findOne(
+            {"userName": student}, 
+            {
+                "email": 1,
+                "billingInfo": 1
+            }
+        );
+        console.log(user);
+        console.log(user.billingInfo[0].nome, user.billingInfo[0].cognome, user.email)
+        if(updatedGuide){
+            sendEmailMiddleware('', user.email, student, 'bookGuide', res, user.billingInfo[0].nome, user.billingInfo[0].cognome, giorno, hour, location, () => {
+                res.sendStatus(200);
+            }, req);
+        }
         const existingOrario = await admin.findOne({"userName": instructor, "ore.data": day});
 
         if (existingOrario) {
@@ -369,10 +391,12 @@ app.post('/create-payment',  async (req, res) =>{
     try {
         const student = req.body.student;
         const cause = req.body.cause;
-        let instructor;
+        
+        let instructor, location;
         let price, description, returnUrl, day, hour, numEsame, name, sku;
         if(cause == 'lesson'){
         instructor = req.body.instructor;
+        location = req.body.location;
         const timeParts = req.body.time.split(' - '); 
         day = timeParts[0];
         hour = timeParts[1];
@@ -394,7 +418,7 @@ app.post('/create-payment',  async (req, res) =>{
         name = "Lezione di Guida";
         sku = 1;
         //da cambiare in produzione
-        returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}`;
+        returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&location=${encodeURIComponent(location)}`;
         }else if(cause == 'exam'){
             price = 100;
             numEsame = req.body.numEsame;
@@ -478,6 +502,7 @@ app.get('/success',  async (req, res) =>{
                 const cause = req.query.cause;
                 const student = req.query.student;
                 if(cause == 'lesson'){
+                    const location = req.query.location;
                     const instructor = req.query.instructor;
                     const time = req.query.time;
                     const [day, timePart] = time.split(' - ');
@@ -499,7 +524,7 @@ app.get('/success',  async (req, res) =>{
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ instructor, time, day, duration, student, price })
+                        body: JSON.stringify({ instructor, time, day, duration, student, price, location})
                     })
                     .then(response => {
                         if (response.ok) {
