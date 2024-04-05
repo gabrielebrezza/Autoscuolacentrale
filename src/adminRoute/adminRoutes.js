@@ -177,6 +177,18 @@ router.post('/boccia', authenticateJWT, async (req, res) =>{
     );
     res.json('Utente Bocciato con successo');
 });
+
+router.get('/admin/guideSvolte/:username',authenticateJWT , async (req, res) => {
+    try {
+        const userName = req.params.username.replace(':', '');
+        const guide = await credentials.findOne({"userName": userName}, {"lessonList": 1});
+        res.render('admin/adminComponents/resocontoGuide', { title: 'Admin - Guide Svolte', userName, guide});
+    } catch (error) {
+        console.error('Errore durante il recupero degli utenti:', error);
+        res.status(500).json({ message: 'Errore durante il recupero degli utenti' });
+    }
+});
+
 router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
     const guides = await guide.find();
@@ -420,7 +432,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                 .ele('PrezzoUnitario').txt(dati.prezzoUnitario1).up()
                 .ele('PrezzoTotale').txt(dati.prezzoTotale1).up()
                 .ele('AliquotaIVA').txt(dati.aliquotaIVA1).up()
-                .ele('Natura').txt(dati.natura1).up()
+                // .ele('Natura').txt(dati.natura1).up()
             .up()
             .ele('DatiRiepilogo')
                 .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo1).up()

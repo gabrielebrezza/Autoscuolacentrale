@@ -8,6 +8,7 @@
 </head>
 <body>
     <%- include('header.ejs') %>
+    <div class="tableContainer">
     <table>
         <thead>
             <tr>
@@ -16,6 +17,7 @@
                 <th>Cellulare</th>
                 <% if (istruttore == 'dave') { %>
                     <th>Esami pagati</th>
+                    <th>Guide</th>
                     <th>Limitazioni</th>
                     <th>Boccia</th>
                     <th>Fatture</th>
@@ -38,6 +40,7 @@
                                 <% } %>
                             </td>
                             <% let collegamento = '/admin/fatture/:'+ utenti[i].userName; %>
+                            <td> <button><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
                             <td> <button class="limitation" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
                             <td> <button class="boccia" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
                             <td> <a href=" <%= collegamento %> "><button class="fatture" data-student="<%= utenti[i].userName %>">Fatture</button></a></td>
@@ -54,7 +57,7 @@
             }%>
         </tbody>
     </table>
-
+    </div>
     <% if (istruttore == 'dave') { %>
         <div id="formContainer" style="display: none;">
             <div class="limitationButtons">

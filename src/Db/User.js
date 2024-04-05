@@ -126,6 +126,10 @@ const LoginSchema = new mongoose.Schema({
             ora: {
                 type: String,
                 required: false
+            },
+            duration:{
+                type: Number,
+                required: false
             }
         }
     ]

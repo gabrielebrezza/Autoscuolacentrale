@@ -6,9 +6,10 @@
 body {
     background-color: #121212;
 }
-
+.tableContainer{
+    padding: 40px;
+}
 table {
-    
     width: 100%;
     border-collapse: collapse;
     border-radius: 8px;
@@ -98,4 +99,11 @@ input[type="checkbox"]{
 button[type="submit"] {
     margin-top: 5px;
     background-color: #28a745;
+}
+button{
+    text-transform: capitalize;
+}
+button > a{
+    color: #fff;
+    text-decoration: none;
 }

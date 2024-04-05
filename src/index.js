@@ -295,8 +295,7 @@ app.post('/book', async (req, res) => {
                 "billingInfo": 1
             }
         );
-        console.log(user);
-        console.log(user.billingInfo[0].nome, user.billingInfo[0].cognome, user.email)
+
         if(updatedGuide){
             sendEmailMiddleware('', user.email, student, 'bookGuide', res, user.billingInfo[0].nome, user.billingInfo[0].cognome, giorno, hour, location, () => {
                 res.sendStatus(200);
@@ -327,7 +326,7 @@ app.post('/book', async (req, res) => {
             {
                 $addToSet: {
                     "fatturaDaFare": {"tipo": 'lezione di guida', "data": dataFatturazione, "importo": price, "emessa": false},
-                    "lessonList": {"istruttore": instructor, "giorno": giorno, "ora": hour}
+                    "lessonList": {"istruttore": instructor, "giorno": giorno, "ora": hour, "duration": durationInHour}
                 }
             },
             {new: true}

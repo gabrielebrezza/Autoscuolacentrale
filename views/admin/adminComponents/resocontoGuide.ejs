@@ -1,0 +1,93 @@
+<!-- admin-guides.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/adminguides.css">
+    <!-- icone -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <title><%= title %></title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .totalTimeCard{
+            width: fit-content;
+            padding: 15px;
+            margin-left: 50px;
+            background: #286ab1;
+            color: #fff;
+            font-size: 1.1rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            border-radius: 15px;
+            width: 300px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 15px 15px 0 0;
+            color: #fff;
+            background: #286ab1;
+        }
+
+        h3 {
+            text-align: left;
+            margin-inline: 20px;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        h5{
+            text-align: center;
+            margin-top: 10px;
+            color: #fff;
+        }
+        h4{
+            text-align: center;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <% let totalDuration = 0; %>
+    <% guide.lessonList.forEach((lesson) => { %>
+        <% totalDuration += lesson.duration; %>
+    <% });
+        let min = (totalDuration * 60) % 60; 
+        let hour = ((totalDuration * 60) - min) / 60; %>
+    <div class="totalTimeCard">
+        <h4>Tempo totale:</h4>
+        <h5><%= (hour > 1) ? hour + ' ore' : (hour == 1) ? hour + ' ora' : '' %> <%= (hour > 0 && min > 0) ? ' e ' : (hour == 0 && min == 0) ? 'Non ha ancora svolto guide' : '' %> <%= min > 0 ? min + ' minuti' : ''  %></h5>
+    </div>
+    <div class="container">
+        <% for( let i = 0; i < guide.lessonList.length; i++ ) { %>
+            <div class="card">
+                <h2>Guida <%= i+1 %>: </h2>
+                <h3>Istruttore: <%= guide.lessonList[i].istruttore %></h3>
+                <h3>Giorno: <%= guide.lessonList[i].giorno %></h3>
+                <h3>Ora: <%= guide.lessonList[i].ora %></h3>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>
