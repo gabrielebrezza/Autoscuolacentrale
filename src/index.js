@@ -324,7 +324,12 @@ app.post('/book', async (req, res) => {
         const dataFatturazione = `${d}/${month}/${year}`;
         const updateDataFatturazione = await credentials.findOneAndUpdate(
             {"userName": student},
-            {$addToSet: {"fatturaDaFare": {"tipo": 'lezione di guida', "data": dataFatturazione, "importo": price, "emessa": false}}},
+            {
+                $addToSet: {
+                    "fatturaDaFare": {"tipo": 'lezione di guida', "data": dataFatturazione, "importo": price, "emessa": false},
+                    "lessonList": {"istruttore": instructor, "giorno": giorno, "ora": hour}
+                }
+            },
             {new: true}
         );
         res.sendStatus(200);

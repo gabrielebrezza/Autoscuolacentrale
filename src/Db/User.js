@@ -112,6 +112,22 @@ const LoginSchema = new mongoose.Schema({
                 required: false
             }
         }
+    ],
+    lessonList: [
+        {
+            istruttore: {
+                type: String,
+                required: false
+            },
+            giorno: {
+                type: String,
+                required: false
+            },
+            ora: {
+                type: String,
+                required: false
+            }
+        }
     ]
 });
 
