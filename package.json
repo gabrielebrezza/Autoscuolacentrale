@@ -21,7 +21,7 @@
   "AppRegistryApplicationStackAssociation": {
     "Type": "AWS::ServiceCatalogAppRegistry::ResourceAssociation",
     "Properties": {
-        "Application": arn:aws:servicecatalog:eu-west-3:891377112712:/applications/06zwlofrw2fwb9zsy6uriykd1i,
+        "Application": "arn:aws:servicecatalog:eu-west-3:891377112712:/applications/06zwlofrw2fwb9zsy6uriykd1i",
         "Resource": {
             "Ref": "AWS::StackId"
         },
