@@ -38,7 +38,7 @@ app.use(express.urlencoded({extended: false}));
 
 app.set('view engine', 'ejs');
 
-app.set('views', '/home/ec2-user/Autoscuolacentrale/src/views');
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static('public'));
 
@@ -47,7 +47,7 @@ app.use(bodyParser.urlencoded({ extended: false}));
 app.use(adminRoutes);
 
 app.get('/', (req, res) =>{
-    res.render('/login');
+    res.render('login');
 });
 
 async function generateOTP(length) {
