@@ -47,7 +47,7 @@ app.use(bodyParser.urlencoded({ extended: false}));
 app.use(adminRoutes);
 
 app.get('/', (req, res) =>{
-    res.render('login');
+    res.render('/login');
 });
 
 async function generateOTP(length) {
