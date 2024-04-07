@@ -1,0 +1,7 @@
+{
+    "app_id": "data-filzj",
+    "config_version": 20210101,
+    "name": "data",
+    "provider_region": "aws-eu-central-1",
+    "deployment_model": "LOCAL"
+}
