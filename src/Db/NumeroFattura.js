@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const connect = mongoose.connect('mongodb://localhost/Autoscuolacentrale');
+const connect = mongoose.connect('mongodb+srv://antoniodamelio:nOm8iKw7hfJcWFhD@cluster0.oyegnnb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
 connect.then(() =>{
     console.log('numeroFattura Database connected successfully');

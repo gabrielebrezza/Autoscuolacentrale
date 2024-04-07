@@ -247,9 +247,27 @@ router.post('/adminRemovebooking', authenticateJWT, async (req, res) => {
     try {
         const { instructor, time } = req.body;
 
+        const day = time.split(' - ')[0];
+        const hour = time.split(' - ')[1];
+        
         const updatedGuide = await guide.findOneAndUpdate(
-            { "instructor": instructor, "book.day": time.split(' - ')[0] },
-            { $pull: { "book.$.schedule": { "hour": time.split(' - ')[1] } } }
+            { "instructor": instructor, "book.day": day },
+            { 
+                $pull: { 
+                    "book.$.schedule": { "hour": hour } 
+                }
+            },
+            { 
+                returnOriginal: false 
+            }
+        );
+        await guide.updateOne(
+            { "instructor": instructor, "book.day": day, "book.schedule": { $size: 0 } },
+            { 
+                $pull: { 
+                    "book": { "day": day } 
+                }
+            }
         );
         
         res.sendStatus(200);

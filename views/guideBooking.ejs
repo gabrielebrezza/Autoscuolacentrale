@@ -59,7 +59,7 @@
                 </div>
                 </span>
     </aside>
-    <%if(esame[0].paid == true && personalData.billingInfo != ''){ %>
+    <%if(esame[0].paid){ %>
     <div class="container">
         <% for(var i = 0; i < lezioni.length; i++) { %>
             <% let exclude = false %>
@@ -142,9 +142,7 @@
         <% } %>
         <% } %>
     </div>
-    <% }else if(personalData.billingInfo == ''){ %>
-        <h1 class="warning">Devi prima inserire i tuoi dati personali per poter prenotare le lezioni di guida e l'esame</h1>
-    <% }else if(esame[0].paid == true){ %>
+    <% }else if(esame[0].paid == false){ %>
         <h1 class="warning">Devi pagare almeno il primo esame per poter prenotare le lezioni di guida</h1>
     <% } %>
     <h1 class="warning noGuide">Non ci sono guide in programma per il giorno selezionato</h1>
@@ -284,7 +282,8 @@ function updateSectionsVisibility(selectedDate) {
 
             });
         }
-
+        const noGuideText = document.querySelector('.noGuide');
+        noGuideText.style.display = document.querySelectorAll('section') ? 'block' : 'none';
 
 
         // // Gestore per cancellare una prenotazione
