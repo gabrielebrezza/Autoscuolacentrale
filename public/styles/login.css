@@ -7,6 +7,7 @@
      font-weight: 50;
      letter-spacing: 1px;
      font-style: normal;
+     -webkit-appearance: none;
 }
  body{
      width: 100%;
@@ -54,7 +55,7 @@
      width: fit-content;
      padding: 15px 25px;
      text-wrap: wrap;
-     background: #e2e2e2;
+     /* background: #e2e2e2; */
      border-radius: 5px;
      position: absolute;
      top: 50%;
@@ -153,10 +154,6 @@
          max-width: 80vw;
     }
      @media (max-width: 846px) {
-        /* .container{
-             max-width: 50vw;
-        }
-         */
          .auth-form h1{
              margin: 0;
         }
