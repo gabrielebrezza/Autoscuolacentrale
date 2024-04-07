@@ -38,6 +38,8 @@ app.use(express.urlencoded({extended: false}));
 
 app.set('view engine', 'ejs');
 
+app.set('views', '/home/ec2-user/Autoscuolacentrale/src/views');
+
 app.use(express.static('public'));
 
 app.use(bodyParser.urlencoded({ extended: false}));
