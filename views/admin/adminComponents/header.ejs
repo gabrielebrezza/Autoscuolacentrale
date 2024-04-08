@@ -4,13 +4,16 @@
     <h1>Admin Area</h1>
     <nav>
         <ul>
-            <li><a href="/admin/users">Visualizza utenti</a></li>
+            <% if (role.role == 'Super') { %>
+                <li><a href="/admin/prezzi">Prezzi</a></li>
+                <li><a href="/admin/users">Visualizza utenti</a></li>
+                <li><a href="/admin/bacheca">Modifica bacheca</a></li>
+                <li><a href="/admin/approvazioneUtenti">Approva Utenti</a></li>
+                <li><a href="/admin/oreIstruttori">Visualizza Ore Istruttori</a></li>
+                <li><a href="/admin/formatoEmail">Modifica formato Email</a></li>
+            <% } %>    
             <li><a href="/admin/guides">Visualizza guide</a></li>
             <li><a href="/admin/addGuides">Aggiungi guide</a></li>
-            <li><a href="/admin/bacheca">Modifica bacheca</a></li>
-            <li><a href="/admin/approvazioneUtenti">Approva Utenti</a></li>
-            <li><a href="/admin/oreIstruttori">Visualizza Ore Istruttori</a></li>
-            <li><a href="/admin/formatoEmail">Modifica formato Email</a></li>
             <li><a style="color: red;" href="/admin/login" onclick="logout()">LogOut</a></li>
         </ul>
     </nav>

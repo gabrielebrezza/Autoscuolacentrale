@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+        }
+    
+        form {
+            background-color: #1f1f1f;
+            padding: 20px;
+            margin: 20px auto;
+            width: 50%;
+            border-radius: 8px; 
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+    
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-block: 20px;
+            border: 1px solid #111;
+            border-radius: 5px;
+            background-color: #444;
+            outline: none;
+            color: white;
+        }
+    
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+    
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    
+</head>
+<body>
+    <%- include('header.ejs') %>
+
+    <form action="/admin/editPrezzi" method="POST">
+        <label for="price">Prezzo per 1 ora di guida: </label>
+        <input type="number" name="price" id="price" min="1" value="<%= prices[0].prezzo %>">
+        <button type="submit">Aggiorna</button>
+    </form>
+</body>
+</html>

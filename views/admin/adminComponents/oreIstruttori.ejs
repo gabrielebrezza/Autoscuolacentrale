@@ -84,33 +84,39 @@
     </div>
 
     <script>
-document.getElementById('visualizzaOreBtn').addEventListener('click', function() {
-    const oreIstruttori = JSON.parse(document.querySelector('.oreDiTuttiGliIstruttori').textContent);
-    const selectedInstructor = document.getElementById('instructor').value;
-    const fromDate = new Date((document.getElementById('fromDate').value).split('-').reverse().join('/'));
-    const toDate = new Date((document.getElementById('toDate').value).split('-').reverse().join('/'));
-    const price = document.getElementById('price').value;
-    var oreFiltrate = oreIstruttori.find(function(istruttore) {
-        return istruttore.userName === selectedInstructor;
-    });
-
-    var oreSvolte = oreFiltrate.ore.filter(function(ora) {
-        var dataOra = new Date(ora.data);
-        return dataOra >= fromDate && dataOra <= toDate;
-    });
-
-    var totaleOre = 0;
-oreSvolte.forEach(function(ora) {
-    totaleOre += ora.totOreGiorno;
-});
-var costoTot = (totaleOre*price).toFixed(2);
-var ore = Math.floor(totaleOre); // Ottieni il numero di ore arrotondando per difetto
-var minuti = Math.round((totaleOre - ore) * 60); // Ottieni il numero di minuti
-
-document.getElementById('oreContainer').innerText = 'Totale ore svolte: ' + ore + ' ore e ' + minuti + ' minuti. Il pagamento dovrà essere di ' + costoTot + '€.';
-
-});
-
-    </script>
+        document.getElementById('visualizzaOreBtn').addEventListener('click', function() {
+            const oreIstruttori = JSON.parse(document.querySelector('.oreDiTuttiGliIstruttori').textContent);
+            
+            const selectedInstructor = document.getElementById('instructor').value;
+            
+            const fromDate = new Date(document.getElementById('fromDate').value);
+            
+            const toDate = new Date(document.getElementById('toDate').value);
+            
+            const price = document.getElementById('price').value;
+            
+            var oreFiltrate = oreIstruttori.find(function(istruttore) {
+                return istruttore.userName === selectedInstructor;
+            });
+        
+            var oreSvolte = oreFiltrate.ore.filter(function(ora) {
+                var dataOra = new Date(ora.data.split('/').reverse().join('/'));
+                return dataOra >= fromDate && dataOra <= toDate;
+            });
+        
+            var totaleOre = 0;
+            oreSvolte.forEach(function(ora) {
+                totaleOre += ora.totOreGiorno;
+            });
+        
+            var costoTot = (totaleOre * price).toFixed(2);
+        
+            var ore = Math.floor(totaleOre);
+            var minuti = Math.round((totaleOre - ore) * 60); 
+        
+            document.getElementById('oreContainer').innerText = 'Totale ore svolte: ' + ore + ' ore e ' + minuti + ' minuti. Il pagamento dovrà essere di ' + costoTot + '€.';
+        });
+        </script>
+        
 </body>
 </html>

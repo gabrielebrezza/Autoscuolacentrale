@@ -25,20 +25,35 @@ router.use(bodyParser.urlencoded({ extended: false }));
 // Parse application/json
 router.use(bodyParser.json());
 // Middleware per l'autenticazione JWT
-function authenticateJWT(req, res, next) {
+async function authenticateJWT(req, res, next) {
     const token = req.cookies.token;
     if (!token) {
         return res.redirect('/admin/login');
     }
 
-    jwt.verify(token, JWT_SECRET, (err, user) => {
+    jwt.verify(token, JWT_SECRET, async (err, user) => {
         if (err) {
             return res.status(403).json({ message: 'Autenticazione fallita' });
         }
+        
+        // Controlla se l'utente è approvato
+        try {
+            const username = user.username; // Assicurati che il nome utente sia memorizzato correttamente nel token JWT
+            const approvedAdmin = await Admin.findOne({ "userName": username, "approved": true });
+            
+            if (!approvedAdmin) {
+                return res.status(403).json({ message: 'Utente non approvato' });
+            }
+        } catch (error) {
+            console.error('Errore durante il recupero dello stato di approvazione dell\'utente:', error);
+            return res.status(500).json({ message: 'Errore del server' });
+        }
+        
         req.user = user;
         next();
     });
 }
+
 
 router.post('/logout', (req, res) => {
     res.clearCookie('token').send({ message: 'Logout effettuato con successo' });
@@ -63,7 +78,9 @@ router.post('/admin/register', async (req, res) => {
         // Crea un nuovo documento Admin
         const newAdmin = new Admin({
             userName: username,
-            password: await bcrypt.hash(password, 10) // Cripta la password prima di salvarla
+            password: await bcrypt.hash(password, 10),
+            approved: false,
+            role: 'Istruttore'
         });
 
         // Salva il nuovo amministratore nel database
@@ -112,16 +129,19 @@ router.post('/admin/login', async (req, res) => {
 
 // Rotta protetta
 router.get('/admin', authenticateJWT, async (req, res) => {
-    res.render('admin/admin', { title: 'Admin - DashBoard'}); // Invia la pagina HTML protetta
+    const istruttore = req.user.username;
+    const role = await Admin.findOne({"userName": istruttore}, {"role" : 1});
+    res.render('admin/admin', { title: 'Admin - DashBoard', role}); // Invia la pagina HTML protetta
 });
 
 router.get('/admin/guides', authenticateJWT, async (req, res) => {
     
     try {
         const istruttore = req.user.username;
+        const role = await Admin.findOne({"userName": istruttore}, {"role" : 1});
         const guides = await guide.find();
         const infos = await credentials.find({}, { email: 1, userName: 1, cell: 1 });
-        res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides , istruttore, infos});
+        res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides , istruttore, infos, role});
     } catch (error) {
         console.error('Errore durante il recupero delle guide:', error);
         res.status(500).json({ message: 'Errore durante il recupero delle guide' });
@@ -131,10 +151,11 @@ router.get('/admin/guides', authenticateJWT, async (req, res) => {
 router.get('/admin/users',authenticateJWT , async (req, res) => {
     try {
         const istruttore = req.user.username;
+        const role = await Admin.findOne({"userName": istruttore}, {"role" : 1});
         const utenti = await credentials.find();
         const listaIstruttori = await Admin.find({}, 'userName');
         const istruttori = listaIstruttori.map(admin => admin.userName);
-        res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', istruttore, utenti, istruttori});
+        res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', istruttore, utenti, istruttori, role});
     } catch (error) {
         console.error('Errore durante il recupero degli utenti:', error);
         res.status(500).json({ message: 'Errore durante il recupero degli utenti' });
@@ -185,9 +206,11 @@ router.post('/boccia', authenticateJWT, async (req, res) =>{
 
 router.get('/admin/guideSvolte/:username',authenticateJWT , async (req, res) => {
     try {
+        const istruttore = req.user.username;
+        const role = await Admin.findOne({"userName": istruttore}, {"role" : 1});
         const userName = req.params.username.replace(':', '');
         const guide = await credentials.findOne({"userName": userName}, {"lessonList": 1});
-        res.render('admin/adminComponents/resocontoGuide', { title: 'Admin - Guide Svolte', userName, guide});
+        res.render('admin/adminComponents/resocontoGuide', { title: 'Admin - Guide Svolte', userName, guide, role});
     } catch (error) {
         console.error('Errore durante il recupero degli utenti:', error);
         res.status(500).json({ message: 'Errore durante il recupero degli utenti' });
@@ -196,8 +219,9 @@ router.get('/admin/guideSvolte/:username',authenticateJWT , async (req, res) => 
 
 router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
+    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
     const guides = await guide.find();
-    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor, guides});
+    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor, guides, role});
 });
 
 router.post('/create-guide', authenticateJWT, async (req, res) => {
@@ -285,8 +309,9 @@ router.post('/adminRemovebooking', authenticateJWT, async (req, res) => {
 
 router.get('/admin/bacheca',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
+    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
     const bachecaContent = await bacheca.find();
-    res.render('admin/adminComponents/editBacheca', { title: 'Admin - Modifica Bacheca',bachecaContent , instructor});
+    res.render('admin/adminComponents/editBacheca', { title: 'Admin - Modifica Bacheca',bachecaContent , instructor, role});
 });
 router.post('/bacheca',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
@@ -304,9 +329,28 @@ router.post('/bacheca',authenticateJWT , async (req, res) => {
 
 
 });
+router.get('/admin/prezzi',authenticateJWT , async (req, res)=>{
+    const instructor = req.user.username;
+    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
+    const prices = await prezzoGuida.find();
+    res.render('admin/adminComponents/prezzi', { title: 'Admin - Prezzi', role, prices});
+});
+router.post('/admin/editPrezzi', async (req, res)=>{
+    try {
+    const price = req.body.price;
+    const prices = await prezzoGuida.updateOne({"prezzo": price});
+    res.redirect('/admin/prezzi');
+    } catch (error) {
+        console.error("Error while adding or updating prices:", error);
+        res.status(500).send('Errore durante la modifica dei prezzi');
+    }
+});
 router.get('/admin/approvazioneUtenti',authenticateJWT , async (req, res)=>{
-    const needApproval = await credentials.find({approved: false});
-    res.render('admin/adminComponents/authUsers', { title: 'Admin - Approva Utenti', needApproval});
+    const instructor = req.user.username;
+    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
+    const needApprovalStudents = await credentials.find({approved: false});
+    const needApprovalAdmins = await Admin.find({approved: false});
+    res.render('admin/adminComponents/authUsers', { title: 'Admin - Approva Utenti', needApprovalStudents, needApprovalAdmins, role});
 });
 router.post('/approveUser', async (req, res) =>{
     const userName = req.body.userName;
@@ -323,6 +367,34 @@ router.post('/approveUser', async (req, res) =>{
     );
     res.redirect('/admin/approvazioneUtenti')
 });
+
+router.post('/approveAdmin', async (req, res) =>{
+    const userName = req.body.userName;
+    // const email = req.body.email;
+    // const cell = req.body.cell;
+    const approve = await Admin.findOneAndUpdate({
+        "userName": userName,
+        // "email": email,
+        // "cell": cell
+    },
+    {
+        approved: true
+    }
+    );
+    res.redirect('/admin/approvazioneUtenti')
+});
+router.post('/disapproveAdmin', authenticateJWT, async (req, res) =>{
+    const userName = req.body.userName;
+    // const email = req.body.email;
+    // const cell = req.body.cell;
+    const disapprove = await Admin.deleteOne({
+        "userName": userName,
+        // "email": email,
+        // "cell": cell
+    }
+    );
+    res.redirect('/admin/approvazioneUtenti')
+});
 router.post('/disapproveUser', authenticateJWT, async (req, res) =>{
     const userName = req.body.userName;
     const email = req.body.email;
@@ -331,22 +403,23 @@ router.post('/disapproveUser', authenticateJWT, async (req, res) =>{
         "userName": userName,
         "email": email,
         "cell": cell
-    },
-    {
-        approved: true
     }
     );
     res.redirect('/admin/approvazioneUtenti')
 });
 
 router.get('/admin/oreIstruttori', authenticateJWT, async (req, res) => {
+    const instructor = req.user.username;
+    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
     const oreIstruttori = await Admin.find({}, {userName : 1, ore : 1});
-    res.render('admin/adminComponents/oreIstruttori', {title: 'Admin - Orari Istruttori', oreIstruttori});
+    res.render('admin/adminComponents/oreIstruttori', {title: 'Admin - Orari Istruttori', oreIstruttori, role});
 });
 
 router.get('/admin/formatoEmail', authenticateJWT, async (req, res) => {
+    const instructor = req.user.username;
+    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
     const formato = await formatoEmail.find({});
-    res.render('admin/adminComponents/formatoEmail', {title: 'Admin - Formato Email', formato});
+    res.render('admin/adminComponents/formatoEmail', {title: 'Admin - Formato Email', formato, role});
 });
 router.post('/editFormatoEmail', authenticateJWT, async (req, res) => {
     const content = req.body.formatoField;
@@ -355,16 +428,20 @@ router.post('/editFormatoEmail', authenticateJWT, async (req, res) => {
     res.redirect('/admin/formatoEmail');
 });
 router.get('/admin/fatture/:utente',authenticateJWT , async (req, res)=>{
+    const instructor = req.user.username;
+    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
     const userName = req.params.utente.replace(':', '');
     const operazioniDaFatturare = await credentials.findOne(
         {"userName": userName},
         {"fatturaDaFare": 1}
     );
         const dati = operazioniDaFatturare.fatturaDaFare;
-    res.render('admin/adminComponents/fattureDaFare', {title: 'Admin - Fatture Da Emettere', dati, userName});
+    res.render('admin/adminComponents/fattureDaFare', {title: 'Admin - Fatture Da Emettere', dati, userName, role});
 });
 
 router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT , async (req, res)=>{
+    const instructor = req.user.username;
+    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
     const userName = req.params.utente;
     const tipo = req.params.tipo;
     const data = decodeURIComponent(req.params.data);

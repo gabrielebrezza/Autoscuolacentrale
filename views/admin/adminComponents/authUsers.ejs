@@ -10,12 +10,22 @@
 <body>
     <%- include('header.ejs') %>
 
-    <%if(needApproval != '') { %>
+    <form id="userTypeForm">
+      <label for="userType">Seleziona il tipo di utente:</label>
+      <select name="userType" id="userType">
+          <option value="students">Allievi</option>
+          <option value="admins">Istruttori</option>
+      </select>
+      <button class="visualizza" type="submit">Visualizza</button>
+  </form>
+  
+    <div id="studentsList" class="approval-list">
+    <%if(needApprovalStudents != '') { %>
     <div id="cards">
-        <% needApproval.forEach(function(item) { %>
+        <% needApprovalStudents.forEach(function(item) { %>
           <div class="user-card">
             <div class="user-card-header">
-              <h3><%= item.userName %></h3>
+              <h3>Username: <%= item.userName %></h3>
             </div>
             <ul class="user-info">
               <li><strong>Email:</strong> <%= item.email %></li>
@@ -39,7 +49,64 @@
         <% }); %>
       </div>
       <% } else{ %>
-        <h1>Non ci sono utenti in attesa di approvazione</h1>
+        <h1>Non ci sono allievi in attesa di approvazione</h1>
       <% } %>
+      </div>
+
+
+      <div id="adminsList" class="approval-list" style="display: none;">
+      <%if(needApprovalAdmins != '') { %>
+        <div id="cards">
+            <% needApprovalAdmins.forEach(function(item) { %>
+              <div class="user-card">
+                <div class="user-card-header">
+                  <h3>Username:  <%= item.userName %></h3>
+                </div>
+                <ul class="user-info">
+                  <!-- <li><strong>Email:</strong> <%= item.email %></li>
+                  <li><strong>Cell:</strong> <%= item.cell %></li> -->
+                </ul>
+                <div class="buttons">
+                    <form action="/approveAdmin" method="POST">
+                      <input type="hidden" name="userName" value="<%= item.userName %>">
+                      <!-- <input type="hidden" name="email" value="<%= item.email %>">
+                      <input type="hidden" name="cell" value="<%= item.cell %>"> -->
+                      <button type="submit" class="approve-button">Approva</button>
+                    </form>
+                    <form action="/disapproveAdmin" method="POST">
+                      <input type="hidden" name="userName" value="<%= item.userName %>">
+                      <!-- <input type="hidden" name="email" value="<%= item.email %>">
+                      <input type="hidden" name="cell" value="<%= item.cell %>"> -->
+                      <button type="submit" class="disapprove-button">Disapprova</button>
+                    </form>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+          <% } else{ %>
+            <h1>Non ci sono istruttori in attesa di approvazione</h1>
+          <% } %>
+        </div>
+
+
+        <script>
+          const userTypeForm = document.getElementById('userTypeForm');
+          const studentsListDiv = document.getElementById('studentsList');
+          const adminsListDiv = document.getElementById('adminsList');
+      
+          userTypeForm.addEventListener('submit', function(event) {
+              event.preventDefault();
+              
+              const userType = userTypeForm.userType.value;
+              
+              if (userType === 'students') {
+                  studentsListDiv.style.display = 'block';
+                  adminsListDiv.style.display = 'none';
+              } else if (userType === 'admins') {
+                  studentsListDiv.style.display = 'none';
+                  adminsListDiv.style.display = 'block';
+              }
+          });
+      </script>
 </body>
 </html>

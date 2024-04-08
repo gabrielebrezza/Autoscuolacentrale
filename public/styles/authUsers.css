@@ -12,7 +12,8 @@ body {
 }
 h1{
   color: #fff;
-}
+} 
+
 #cards{
   display: flex;
   justify-content: space-evenly;
@@ -23,7 +24,7 @@ h1{
     padding: 15px;
     width: 300px;
     background-color: #f9f9f9;
-    border-radius: 26px;
+    border-radius: 5px;
     margin-bottom: 50px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -32,7 +33,7 @@ h1{
   font-size: 1.2rem;
   background-color: #007bff;
   color: #fff;
-  border-radius: 10px;
+  border-radius: 5px;
 }
 .user-info {
   padding: 10px;
@@ -70,4 +71,21 @@ button {
 }
 .disapprove-button:hover{
   background-color: #720707;
+}
+
+
+.visualizza{
+  background: #007bff;
+}
+
+
+#userTypeForm {
+  border-radius: 5px;
+  padding: 15px;
+  background: #f9f9f9;
+  margin-bottom: 20px;
+}
+
+.approval-list {
+  margin-bottom: 20px;
 }

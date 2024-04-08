@@ -28,7 +28,15 @@ const AdminSchema = new mongoose.Schema({
                 required: false
             }
         }
-    ]
+    ],
+    approved: {
+        type: Boolean,
+        required: true
+    },
+    role: {
+        type: String,
+        required: true
+    }
 });
 
 const adminCredentials = new mongoose.model('Admin', AdminSchema);
