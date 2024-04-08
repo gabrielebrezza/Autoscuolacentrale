@@ -203,7 +203,7 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
     try {
         const pricePerHour = await prezzoGuida.findOne({"prezzo": 1});
         const price = (pricePerHour[0].prezzo/60) * duration;
-        for (const day of days) { // Itera su ogni data
+        for (const day of days) { // Itera su ogni data 
             let oraDiInizio = startHour;
             let schedule = [];
             // Calcolo orari di inizio e fine delle lezioni
