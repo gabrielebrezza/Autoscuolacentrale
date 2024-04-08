@@ -13,6 +13,7 @@ const guide = require('../Db/Guide');
 const bacheca = require('../Db/Bacheca');
 const numeroFattura = require('../Db/NumeroFattura');
 const formatoEmail = require('../Db/formatoEmail');
+const prezzoGuida = require('../Db/CostoGuide');
 
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 // Funzione per la generazione di token JWT
@@ -200,7 +201,8 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
     const instructor = req.user.username;
     const days = req.body.day.split(", "); // Ottieni un array di date nel formato "gg/mm/aaaa"
     try {
-        const price = (45/60) * duration;
+        const pricePerHour = await prezzoGuida.findOne({"prezzo": 1});
+        const price = (pricePerHour[0].prezzo/60) * duration;
         for (const day of days) { // Itera su ogni data
             let oraDiInizio = startHour;
             let schedule = [];
