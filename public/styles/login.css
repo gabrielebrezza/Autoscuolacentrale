@@ -62,10 +62,12 @@
      position: absolute;
      top: 50%;
      text-align: center;
-     cursor: pointer;
+
+     color: #3d405b;
 }
  .auth-form p a{
-     color: #3d405b;
+     color: #3e4dcd;
+     cursor: pointer;
      text-decoration: none;
      font-weight: 450;
 }
@@ -162,12 +164,12 @@
         font-size: 1.5rem;
     }
     .auth-form form [type="text"],[type="password"],[type="email"],[type="tel"]{
-        margin-block: 2px;
+        margin-block: 15px;
         font-size:1.1rem;
     }
      @media (max-width: 846px) {
          .auth-form h1{
-            font-size: 1rem;
+            font-size: 1.1rem;
              margin: 0;
         }
          .auth-form{
