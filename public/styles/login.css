@@ -205,7 +205,9 @@
 
 
 
-
+#personalDataForm h1{
+    text-align: center;
+}
 #personalDataForm {
     position: fixed;
     max-width: 60vw;
@@ -217,7 +219,7 @@
     filter: drop-shadow(15px 15px 6px #32327f49);
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
     flex-direction: column;
     flex-wrap:wrap;
     background-color: #e2e2e2;
@@ -230,10 +232,13 @@
     max-width: 100vw;
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     flex-direction: row;
     flex-wrap:wrap;
+}
+.dataFormField{
+    margin-inline: 10px;
 }
  #personalDataForm label {
     font-size: 1rem;
@@ -245,7 +250,8 @@
     font-size: 1rem;
 }
  #personalDataForm input[type="text"],#personalDataForm select {
-    width: 200px;
+    max-width: 200px;
+    width: 100%;
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
@@ -274,9 +280,20 @@
     #personalDataForm {
         max-width: 100vw;
     }
-@media (max-width:570px) {
-    #personalDataForm form{
-        height: 100vh;
+    @media (max-width:570px) {
+        #personalDataForm h1{
+            font-size: 1.5rem;
+        }
+        #personalDataForm form{
+            height: 100vh;
+        }
+        @media (max-width:500px) {
+            #personalDataForm input[type="text"],#personalDataForm select {
+                max-width: 100px;
+                padding: 5px;
+                margin-bottom: 5px;    
+                font-size: 1.1rem;
+            } 
+        }
     }
-}
 }
