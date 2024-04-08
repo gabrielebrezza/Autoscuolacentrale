@@ -428,7 +428,7 @@ app.post('/create-payment',  async (req, res) =>{
         name = "Lezione di Guida";
         sku = 1;
         //da cambiare in produzione
-        returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&location=${encodeURIComponent(location)}`;
+        returnUrl = `http://13.39.106.190:5000/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&location=${encodeURIComponent(location)}`;
         }else if(cause == 'exam'){
             price = 100;
             numEsame = req.body.numEsame;
@@ -436,7 +436,7 @@ app.post('/create-payment',  async (req, res) =>{
             name = "Esame di Guida";
             sku = 2;
             //da cambiare in produzione
-            returnUrl = `http://localhost:5000/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
+            returnUrl = `http://13.39.106.190:5000/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
 
         }
         const create_payment_json = {
@@ -447,7 +447,7 @@ app.post('/create-payment',  async (req, res) =>{
             redirect_urls: {
                 return_url: returnUrl,
                 //da cambiare in produzione
-                cancel_url: "http://localhost:5000/cancel",
+                cancel_url: "http://13.39.106.190:5000/cancel",
             },
             transactions: [
                 {
@@ -529,7 +529,7 @@ app.get('/success',  async (req, res) =>{
                     }
 
                     //da cambiare in produzione
-                    fetch('http://localhost:5000/book', {
+                    fetch('http://13.39.106.190:5000/book', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -555,7 +555,7 @@ app.get('/success',  async (req, res) =>{
                 }else if(cause == 'exam'){
                     const numEsame = req.query.numEsame;
                     //da cambiare in produzione
-                    const response = await fetch('http://localhost:5000/bookExam', {
+                    const response = await fetch('http://13.39.106.190:5000/bookExam', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
