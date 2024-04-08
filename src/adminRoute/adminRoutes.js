@@ -6,6 +6,9 @@ const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const { create } = require('xmlbuilder2');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
+//DA TOGLIERE IN PRODUZIONE
+const tls = require('tls');
 
 const credentials = require('../Db/User');
 const Admin = require('../Db/Admin');
@@ -365,7 +368,41 @@ router.post('/approveUser', async (req, res) =>{
         approved: true
     }
     );
-    res.redirect('/admin/approvazioneUtenti')
+    const info = await credentials.findOne(
+        {"userName": userName,"email": email,"cell": cell},
+        {"billingInfo.nome": 1,"billingInfo.cognome": 1}
+    );
+    const subject = 'Approvazione Scuola Guida';
+    const text = `Gentile ${info.billingInfo[0].nome} ${info.billingInfo[0].cognome}, la informiamo che il suo account è stato approvato.`;
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            //da cambiare in produzione
+            user: 'brezzagabriele0@gmail.com',
+            pass: 'cack nyhf wlmc iuox'
+        },
+        //DA TOGLIERE IN PRODUZIONE
+        tls: {
+            rejectUnauthorized: false
+        }
+    });
+
+    const mailOptions = {
+        from: 'brezzagabriele0@gmail.com',
+        to: email,
+        subject: subject,
+        text: text
+    };
+
+    transporter.sendMail(mailOptions, async function(error, info) {
+        if (error) {
+            console.error('Errore nell\'invio dell\'email:', error);
+            res.sendStatus(500);
+        } else {
+            console.log('Email inviata con successo a:', userName);
+                res.redirect('/admin/approvazioneUtenti')
+        }
+    });
 });
 
 router.post('/approveAdmin', async (req, res) =>{
