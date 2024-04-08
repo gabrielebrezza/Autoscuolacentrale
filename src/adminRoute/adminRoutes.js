@@ -28,7 +28,7 @@ router.use(bodyParser.json());
 function authenticateJWT(req, res, next) {
     const token = req.cookies.token;
     if (!token) {
-        return res.status(401).json({ message: 'Nessun token fornito' });
+        return res.redirect('/admin/login');
     }
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
@@ -39,6 +39,10 @@ function authenticateJWT(req, res, next) {
         next();
     });
 }
+
+router.post('/logout', (req, res) => {
+    res.clearCookie('token').send({ message: 'Logout effettuato con successo' });
+}); 
 
 router.get('/admin/register', (req, res) => {
     res.render('admin/adminRegister');

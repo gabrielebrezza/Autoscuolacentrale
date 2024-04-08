@@ -11,6 +11,28 @@
             <li><a href="/admin/approvazioneUtenti">Approva Utenti</a></li>
             <li><a href="/admin/oreIstruttori">Visualizza Ore Istruttori</a></li>
             <li><a href="/admin/formatoEmail">Modifica formato Email</a></li>
+            <li><a style="color: red;" href="/admin/login" onclick="logout()">LogOut</a></li>
         </ul>
     </nav>
 </header>
+
+
+<script>
+    function logout() {
+        fetch('/logout', {
+            method: 'POST',
+            credentials: 'same-origin' // Assicurati di includere questo se stai inviando cookie
+        })
+        .then(response => {
+            if (response.ok) {
+                // Se il logout ha avuto successo, reindirizza l'utente alla pagina di login o altrove
+                window.location.href = '/admin/login';
+            } else {
+                console.error('Logout fallito');
+            }
+        })
+        .catch(error => {
+            console.error('Errore durante il logout:', error);
+        });
+    }
+</script>
