@@ -46,8 +46,18 @@ app.use(bodyParser.urlencoded({ extended: false}));
 
 app.use(adminRoutes);
 
-app.get('/', (req, res) =>{
-    res.render('login');
+app.get('/', async (req, res) =>{
+    const user = req.cookies.userName;
+    if(user){
+        const isApproved = await credentials.findOne({userName: user});
+        if (isApproved.approved) {
+            res.redirect(`/profile/:${user}`);
+        }else{
+                res.redirect(`/waitingApprovation/:${user}`);
+            }
+    }else{ 
+        res.render('login');
+    }
 });
 
 async function generateOTP(length) {
@@ -218,6 +228,25 @@ app.post('/verification', async (req, res) => {
 });
 
 
+
+
+
+// Middleware per controllare l'autenticazione
+const isAuthenticated = async (req, res, next) => {
+    const usernameCookie = req.cookies.userName;
+    const usernameURL = (req.params.userName).replace(":", "");
+    const isApproved = await credentials.findOne({userName: usernameURL});
+    if(isApproved){
+        if (usernameCookie && usernameCookie === usernameURL && isApproved.approved) {
+            // User authenticated
+            return next();
+        } else {
+            // User not authenticated
+            res.redirect(`/waitingApprovation/:${usernameURL}`);
+        }
+    }
+};
+
 app.get('/verificationCode/:userName', async (req, res) => {
     res.render('codiceDiVerifica', {userName: req.params.userName.replace(':', '')});
 });
@@ -238,23 +267,11 @@ app.post('/verifica_otp', async (req, res) =>{
         res.json('Il codice OTP inserito è errato');
     }
 });
-
-// Middleware per controllare l'autenticazione
-const isAuthenticated = async (req, res, next) => {
-    const usernameCookie = req.cookies.userName;
-    const usernameURL = (req.params.userName).replace(":", "");
-    const isApproved = await credentials.findOne({userName: usernameURL});
-    if(isApproved){
-        if (usernameCookie && usernameCookie === usernameURL && isApproved.approved) {
-            // User authenticated
-            return next();
-        } else {
-            // User not authenticated
-            res.redirect('/');
-        }
-    }
-};
-
+app.get('/waitingApprovation/:userName', async (req, res) =>{
+    const user = req.params.userName.replace(':',''); 
+    const isApproved = await credentials.findOne({userName: user});
+    res.render('waitingApprovation', { user: user });
+});
 app.get('/profile/:userName', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();
     const nome = req.params.userName.replace(':', '');
