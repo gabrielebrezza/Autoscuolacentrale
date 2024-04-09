@@ -14,7 +14,19 @@ body {
     margin: 0;
     padding: 0;
 }
-
+header a{
+    font-family: "Bebas Neue", sans-serif !important;
+    font-weight: 50;
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    font-style: normal !important;
+    text-decoration: none;
+    margin-left: 20px;
+}
+.actions{
+    display: flex;
+    align-items: center;
+}
 header {
     background-color: #f8f9fa;
     color: #000;
@@ -27,6 +39,7 @@ header {
     font-weight: 600;
 }
 header button{
+    cursor: pointer;
     background-color: #007bff;
     outline: none;
     border: none;
