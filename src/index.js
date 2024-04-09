@@ -82,8 +82,7 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
         text = 'È appena stato effettuato l\'accesso al tuo account, questo è il codice di verifica: ' + otpCode;
     } else if(intent == 'signup'){
         subject = 'Iscrizione effettuata a scuola guida';
-        text = 'Il tuo account è stato creato con successo, questo è il codice di verifica per accedere: ' + otpCode + 
-        '. Dopo aver Inserito il codice dovrai attendere che un amministratore approvi il tuo account';
+        text = 'Abbiamo inviato i tuoi dati all\'autoscuola. A breve riceverai un\'email di conferma che ti autorizzerà ad accedere all\'agenda. Cordiali saluti.';
     }else if(intent == 'bookGuide'){
         subject = 'Prenotazione effettuata per lezione di guida';
         const content = await formatoEmail.find({})
