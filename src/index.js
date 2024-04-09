@@ -48,8 +48,8 @@ app.use(adminRoutes);
 
 app.get('/', async (req, res) =>{
     const user = req.cookies.userName;
-    if(user){
-        const isApproved = await credentials.findOne({userName: user});
+    const isApproved = await credentials.findOne({userName: user});
+    if(isApproved){
         if (isApproved.approved) {
             res.redirect(`/profile/:${user}`);
         }else{
