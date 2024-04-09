@@ -26,6 +26,17 @@ header {
     font-size: 1.1rem;
     font-weight: 600;
 }
+header button{
+    background-color: #007bff;
+    outline: none;
+    border: none;
+    padding: 10px;
+    color: #fff;
+    border-radius: 5px;
+}
+header button:hover{
+    background-color: #0056b3;
+}
 header img{
     max-width: 300px;
     width: 100%;
