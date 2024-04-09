@@ -49,7 +49,7 @@ app.use(adminRoutes);
 app.get('/', async (req, res) =>{
     const user = req.cookies.userName;
     const isApproved = await credentials.findOne({userName: user});
-    if(isApproved){
+    if(user && isApproved){
         if (isApproved.approved) {
             res.redirect(`/profile/:${user}`);
         }else{
@@ -59,7 +59,9 @@ app.get('/', async (req, res) =>{
         res.render('login');
     }
 });
-
+app.post('/userLogout', (req, res) => {
+    res.clearCookie('userName').send({ message: 'Logout effettuato con successo' });
+}); 
 async function generateOTP(length) {
     const digits = '0123456789';
     let OTP = '';
@@ -275,12 +277,13 @@ app.get('/waitingApprovation/:userName', async (req, res) =>{
 app.get('/profile/:userName', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();
     const nome = req.params.userName.replace(':', '');
-    const esami = await credentials.findOne({ "userName": nome }, { exams: 1 });
-    const personalData = await credentials.findOne({ "userName": nome }, { billingInfo: 1});
+    const esami = await credentials.findOne({ "userName": nome }, { "exams": 1 });
+    const personalData = await credentials.findOne({ "userName": nome }, { "billingInfo": 1});
     const bachecaContent = await bacheca.findOne();
-    const exclude = await credentials.findOne({ "userName": nome }, { exclude: 1 });
+    const exclude = await credentials.findOne({ "userName": nome }, { "exclude": 1 });
+    const storicoGuide = await credentials.findOne({ "userName": nome }, {"lessonList": 1})
     const excludeInstructor = exclude.exclude;
-    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData});
+    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide});
 });
 
 app.post('/book', async (req, res) => {

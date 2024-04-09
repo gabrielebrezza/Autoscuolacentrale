@@ -24,11 +24,10 @@
     function logout() {
         fetch('/logout', {
             method: 'POST',
-            credentials: 'same-origin' // Assicurati di includere questo se stai inviando cookie
+            credentials: 'same-origin'
         })
         .then(response => {
             if (response.ok) {
-                // Se il logout ha avuto successo, reindirizza l'utente alla pagina di login o altrove
                 window.location.href = '/admin/login';
             } else {
                 console.error('Logout fallito');

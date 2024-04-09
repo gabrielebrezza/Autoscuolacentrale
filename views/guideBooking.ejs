@@ -15,9 +15,61 @@
 </head>
 <body>
     <header class="header">
-        <!-- <img src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px"> -->
-        <h2>Benvenuto <%= nome %></h2>
+        <img src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
+        <div class="actions">
+            <button class="storico">Storico Guide</button>
+            <a style="color: red;" href="/" onclick="logout()">LogOut</a>
+        </div>
+        <script>
+            const storico = document.querySelector('.storico');
+            storico.addEventListener('click', () => {
+                document.querySelector('.storicoGuide').style.display = 'block';
+            });
+            document.body.addEventListener('click', () =>{
+                document.querySelector('.storicoGuide').style.display = 'none';
+            });
+            function logout() {
+                fetch('/userLogout', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/';
+                    } else {
+                        console.error('Logout fallito');
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore durante il logout:', error);
+                });
+            }
+        </script> 
+
     </header>
+    <div class="storicoGuide" style="display: none;">
+        <h2>Elenco Lezioni</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Istruttore</th>
+                    <th>Giorno</th>
+                    <th>Ora</th>
+                    <th>Durata</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (let i = 0; i < storicoGuide.lessonList.length; i++) { %>
+                    <tr>
+                        <td><%= storicoGuide.lessonList[i].istruttore %></td>
+                        <td><%= storicoGuide.lessonList[i].giorno %></td>
+                        <td><%= storicoGuide.lessonList[i].ora %></td>
+                        <td><%= storicoGuide.lessonList[i].duration %>h</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
     <aside>
                 <div class="esami">
                     <nav>Prenotazione esami di guida</nav>
