@@ -25,9 +25,6 @@
             storico.addEventListener('click', () => {
                 document.querySelector('.storicoGuide').style.display = 'block';
             });
-            document.body.addEventListener('click', () =>{
-                document.querySelector('.storicoGuide').style.display = 'none';
-            });
             function logout() {
                 fetch('/userLogout', {
                     method: 'POST',
