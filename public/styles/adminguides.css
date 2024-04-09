@@ -5,6 +5,10 @@
 }
 body {
     background-color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
 
 table {
@@ -168,6 +172,7 @@ h2 {
 
 
 .day-card {
+    width: 500px;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 20px;
@@ -203,7 +208,14 @@ h2 {
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
-
+.deleteAllGuides{
+    background: red;
+    padding: 10px;
+    color: #ccc;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+}
 .si {
     color: green;
     font-weight: bold;
@@ -227,12 +239,6 @@ h2 {
     margin-bottom: 20px;
 }
 
-#data {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 200px; /* Regola la larghezza dell'input */
+#lezioni-disponibili{
+    margin-top: 25px;
 }

@@ -107,3 +107,42 @@ button > a{
     color: #fff;
     text-decoration: none;
 }
+
+
+
+
+
+.filterSection {
+    color: #ddd;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.filterSection label {
+    display: block;
+    margin-inline: 10px;
+    margin-bottom: 5px;
+}
+
+.filterSection input[type="text"],
+.filterSection input[type="tel"],
+.filterSection input[type="email"],
+.filterSection input[type="number"] {
+    width: 100px;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #333;
+    color: white;
+}
+
+.filterSection input[type="text"]:focus,
+.filterSection input[type="tel"]:focus,
+.filterSection input[type="email"]:focus,
+.filterSection input[type="number"]:focus {
+    outline: none;
+    border-color: #66afe9; /* Cambia colore del bordo al focus */
+}

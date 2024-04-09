@@ -274,8 +274,28 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
         res.status(500).json({ message: 'Errore durante la creazione della guida' });
     }    
 });
-
-
+router.post('/deleteAllGuides', authenticateJWT, async (req, res) => {
+    try {
+        const { instructor, time } = req.body;
+        const updatedGuide = await guide.findOneAndUpdate(
+            { "instructor": instructor },
+            { 
+                $pull: { 
+                    "book": { "day": time } 
+                } 
+            },
+            { 
+                returnOriginal: false 
+            }
+        );
+        
+        
+        res.json('eliminate')
+    }catch(error){
+        console.error('Errore durante la rimozione della lezione di guida:', error);
+        res.status(500).send('Errore durante la rimozione della lezione di guida');
+    }
+    });
 router.post('/adminRemovebooking', authenticateJWT, async (req, res) => {
     try {
         const { instructor, time } = req.body;

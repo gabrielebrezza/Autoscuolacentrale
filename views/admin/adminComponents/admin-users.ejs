@@ -8,6 +8,18 @@
 </head>
 <body>
     <%- include('header.ejs') %>
+    <div class="filterSection">
+        <label for="searchName">Cerca per nome:</label>
+        <input type="text" id="searchName" name="searchName">
+        <label for="searchPhone">Cerca per numero di telefono:</label>
+        <input type="tel" id="searchPhone" name="searchPhone">
+        <label for="searchEmail">Cerca per Email:</label>
+        <input type="email" id="searchEmail" name="searchEmail">
+        <label for="searchExams">Cerca per numero di esami:</label>
+        <input type="number" id="searchExams" name="searchExams" min="0">
+        <!-- Aggiungi altri filtri secondo necessità -->
+    </div>
+    
     <div class="tableContainer">
     <table>
         <thead>
@@ -28,7 +40,7 @@
             <% if (istruttore == 'dave') { %>
                 <% for (let i = 0; i < utenti.length; i++) { %>
                     <tr>
-                        <td> <%= utenti[i].userName %></td>
+                        <td><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></td>
                         <td><%= utenti[i].email %></td>
                         <td><%= utenti[i].cell %></td>
                             <td> 
@@ -49,7 +61,7 @@
             <% }else{ %>
                 <% for (let i = 0; i < utenti.length; i++) { %>
                     <tr>
-                        <td><%= utenti[i].userName %></td>
+                        <td><%= utenti[i].billingInfo.nome %> <%= utenti[i].billingInfo.cognome %></td>
                         <td><%= utenti[i].email %></td>
                         <td><%= utenti[i].cell %></td>
                     </tr>
@@ -57,6 +69,36 @@
             }%>
         </tbody>
     </table>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#searchName, #searchPhone, #searchEmail, #searchExams').on('input', function() {
+            var nameFilter = $('#searchName').val().toLowerCase();
+            var phoneFilter = $('#searchPhone').val().toLowerCase();
+            var emailFilter = $('#searchEmail').val().toLowerCase();
+            var examsFilter = parseInt($('#searchExams').val());
+
+            $('tbody tr').each(function() {
+                var name = $(this).find('td:nth-child(1)').text().toLowerCase();
+                var phone = $(this).find('td:nth-child(3)').text().toLowerCase();
+                var email = $(this).find('td:nth-child(2)').text().toLowerCase();
+                var exams = parseInt($(this).find('td:nth-child(4)').text());
+
+                var nameMatch = name.includes(nameFilter);
+                var phoneMatch = phone.includes(phoneFilter);
+                var emailMatch = email.includes(emailFilter);
+                var examsMatch = isNaN(examsFilter) || exams === examsFilter;
+
+                if (nameMatch && phoneMatch && emailMatch && examsMatch) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    });
+</script>
+
     </div>
     <% if (istruttore == 'dave') { %>
         <div id="formContainer" style="display: none;">

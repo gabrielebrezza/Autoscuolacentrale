@@ -16,15 +16,15 @@
 </head>
 <body>
     <%- include('header.ejs') %>
-    <div id="calendario-container">
-        <input type="text" class="material-symbols-outlined" id="data" name="data" readonly>
-    </div>
+        <div id="data" name="data"></div>
+
 
     
         <div id="lezioni-disponibili">
             <% for(let i = 0; i < guides.length; i++) { %>
                 <% const guide = guides[i]; %>
                 <% let dateElaborate = []; %>
+                <% let anyBooking = false; %>
                 <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
                     <% for(let j = 0; j < guide.book.length; j++) { %>
                         <% const dateString = guide.book[j].day; %>
@@ -63,12 +63,16 @@
                                                                     <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>
                                                                 <% } %>
                                                             <% } %>
+                                                            <% anyBooking = true; %>
                                                         <% } %>
                                                     </td>
                                                 </tr>
                                             <% } %>
                                         </tbody>
                                     </table>
+                                    <% if (!anyBooking) { %>
+                                        <button  class="deleteAllGuides" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %>">Elimina tutte</button>
+                                    <% } %>
                                 </div>
                             </div>
                         <% } %>
@@ -77,6 +81,41 @@
             <% } %>
         </div>
         
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const deleteButton = document.querySelectorAll(".deleteAllGuides");
+        
+                deleteButton.forEach((btn)=>{
+                btn.addEventListener("click", function() {
+                    const instructor = btn.dataset.instructor;
+                    const time = btn.dataset.time;
+                    fetch('/deleteAllGuides', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ instructor: instructor, time: time})
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Success:', data);
+                        alert('Tutte le guide del giorno ' + time + ' sono state eliminate con successo');
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Errore nell\'eliminazione di tutte le guide del giorno ' + time);
+                    });
+                });
+            });
+        });
+        </script>
+                
     
 <script>
 $(function() {
