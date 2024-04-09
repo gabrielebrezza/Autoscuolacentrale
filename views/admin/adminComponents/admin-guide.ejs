@@ -9,67 +9,123 @@
     <!-- icone -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title><%= title %></title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
 </head>
 <body>
     <%- include('header.ejs') %>
+    <div id="calendario-container">
+        <input type="text" class="material-symbols-outlined" id="data" name="data" readonly>
+    </div>
 
-
-        <% for (let i = 0; i < guides.length; i++) { %>
-            <% const guide = guides[i]; %>
-            <h2><%= guide.instructor %></h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Giorno</th>
-                        <th>Ora</th>
-                        <th>Prenotata</th>
-                        <% if(guide.instructor == istruttore){ %>
-                            <th>azioni</th>
-                        <% } %>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% for (let j = 0; j < guide.book.length; j++) { %>
-                        <% const day = guide.book[j]; %>
-                        <% for (let k = 0; k < day.schedule.length; k++) { %>
-                            <% const schedule = day.schedule[k]; %>
-                            <tr>
-                                <td><%= day.day %></td>
-                                <td><%= schedule.hour %></td>
-                                <td>
-                                    <% if(guide.instructor == istruttore){ %>
-                                        <% if(schedule.student){ %>
-                                            <span class="si"> <%= schedule.student %> </span>
-                                        <% } else { %>
-                                            <span class="no">NO</span>
-                                        <% } %>
-                                    <% } else { %>
-                                        <% if(schedule.student){ %>
-                                            <span class="si">SI</span>
-                                        <% } else { %>
-                                            <span class="no">NO</span>
-                                        <% } %>
-                                    <% } %>
-                                </td>
-                                    <% if(guide.instructor == istruttore){ %>
-                                        <td>
-                                            <% if (!schedule.student) { %>
-                                                <span class="material-symbols-outlined deleteGuide" data-instructor="<%=istruttore%>" data-time="<%= day.day %> - <%= schedule.hour %>">delete</span>
-                                            <% } else{ %>
-                                                <% for( let n = 0; n < infos.length; n++ ) { %>
-                                                    <% if(infos[n].userName == schedule.student){ %>
-                                                        <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>
-                                                    <% } %>
-                                                <% } %>
+    
+        <div id="lezioni-disponibili">
+            <% for(let i = 0; i < guides.length; i++) { %>
+                <% const guide = guides[i]; %>
+                <% let dateElaborate = []; %>
+                <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                    <% for(let j = 0; j < guide.book.length; j++) { %>
+                        <% const dateString = guide.book[j].day; %>
+                        <% if (!dateElaborate.includes(dateString)) { %>
+                            <% dateElaborate.push(dateString); %>
+                            <div class="day-card" data-date="<%= dateString %>" style="display: none;">
+                                <h2 class="day-title">Giorno: <%= dateString %></h2>
+                                <div class="guide-info">
+                                    <h3 class="guide-name">Istruttore: <%= guide.instructor %></h3>
+                                    <table class="guide-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Ora</th>
+                                                <th>Prenotata</th>
+                                                <th>Azioni</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% for(let k = 0; k < guide.book[j].schedule.length; k++) { %>
+                                                <% const schedule = guide.book[j].schedule[k]; %>
+                                                <tr>
+                                                    <td><%= schedule.hour %></td>
+                                                    <td>
+                                                        <% if (schedule.student) { %>
+                                                            <span class="si">Prenotata</span>
+                                                        <% } else { %>
+                                                            <span class="no">Non Prenotata</span>
+                                                        <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <% if (!schedule.student) { %>
+                                                            <span class="material-symbols-outlined deleteGuide" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %> - <%= schedule.hour %>">delete</span>
+                                                        <% } else { %>
+                                                            <% for (let n = 0; n < infos.length; n++) { %>
+                                                                <% if (infos[n].userName === schedule.student) { %>
+                                                                    <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>
+                                                                <% } %>
+                                                            <% } %>
+                                                        <% } %>
+                                                    </td>
+                                                </tr>
                                             <% } %>
-                                        </td>
-                                    <% } %>
-                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         <% } %>
                     <% } %>
-                </tbody>
-            </table>
-        <% } %>
+                <% } %>
+            <% } %>
+        </div>
+        
+    
+<script>
+$(function() {
+    $("#data").datepicker({
+        dateFormat: 'dd/mm/yy',
+        minDate: 0, // oggi
+        beforeShowDay: function(date) {
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            // Formattazione data
+            var dateString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+            var sectionExists = $('.day-card[data-date="' + dateString + '"]').length > 0;
+            if (sectionExists) {
+                return [true, "greenDate", "Ci sono guide libere"];
+            } else {
+                return [true, "redDate disabled", "Non ci sono guide libere"];
+            }
+        },
+        onSelect: function(dateText, inst) {
+            updateSectionsVisibility(dateText); // Chiamiamo la funzione updateSectionsVisibility quando la data viene selezionata
+        }
+    });
+
+    // Selezioniamo la prima data verde all'avvio della pagina
+    selectFirstGreenDate();
+});
+
+function selectFirstGreenDate() {
+    var firstGreenDateStr = $('.greenDate > a').data("date");
+    if (firstGreenDateStr) {       
+        $("#data").datepicker("setDate", firstGreenDateStr);
+        updateSectionsVisibility(firstGreenDateStr); // Aggiorniamo la visibilità delle sezioni quando viene selezionata la prima data verde
+    } else {
+        console.log("Nessuna data greenDate trovata.");
+    }
+}
+
+function updateSectionsVisibility(selectedDate) {
+    var sections = document.querySelectorAll('.day-card');
+    sections.forEach(function (section) {
+        if (section.getAttribute('data-date') === selectedDate) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    });
+}
+        </script>
 
         <div id="infosContainer" style="display: none;">
             <h2>info allievo</h2>

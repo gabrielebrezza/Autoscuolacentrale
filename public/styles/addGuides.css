@@ -135,3 +135,112 @@ table {
     border: none !important;
     background-color: #0000 !important;
 }
+
+
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+    background-color: #f8f9fa; /* Colore di sfondo chiaro */
+}
+
+.card-header {
+    padding: 20px;
+    background-color: #e9ecef; /* Colore di sfondo leggermente più scuro */
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.list-group {
+    margin: 0;
+    padding: 0;
+}
+
+.list-group-item {
+    list-style: none;
+    border: none;
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item span {
+    font-weight: bold;
+}
+
+
+.ui-datepicker-header{
+    background: #5992cf !important;
+    color: #fff !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: min-content !important;
+}
+.ui-datepicker-next, .ui-datepicker-prev{
+    padding-top: 5px;
+}
+
+.ui-datepicker-next:hover, .ui-datepicker-prev:hover{
+    background: #0000 !important;
+    border: 2px solid #0000 !important;
+}
+.ui-state-disabled, .ui-datepicker-unselectable, .ui-state-default{
+    border: none !important;
+    
+}
+.ui-state-disabled{
+    opacity: 0 !important;
+}
+.greenDate a {
+    border: 2px solid #0000 !important;
+    font-size: 1rem;
+    padding: 5px !important;
+    text-align: center !important;
+    color: green !important;
+    background: #0000 !important;
+}
+
+
+/* Stili per la data odierna */
+
+
+/* Stili per le date non disponibili */
+.redDate a {
+    border: 2px solid #0000 !important;
+    padding: 5px !important;
+    font-size: 1rem;
+    text-align: center !important;
+    color: red !important;
+    background: #0000 !important;
+}
+
+.ui-state-highlight{
+    text-align: center  !important;
+    background-color: rgb(77, 198, 77) !important;
+    border: none !important;
+
+}
+.ui-state-highlight {
+    border: 1px solid #0000 !important;
+    
+    color: #0000 !important;
+}
+.ui-datepicker-today{
+    background-color: transparent !important;
+    /* color: aqua !important; */
+}

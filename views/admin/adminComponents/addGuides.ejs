@@ -13,7 +13,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-multidatespicker/1.6.6/jquery-ui.multidatespicker.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
 </head>
 <body>
     <%- include('header.ejs') %>
@@ -65,45 +66,56 @@
 
     <% for (let i = 0; i < guides.length; i++) { %>
         <% const guide = guides[i]; %>
-        <table>
-            <thead>
-                <tr>
-                    <th>ORE</th>
-                    <th>OCCUPATE</th>
-                </tr>
-                <tr>
-                    <th>Giorno</th>
-                    <th>Ora</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% for (let j = 0; j < guide.book.length; j++) { %>
-                    <% const day = guide.book[j]; %>
-                    <% for (let k = 0; k < day.schedule.length; k++) { %>
-                        <% const schedule = day.schedule[k]; %>
-                        <tr>
-                            <td><%= day.day %></td>
-                            <td><%= schedule.hour %></td>
-                        </tr>
-                    <% } %>
-                <% } %>
-            </tbody>
-        </table>
+        <% for (let j = 0; j < guide.book.length; j++) { %>
+            <% const day = guide.book[j]; %>
+            <div class="card" data-date="<%= day.day %>" style="display: none;">
+                <div class="card-header">
+                    <h3>Giorno: <%= day.day %></h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <% for (let k = 0; k < day.schedule.length; k++) { %>
+                            <% const schedule = day.schedule[k]; %>
+                            <li class="list-group-item">
+                                <span>Ora: <%= schedule.hour %></span>
+                            </li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+        <% } %>
     <% } %>
+    
 </section>
 
 
 <script>
-    $(function() {
-
-        $("#day").multiDatesPicker({
-            dateFormat: "dd/mm/yy",
-            minDate: 0, // oggi
-            onSelect: function(dateText, inst) {
-                var selectedDates = $(this).multiDatesPicker('getDates');
+$(function() {
+    $("#day").multiDatesPicker({
+        dateFormat: "dd/mm/yy",
+        minDate: 0, // oggi
+        beforeShowDay: function(date) {
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            // Formattazione data
+            var dateString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+            var sectionExists = $('.card[data-date="' + dateString + '"]').length > 0;
+            if (sectionExists) {
+                return [true, "redDate", "Non ci sono guide libere"];
+            } else {
+                return [true, "greenDate", "Ci sono guide libere"];
             }
-        });
+        },
+        onSelect: function(dateText, inst) {
+            $('.card').hide(); // Nasconde tutte le card
+            var formattedDate = moment(dateText, "DD/MM/YYYY").format("DD/MM/YYYY");
+            var matchingCard = $('.card[data-date="' + formattedDate + '"]');
+            matchingCard.show(); // Mostra solo la card corrispondente alla data selezionata
+        }
     });
+});
+
 </script>
 
 

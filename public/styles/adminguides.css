@@ -106,3 +106,133 @@ h2 {
 }
 
 
+
+.ui-datepicker-header{
+    background: #5992cf !important;
+    color: #fff !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: min-content !important;
+}
+.ui-datepicker-next, .ui-datepicker-prev{
+    padding-top: 5px;
+}
+
+.ui-datepicker-next:hover, .ui-datepicker-prev:hover{
+    background: #0000 !important;
+    border: 2px solid #0000 !important;
+}
+.ui-state-disabled, .ui-datepicker-unselectable, .ui-state-default{
+    border: none !important;
+    
+}
+.ui-state-disabled{
+    opacity: 0 !important;
+}
+.greenDate a {
+    border: 2px solid #0000 !important;
+    font-size: 1rem;
+    padding: 5px !important;
+    text-align: center !important;
+    color: green !important;
+}
+
+
+/* Stili per la data odierna */
+.ui-datepicker-today{
+    background-color: transparent !important;
+    /* color: aqua !important; */
+}
+ .ui-state-highlight {
+    border: 1px solid #0000 !important;
+    background: #0000 !important;
+    color: #0000 !important;
+}
+.ui-state-active{
+    background: #80909f !important;
+}
+/* Stili per le date non disponibili */
+.redDate a {
+    border: 2px solid #0000 !important;
+    padding: 5px !important;
+    font-size: 1rem;
+    text-align: center !important;
+    color: red !important;
+}
+.disabled{
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+
+.day-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.day-title {
+    color: #121212;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.guide-info {
+    margin-bottom: 10px;
+}
+
+.guide-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.guide-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.guide-table th,
+.guide-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.si {
+    color: green;
+    font-weight: bold;
+}
+
+.no {
+    color: red;
+    font-weight: bold;
+}
+
+.material-symbols-outlined {
+    margin-right: 5px;
+}
+
+
+
+
+
+#calendario-container {
+    margin-left: 50px;
+    margin-bottom: 20px;
+}
+
+#data {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 200px; /* Regola la larghezza dell'input */
+}
