@@ -373,7 +373,7 @@ router.post('/approveUser', async (req, res) =>{
         {"billingInfo.nome": 1,"billingInfo.cognome": 1}
     );
     const subject = 'Approvazione Scuola Guida';
-    const text = `Gentile ${info.billingInfo[0].nome} ${info.billingInfo[0].cognome}, la informiamo che il suo account è stato approvato.`;
+    const text = `Gentile ${info.billingInfo[0].nome} ${info.billingInfo[0].cognome}, ti informiamo che il tuo account è stato attivato. Accedi per prenotare le tue lezioni di guida: http://http://13.39.106.190:5000/`;
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
