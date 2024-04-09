@@ -157,7 +157,7 @@
                         <td>
                             <button class="book" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
                                 data-instructor="<%= lezioni[i].instructor %>"
-                                data-price="<%= schedule.price %>">Prenota <%= Number(schedule.price).toFixed(2) %>€</button>
+                                data-price="<%= schedule.price %>">Costo: <%= Number(schedule.price).toFixed(2) %>€ <br> <strong>PRENOTA</strong></button>
                         </td>
                     </tr>
                     <% } else if (schedule.student == nome) { %>
