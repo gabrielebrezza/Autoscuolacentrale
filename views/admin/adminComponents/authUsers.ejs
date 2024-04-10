@@ -60,23 +60,19 @@
             <% needApprovalAdmins.forEach(function(item) { %>
               <div class="user-card">
                 <div class="user-card-header">
-                  <h3>Username:  <%= item.userName %></h3>
+                  <h3>istruttore: <%= item.nome %> <%= item.cognome %></h3>
                 </div>
                 <ul class="user-info">
-                  <!-- <li><strong>Email:</strong> <%= item.email %></li>
-                  <li><strong>Cell:</strong> <%= item.cell %></li> -->
+                  <li><strong>Email:</strong> <%= item.email %></li> 
+                  <!--<li><strong>Cell:</strong> <%= item.cell %></li> -->
                 </ul>
                 <div class="buttons">
                     <form action="/approveAdmin" method="POST">
-                      <input type="hidden" name="userName" value="<%= item.userName %>">
-                      <!-- <input type="hidden" name="email" value="<%= item.email %>">
-                      <input type="hidden" name="cell" value="<%= item.cell %>"> -->
+                      <input type="hidden" name="email" value="<%= item.email %>">
                       <button type="submit" class="approve-button">Approva</button>
                     </form>
                     <form action="/disapproveAdmin" method="POST">
-                      <input type="hidden" name="userName" value="<%= item.userName %>">
-                      <!-- <input type="hidden" name="email" value="<%= item.email %>">
-                      <input type="hidden" name="cell" value="<%= item.cell %>"> -->
+                      <input type="hidden" name="email" value="<%= item.email %>">
                       <button type="submit" class="disapprove-button">Disapprova</button>
                     </form>
                 </div>

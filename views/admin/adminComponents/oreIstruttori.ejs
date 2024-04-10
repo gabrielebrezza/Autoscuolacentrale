@@ -65,7 +65,7 @@
         <h2>Ore svolte dagli istruttori</h2>
         <select id="instructor">
             <% for( let i = 0; i < oreIstruttori.length; i++ ) { %>
-                 <option value="<%= oreIstruttori[i].userName %>"><%= oreIstruttori[i].userName %></option>
+                 <option value="<%= oreIstruttori[i].email %>"><%= oreIstruttori[i].nome %> <%= oreIstruttori[i].cognome %></option>
             <% } %>
         </select>
         <label for="fromDate">Da data:</label>
@@ -96,7 +96,7 @@
             const price = document.getElementById('price').value;
             
             var oreFiltrate = oreIstruttori.find(function(istruttore) {
-                return istruttore.userName === selectedInstructor;
+                return istruttore.email === selectedInstructor;
             });
         
             var oreSvolte = oreFiltrate.ore.filter(function(ora) {

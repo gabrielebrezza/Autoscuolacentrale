@@ -41,11 +41,12 @@ async function authenticateJWT(req, res, next) {
         
         // Controlla se l'utente è approvato
         try {
-            const username = user.username; // Assicurati che il nome utente sia memorizzato correttamente nel token JWT
-            const approvedAdmin = await Admin.findOne({ "userName": username, "approved": true });
+            const username = user.username; 
+            const [nome, cognome] = username.split(" ");
+            const approvedAdmin = await Admin.findOne({ "nome": nome, "cognome": cognome, "approved": true });
             
             if (!approvedAdmin) {
-                return res.status(403).json({ message: 'Utente non approvato' });
+                return res.redirect(`/waitingApprovation/:${username}`);
             }
         } catch (error) {
             console.error('Errore durante il recupero dello stato di approvazione dell\'utente:', error);
@@ -68,72 +69,152 @@ router.get('/admin/register', (req, res) => {
 
 router.post('/admin/register', async (req, res) => {
 
-    const { username, password } = req.body;
+    const { nome, cognome, email, password } = req.body;
     try {
-        // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
-        const existingAdmin = await Admin.findOne({ username });
+        const existingAdmin = await Admin.findOne({ email });
 
-        // Verifica se l'amministratore esiste già
         if (existingAdmin) {
             return res.status(400).json({ message: 'L\'utente con questo nome utente esiste già' });
         }
-
-        // Crea un nuovo documento Admin
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        saltRounds = await bcrypt.genSalt(10);
+        hashedOTP = await bcrypt.hash(String(otpCode), 10);
         const newAdmin = new Admin({
-            userName: username,
+            email: email,
+            nome: nome,
+            cognome: cognome,
             password: await bcrypt.hash(password, 10),
+            otp: hashedOTP,
             approved: false,
             role: 'Istruttore'
         });
 
-        // Salva il nuovo amministratore nel database
         await newAdmin.save();
+        const username = nome+' '+cognome;
+        const subject = 'Registrazione Istruttore Autoscuola';
+        const text = `Gentile ${nome} ${cognome}, questo è il codice per verificare l'account da istruttore: ${otpCode}`;
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                //da cambiare in produzione
+                user: 'brezzagabriele0@gmail.com',
+                pass: 'cack nyhf wlmc iuox'
+            },
+            //DA TOGLIERE IN PRODUZIONE
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
 
-        res.status(201).json({ message: 'Registrazione riuscita' });
+        const mailOptions = {
+            from: 'brezzagabriele0@gmail.com',
+            to: email,
+            subject: subject,
+            text: text
+        };
+
+        transporter.sendMail(mailOptions, async function(error, info) {
+            if (error) {
+                console.error('Errore nell\'invio dell\'email:', error);
+                res.sendStatus(500);
+            } else {
+                console.log('Email per registrazione ad istruttore inviata con successo a: ', nome, cognome);
+                    res.redirect(`/admin/otpcode/:${username}`);
+            }
+        });
     } catch (error) {
         console.error('Errore durante la registrazione:', error);
         res.status(500).json({ message: 'Errore durante la registrazione' });
     }
 });
 
-
-
-
 router.get('/admin/login', (req, res) => {
-
-    res.render('admin/adminLogin'); // Renderizza la pagina di login dell'amministratore
+    res.render('admin/adminLogin');
 });
 // Admin panel route
 router.post('/admin/login', async (req, res) => {
 
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
         // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
-        const admin = await Admin.findOne({ userName: username });
+        const admin = await Admin.findOne({ "email": email });
 
         // Verifica se l'amministratore esiste e se la password è corretta
         if (!admin || !(await bcrypt.compare(password, admin.password))) {
             return res.status(401).json({ message: 'Credenziali non valide' });
         }
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log(otpCode);
+        saltRounds = await bcrypt.genSalt(10);
+        hashedOTP = await bcrypt.hash(String(otpCode), 10);
+        const implementOTP = await Admin.findOneAndUpdate({ "email": email }, {"otp": hashedOTP});
+        const username = admin.nome+' '+admin.cognome;
+        const subject = 'Login Istruttore Autoscuola';
+        const text = `Gentile ${admin.nome} ${admin.cognome}, questo è il codice per accedere: ${otpCode}`;
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                //da cambiare in produzione
+                user: 'brezzagabriele0@gmail.com',
+                pass: 'cack nyhf wlmc iuox'
+            },
+            //DA TOGLIERE IN PRODUZIONE
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
 
-        // Genera il token JWT
-        const token = generateToken(username);
+        const mailOptions = {
+            from: 'brezzagabriele0@gmail.com',
+            to: email,
+            subject: subject,
+            text: text
+        };
 
-        // Imposta il token come cookie
-        res.cookie('token', token, { httpOnly: true });
-
-        // Restituisci un messaggio di login riuscito
-        res.redirect('/admin');
+        transporter.sendMail(mailOptions, async function(error, info) {
+            if (error) {
+                console.error('Errore nell\'invio dell\'email:', error);
+                res.sendStatus(500);
+            } else {
+                console.log('Email per il login ad istruttore inviata con successo a: ', username);
+                    res.redirect(`/admin/otpcode/:${username}`);
+            }
+        });
     } catch (error) {
         console.error('Errore durante il login:', error);
         res.status(500).json({ message: 'Errore durante il login' });
     }
 });
 
-// Rotta protetta
+router.get('/admin/otpcode/:username', async (req, res) =>{
+    const userName = req.params.username.replace(':', '');
+    res.render('admin/adminComponents/otpCode', {userName});
+}); 
+router.post('/admin/verifica_otp', async (req, res) =>{
+    const userName = req.body.userName;
+    const insertedOTP = Object.values(req.body).slice(-6);
+    let otpString = '';
+    for (const key in insertedOTP) {
+        otpString += insertedOTP[key];
+    }
+    const [nome, cognome] = userName.split(" ");
+    const check = await Admin.findOne({ "nome": nome, "cognome": cognome });
+    const isOTPMatched = await bcrypt.compare(otpString, check.otp);
+    if(isOTPMatched){
+        const username = nome+' '+cognome;
+        const token = generateToken(username);
+
+        res.cookie('token', token, { httpOnly: true });
+        res.redirect(`/admin`);
+    }else{
+        res.json('Il codice OTP inserito è errato');
+    }
+});
+
 router.get('/admin', authenticateJWT, async (req, res) => {
     const istruttore = req.user.username;
-    const role = await Admin.findOne({"userName": istruttore}, {"role" : 1});
+    const [nome, cognome] = istruttore.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     res.render('admin/admin', { title: 'Admin - DashBoard', role}); // Invia la pagina HTML protetta
 });
 
@@ -141,7 +222,8 @@ router.get('/admin/guides', authenticateJWT, async (req, res) => {
     
     try {
         const istruttore = req.user.username;
-        const role = await Admin.findOne({"userName": istruttore}, {"role" : 1});
+        const [nome, cognome] = istruttore.split(" ");
+        const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
         const guides = await guide.find();
         const infos = await credentials.find({}, { email: 1, userName: 1, cell: 1 });
         res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides , istruttore, infos, role});
@@ -154,10 +236,11 @@ router.get('/admin/guides', authenticateJWT, async (req, res) => {
 router.get('/admin/users',authenticateJWT , async (req, res) => {
     try {
         const istruttore = req.user.username;
-        const role = await Admin.findOne({"userName": istruttore}, {"role" : 1});
+        const [nome, cognome] = istruttore.split(" ");
+        const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
         const utenti = await credentials.find();
-        const listaIstruttori = await Admin.find({}, 'userName');
-        const istruttori = listaIstruttori.map(admin => admin.userName);
+        const listaIstruttori = await Admin.find({}, 'nome cognome');
+        const istruttori = listaIstruttori.map(admin => `${admin.nome} ${admin.cognome}`);
         res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', istruttore, utenti, istruttori, role});
     } catch (error) {
         console.error('Errore durante il recupero degli utenti:', error);
@@ -210,7 +293,8 @@ router.post('/boccia', authenticateJWT, async (req, res) =>{
 router.get('/admin/guideSvolte/:username',authenticateJWT , async (req, res) => {
     try {
         const istruttore = req.user.username;
-        const role = await Admin.findOne({"userName": istruttore}, {"role" : 1});
+        const [nome, cognome] = istruttore.split(" ");
+        const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
         const userName = req.params.username.replace(':', '');
         const guide = await credentials.findOne({"userName": userName}, {"lessonList": 1});
         res.render('admin/adminComponents/resocontoGuide', { title: 'Admin - Guide Svolte', userName, guide, role});
@@ -222,14 +306,24 @@ router.get('/admin/guideSvolte/:username',authenticateJWT , async (req, res) => 
 
 router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
-    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
+    const istruttori = await Admin.find({}, {nome : 1, cognome: 1, email: 1});
+    const [nome, cognome] = instructor.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     const guides = await guide.find();
-    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor, guides, role});
+    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor, guides, role, istruttori});
 });
 
 router.post('/create-guide', authenticateJWT, async (req, res) => {
     const { startHour, lessonsNumber, duration, locationLink} = req.body;
+    let istruttore = req.user.username;
     const instructor = req.user.username;
+    const [nome, cognome] = instructor.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
+    if(role.role == 'Super'){
+        istruttore = req.body.instructor;
+    }else{
+        istruttore = req.user.username;
+    }
     const days = req.body.day.split(", "); // Ottieni un array di date nel formato "gg/mm/aaaa"
     try {
         const pricePerHour = await prezzoGuida.findOne();
@@ -250,18 +344,18 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
             }
     
             // Cerca la guida corrente nel database per l'istruttore e la data specificata
-            let existingGuide = await guide.findOne({ instructor: instructor, 'book.day': day });
+            let existingGuide = await guide.findOne({ instructor: istruttore, 'book.day': day });
     
             if (existingGuide) {
                 // Se la guida esiste già per quella data, aggiungi la schedule
                 await guide.updateOne(
-                    { instructor: instructor, 'book.day': day },
+                    { instructor: istruttore, 'book.day': day },
                     { $push: { 'book.$.schedule': { $each: schedule } } }
                 );
             } else {
                 // Altrimenti, crea una nuova guida per quella data
                 await guide.updateOne(
-                    { instructor: instructor },
+                    { instructor: istruttore },
                     { $push: { book: { day: day, schedule: schedule } } },
                     { upsert: true }
                 );
@@ -332,7 +426,8 @@ router.post('/adminRemovebooking', authenticateJWT, async (req, res) => {
 
 router.get('/admin/bacheca',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
-    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
+    const [nome, cognome] = instructor.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     const bachecaContent = await bacheca.find();
     res.render('admin/adminComponents/editBacheca', { title: 'Admin - Modifica Bacheca',bachecaContent , instructor, role});
 });
@@ -340,10 +435,10 @@ router.post('/bacheca',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
     const content = req.body.bacheca;
     try {
-        const existingDocument = await bacheca.findOne(); // Cerca un documento esistente con lo stesso valore di content
+        const existingDocument = await bacheca.findOne();
             existingDocument.content = content;
-            existingDocument.editedBy.push(instructor); // Aggiunge l'istruttore all'array editedBy
-            await existingDocument.save(); // Salva il documento aggiornato
+            existingDocument.editedBy.push(instructor); 
+            await existingDocument.save(); 
             res.redirect('/admin/bacheca')
     } catch (error) {
         console.error("Error while adding or updating bacheca entry:", error);
@@ -354,7 +449,8 @@ router.post('/bacheca',authenticateJWT , async (req, res) => {
 });
 router.get('/admin/prezzi',authenticateJWT , async (req, res)=>{
     const instructor = req.user.username;
-    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
+    const [nome, cognome] = instructor.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     const prices = await prezzoGuida.find();
     res.render('admin/adminComponents/prezzi', { title: 'Admin - Prezzi', role, prices});
 });
@@ -370,7 +466,8 @@ router.post('/admin/editPrezzi', async (req, res)=>{
 });
 router.get('/admin/approvazioneUtenti',authenticateJWT , async (req, res)=>{
     const instructor = req.user.username;
-    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
+    const [nome, cognome] = instructor.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     const needApprovalStudents = await credentials.find({approved: false});
     const needApprovalAdmins = await Admin.find({approved: false});
     res.render('admin/adminComponents/authUsers', { title: 'Admin - Approva Utenti', needApprovalStudents, needApprovalAdmins, role});
@@ -426,13 +523,9 @@ router.post('/approveUser', async (req, res) =>{
 });
 
 router.post('/approveAdmin', async (req, res) =>{
-    const userName = req.body.userName;
-    // const email = req.body.email;
-    // const cell = req.body.cell;
+    const email = req.body.email;
     const approve = await Admin.findOneAndUpdate({
-        "userName": userName,
-        // "email": email,
-        // "cell": cell
+        "email": email
     },
     {
         approved: true
@@ -441,13 +534,9 @@ router.post('/approveAdmin', async (req, res) =>{
     res.redirect('/admin/approvazioneUtenti')
 });
 router.post('/disapproveAdmin', authenticateJWT, async (req, res) =>{
-    const userName = req.body.userName;
-    // const email = req.body.email;
-    // const cell = req.body.cell;
+    const email = req.body.email;
     const disapprove = await Admin.deleteOne({
-        "userName": userName,
-        // "email": email,
-        // "cell": cell
+        "email": email
     }
     );
     res.redirect('/admin/approvazioneUtenti')
@@ -467,14 +556,16 @@ router.post('/disapproveUser', authenticateJWT, async (req, res) =>{
 
 router.get('/admin/oreIstruttori', authenticateJWT, async (req, res) => {
     const instructor = req.user.username;
-    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
-    const oreIstruttori = await Admin.find({}, {userName : 1, ore : 1});
+    const [nome, cognome] = instructor.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
+    const oreIstruttori = await Admin.find({}, {nome : 1, cognome : 1, email: 1, ore : 1});
     res.render('admin/adminComponents/oreIstruttori', {title: 'Admin - Orari Istruttori', oreIstruttori, role});
 });
 
 router.get('/admin/formatoEmail', authenticateJWT, async (req, res) => {
     const instructor = req.user.username;
-    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
+    const [nome, cognome] = instructor.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     const formato = await formatoEmail.find({});
     res.render('admin/adminComponents/formatoEmail', {title: 'Admin - Formato Email', formato, role});
 });
@@ -486,7 +577,8 @@ router.post('/editFormatoEmail', authenticateJWT, async (req, res) => {
 });
 router.get('/admin/fatture/:utente',authenticateJWT , async (req, res)=>{
     const instructor = req.user.username;
-    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
+    const [nome, cognome] = instructor.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     const userName = req.params.utente.replace(':', '');
     const operazioniDaFatturare = await credentials.findOne(
         {"userName": userName},
@@ -498,7 +590,8 @@ router.get('/admin/fatture/:utente',authenticateJWT , async (req, res)=>{
 
 router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT , async (req, res)=>{
     const instructor = req.user.username;
-    const role = await Admin.findOne({"userName": instructor}, {"role" : 1});
+    const [nome, cognome] = instructor.split(" ");
+    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     const userName = req.params.utente;
     const tipo = req.params.tipo;
     const data = decodeURIComponent(req.params.data);

@@ -9,9 +9,21 @@ connect.then(() =>{
 });
 
 const AdminSchema = new mongoose.Schema({
-    userName:{
+    email:{
         type: String,
         required: true
+    },
+    nome:{
+        type: String,
+        required: true
+    },
+    cognome:{
+        type: String,
+        required: true
+    },
+    otp: {
+        type: String,
+        required: false
     },
     password: {
         type: String,
