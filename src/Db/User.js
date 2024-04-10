@@ -132,7 +132,11 @@ const LoginSchema = new mongoose.Schema({
                 required: false
             }
         }
-    ]
+    ],
+    resetPasswordCode: {
+        type: String,
+        required: false
+    }
 });
 
 const credentials = new mongoose.model('users', LoginSchema);

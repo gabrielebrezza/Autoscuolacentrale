@@ -229,9 +229,77 @@ app.post('/verification', async (req, res) => {
 });
 
 
+app.get('/resetPassword', async (req, res) =>{
+    res.render('resetPassword');
+});
+app.post('/resetPassword', async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+        const resetPasswordCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const foundCredentials = await credentials.findOneAndUpdate({ "email": email },{"resetPasswordCode": resetPasswordCode});
+  
+        if (!foundCredentials) {
+            return res.status(404).send('Email non trovata');
+        }
+        const subject = 'Codice di reset password scuolaguida';
+        const text = `Gentile ${foundCredentials.billingInfo[0].nome} ${foundCredentials.billingInfo[0].cognome}, ci è arrivata una richiesta per cambiare password. Ti inviamo il codice di verifica per il tuo account ${resetPasswordCode}, clicca sul link per cambiarla http://http://13.39.106.190:5000/newPassword`;
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                //da cambiare in produzione
+                user: 'brezzagabriele0@gmail.com',
+                pass: 'cack nyhf wlmc iuox'
+            },
+            //DA TOGLIERE IN PRODUZIONE
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
 
+        const mailOptions = {
+            from: 'brezzagabriele0@gmail.com',
+            to: email,
+            subject: subject,
+            text: text
+        };
 
+        transporter.sendMail(mailOptions, async function(error, info) {
+            if (error) {
+                console.error('Errore nell\'invio dell\'email:', error);
+                res.sendStatus(500);
+            } else {
+                console.log('Email per il reset della password inviata con successo a:', email);
+                    res.redirect('/');
+            }
+        });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send('Si è verificato un errore durante il reset della password.');
+    }
+  });
+app.get('/newPassword', async (req, res)=> {
+    res.render('newPassword');
+});
+app.post('/newPasswordVerification', async (req, res)=> {
+    const {email, code, newPassword, confirmNewPassword} = req.body;
 
+    const foundCredentials = await credentials.findOne({ "email": email, "resetPasswordCode": code });
+    if (foundCredentials) {
+        if(newPassword == confirmNewPassword){
+            const saltRounds = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+            const updatePsw = await credentials.findOneAndUpdate({ "email": email, "resetPasswordCode": code }, {"password": hashedPassword});
+            const deleteCode = await Credential.updateOne(
+                { "email": email, "resetPasswordCode": code },
+                { $unset: { "resetPasswordCode": 1 } }
+              );
+              
+        }
+    }else{
+        return res.status(404).send('Email non trovata o codice errato');
+    }
+});
 // Middleware per controllare l'autenticazione
 const isAuthenticated = async (req, res, next) => {
     const usernameCookie = req.cookies.userName;
