@@ -295,6 +295,7 @@ app.post('/newPasswordVerification', async (req, res)=> {
                 { $unset: { "resetPasswordCode": 1 } }
               );
         }
+        res.redirect('/');
     }else{
         return res.status(404).send('Email non trovata o codice errato');
     }
