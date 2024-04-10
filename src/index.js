@@ -290,11 +290,10 @@ app.post('/newPasswordVerification', async (req, res)=> {
             const saltRounds = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
             const updatePsw = await credentials.findOneAndUpdate({ "email": email, "resetPasswordCode": code }, {"password": hashedPassword});
-            const deleteCode = await Credential.updateOne(
+            const deleteCode = await credentials.updateOne(
                 { "email": email, "resetPasswordCode": code },
                 { $unset: { "resetPasswordCode": 1 } }
               );
-              
         }
     }else{
         return res.status(404).send('Email non trovata o codice errato');
