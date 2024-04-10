@@ -10,7 +10,7 @@ section{
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    
+    flex-wrap: wrap;
 }
 .container {
     max-width: 400px;
@@ -79,13 +79,22 @@ button:hover {
     background-color: #0056b3;
 }
 
-.duration, .duration div{
+.duration {
+    width: 40%;
+    margin-inline: auto;
     display: flex;
-    justify-content: space-around;
-    align-items: baseline;
-    padding-block: 10px;
+    align-items: center;
+    flex-direction: column;
+    
 }
-
+.duration div{
+    width: 100%;
+    position: relative;
+    padding-block: 5px;
+    display: flex;
+    align-items: baseline;
+    flex-direction: row;
+}
 table {
     width: 400px;
     border-collapse: collapse;
@@ -131,7 +140,7 @@ table {
     border: none !important;
     background-color: #0000 !important;
 }
-.ui-state-default{
+td:not(.greenDate):has(.ui-state-default){
     text-align: center  !important;
     border: none !important;
     background-color: #0000 !important;
@@ -140,6 +149,7 @@ table {
 
 
 .card {
+    margin-block: 15px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
@@ -216,11 +226,6 @@ table {
     background: #0000 !important;
 }
 
-
-/* Stili per la data odierna */
-
-
-/* Stili per le date non disponibili */
 .redDate a {
     border: 2px solid #0000 !important;
     padding: 5px !important;
@@ -229,7 +234,12 @@ table {
     color: red !important;
     background: #0000 !important;
 }
-
+td{
+    background: #0000;
+}
+.ui-datepicker-today{
+    background-color: transparent !important;
+}
 .ui-state-highlight{
     text-align: center  !important;
     background-color: rgb(77, 198, 77) !important;
@@ -240,8 +250,4 @@ table {
     border: 1px solid #0000 !important;
     
     color: #0000 !important;
-}
-.ui-datepicker-today{
-    background-color: transparent !important;
-    /* color: aqua !important; */
 }
