@@ -391,17 +391,18 @@ app.post('/book', async (req, res) => {
                 res.sendStatus(200);
             }, req);
         }
-        const existingOrario = await admin.findOne({"userName": instructor, "ore.data": day});
+        const [nome, cognome] = instructor.split(" ");
+        const existingOrario = await admin.findOne({"nome": nome, "cognome": cognome, "ore.data": day});
 
         if (existingOrario) {
             const updatedOrari = await admin.findOneAndUpdate(
-                {"userName": instructor, "ore.data": day},
+                {"nome": nome, "cognome": cognome, "ore.data": day},
                 {$inc: {"ore.$.totOreGiorno": durationInHour}},
                 {new: true}
             );
         } else {
             const updatedOrari = await admin.findOneAndUpdate(
-                {"userName": instructor},
+                {"nome": nome, "cognome": cognome},
                 {$addToSet: {"ore": {"data": day, "totOreGiorno": durationInHour}}},
                 {new: true}
             );
