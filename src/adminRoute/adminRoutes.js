@@ -436,6 +436,7 @@ router.post('/bacheca',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
     const content = req.body.bacheca;
     try {
+        console.log(content);
         const existingDocument = await bacheca.findOne();
             existingDocument.content = content;
             existingDocument.editedBy.push(instructor); 

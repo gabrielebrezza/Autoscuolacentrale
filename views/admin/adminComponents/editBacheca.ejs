@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
     <link rel="stylesheet" href="/styles/adminBacheca.css">
+    <script src="https://cdn.tiny.cloud/1/1wl5g3idjhsbvpztx4uilizdps5s9m41iwc1pkpeus8u9hqb/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: 'textarea',
+            plugins: 'lists',
+            toolbar: 'undo redo | bold italic | bullist',
+            ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+        });
+      </script>
 </head>
 <body>
     <%- include('header.ejs') %>

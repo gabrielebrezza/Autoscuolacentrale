@@ -187,7 +187,7 @@ aside .esami nav, aside .bacheca nav{
 
 aside .esami nav,
 aside .esami p,
-aside .esami strong,
+aside .esami > strong,
 aside .bacheca nav{
     font-size: 1.5rem;
     letter-spacing: 2px;
@@ -197,13 +197,13 @@ aside .bacheca nav{
     padding: 10px;
 }
 
-aside .bacheca p{
+/* aside .bacheca p{
     padding: 10px;
     font-size: 1.1rem;
     font-family: "Gotu", sans-serif;
     font-weight: 400;
     font-style: normal;
-}
+} */
 .esame{
     background-color: #fff;
     border-inline: 2px solid #343a40;
@@ -231,13 +231,22 @@ aside .bacheca p{
     border-radius: 0 0 5px 5px;
 }
 
-.bachecaText p{
+.bachecaText{
+    padding: 20px;
     background: #fff;
-    color: #343a40;
+    color: #343a40 ;
     border-radius: 0 0 5px 5px;
     border: 2px solid #343a40;
 }
-
+.bachecaText ul{
+    margin-left: 20px;
+}
+.bachecaText strong{
+    font-weight: 1000;
+}
+.bachecaText em{
+    font-style: italic;
+}
 /* .material-symbols-outlined {
     cursor: pointer;
 
