@@ -60,7 +60,7 @@ async function authenticateJWT(req, res, next) {
 
 
 router.post('/logout', (req, res) => {
-    res.clearCookie('token').send({ message: 'Logout effettuato con successo' });
+    res.clearCookie('token', { expires: new Date(0) }).send({ message: 'Logout effettuato con successo' });
 }); 
 
 router.get('/admin/register', (req, res) => {
