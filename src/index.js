@@ -60,6 +60,7 @@ app.get('/', async (req, res) =>{
     }
 });
 app.post('/userLogout', (req, res) => {
+    console.log(`L'allievo ${req.cookies.userName} ha appena effettuato il logOut`);
     res.clearCookie('userName', { expires: new Date(0) }).send({ message: 'Logout effettuato con successo' });
 }); 
 async function generateOTP(length) {
