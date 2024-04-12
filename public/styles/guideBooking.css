@@ -90,9 +90,10 @@ table {
     margin-top: 10px;
 }
 
-section:has(.removeBooking) tr:has(.book, .bookDisabled){
-    display: none;
+section:has(.removeBooking) {
+    display: none !important;
 }
+
 section:has(.bookDisabled) tr:has(.bookDisabled){
     display: none;
 }
@@ -237,13 +238,13 @@ aside .bacheca p{
     border: 2px solid #343a40;
 }
 
-.material-symbols-outlined {
+/* .material-symbols-outlined {
     cursor: pointer;
 
   color: #f8f9fa;
   padding: 10px;
   margin: 10px;
-}
+} */
 
 
 
@@ -331,7 +332,16 @@ aside .bacheca p{
     margin: 0 auto;
     transition: 1s opacity;
 }
-
+.paymentModal a{
+    top: 0;
+    right: 0;
+    position: absolute;
+    color: #fff;
+    transition: .5s;
+}
+.paymentModal a:hover{
+    color: red;
+}
 .paymentModal label {
     color: #fff;
     display: block;
@@ -361,19 +371,35 @@ aside .bacheca p{
     color: #fff;
 }
 
-
+main{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
 
 .storicoGuide{
+    position: relative;
     border-radius: 5px;
     padding: 15px;
+    width: fit-content;
     background-color: #f8f9fa;
     border: 1px solid #0056b3;
-    position: fixed;
-    top: 50%;
-    left: 50%;
+    /* position: fixed; */
+    /* top: 50%; */
+    /* left: 50%; */
     filter: drop-shadow(15px 15px 2px #1515354f);
-    transform: translateX(-50%) translateY(-50%);
+    /* transform: translateX(-50%) translateY(-50%); */
     z-index: 10000000;
+}
+.storicoGuide a{
+    color: #000;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    transition: .5s;
+}
+.storicoGuide a:hover{
+    color: red;
 }
 .storicoGuide h2{
     text-transform: uppercase;

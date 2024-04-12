@@ -58,7 +58,16 @@ tr:hover {
     justify-content: space-around;
     flex-direction: column;
 }
-
+#formContainer a{
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #000;
+    transition: .5s;
+}
+#formContainer a:hover{
+    color: red;
+}
 button {
     background-color: #007bff;
     color: #fff;
@@ -146,3 +155,6 @@ button > a{
     outline: none;
     border-color: #66afe9; /* Cambia colore del bordo al focus */
 }
+
+
+

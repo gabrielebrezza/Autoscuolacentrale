@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles/adminUsers.css">
     <title><%= title %></title>
+    <!-- icone -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
     <%- include('header.ejs') %>
@@ -90,6 +92,11 @@
 
     </div>
         <div id="formContainer" style="display: none;">
+            <a href=" ">
+                <span class="material-symbols-outlined">
+                    cancel
+                </span>
+            </a>
             <div class="limitationButtons">
                 <button id="activateExcludeForm">Aggiungi limitazioni</button>
                 <button id="activateIncludeForm">Rimuovi limitazioni</button>

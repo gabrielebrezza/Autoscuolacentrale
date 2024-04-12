@@ -44,29 +44,7 @@
         </script> 
 
     </header>
-    <div class="storicoGuide" style="display: none;">
-        <h2>Elenco Lezioni</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Istruttore</th>
-                    <th>Giorno</th>
-                    <th>Ora</th>
-                    <th>Durata</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% for (let i = 0; i < storicoGuide.lessonList.length; i++) { %>
-                    <tr>
-                        <td><%= storicoGuide.lessonList[i].istruttore %></td>
-                        <td><%= storicoGuide.lessonList[i].giorno %></td>
-                        <td><%= storicoGuide.lessonList[i].ora %></td>
-                        <td><%= storicoGuide.lessonList[i].duration %>h</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
+    
     <aside>
                 <div class="esami">
                     <nav>Prenotazione esami di guida</nav>
@@ -108,6 +86,35 @@
                 </div>
                 </span>
     </aside>
+    <main>
+    <div class="storicoGuide" style="display: none;">
+        <a href=" ">
+            <span class="material-symbols-outlined">
+                cancel
+            </span>
+        </a>
+        <h2>Storico Guide</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Istruttore</th>
+                    <th>Giorno</th>
+                    <th>Ora</th>
+                    <th>Durata</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (let i = 0; i < storicoGuide.lessonList.length; i++) { %>
+                    <tr>
+                        <td><%= storicoGuide.lessonList[i].istruttore %></td>
+                        <td><%= storicoGuide.lessonList[i].giorno %></td>
+                        <td><%= storicoGuide.lessonList[i].ora %></td>
+                        <td><%= storicoGuide.lessonList[i].duration.toFixed(2) %>h</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
     <%if(esame[0].paid){ %>
     <div class="container">
         <% for(var i = 0; i < lezioni.length; i++) { %>
@@ -195,7 +202,13 @@
         <h1 class="warning">Devi pagare almeno il primo esame per poter prenotare le lezioni di guida</h1>
     <% } %>
     <h1 class="warning noGuide">Non ci sono guide in programma per il giorno selezionato</h1>
+    </main>
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
+        <a href=" ">
+            <span class="material-symbols-outlined">
+                cancel
+            </span>
+        </a>
         <form id="paymentForm" action="/create-payment" method="POST">
             <input type="hidden" id="causeInput" name="cause" value="">
             <input type="hidden" id="locationInput" name="location" value="">
@@ -225,9 +238,14 @@ $(function() {
             var dateString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
 
             var sectionExists = $('.section[data-date="' + dateString + '"]').length > 0;
-        
+            var removeBookingExists = $('.section[data-date="' + dateString + '"] .removeBooking').length > 0;
+
             if (sectionExists) {
-                return [true, "greenDate", "Ci sono guide libere"];
+                if (removeBookingExists) {
+                    return [true, "redDate disabled", "Non ci sono guide libere"];
+                } else {
+                    return [true, "greenDate", "Ci sono guide libere"];
+                }
             } else {
                 return [true, "redDate disabled", "Non ci sono guide libere"];
             }
@@ -369,6 +387,7 @@ function updateSectionsVisibility(selectedDate) {
         //         console.error('Errore durante la rimozione della prenotazione:', error);
         //     });
         // }
+
     </script>
 </body>
 </html>

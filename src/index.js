@@ -60,7 +60,7 @@ app.get('/', async (req, res) =>{
     }
 });
 app.post('/userLogout', (req, res) => {
-    res.clearCookie('userName').send({ message: 'Logout effettuato con successo' });
+    res.clearCookie('userName', { expires: new Date(0) }).send({ message: 'Logout effettuato con successo' });
 }); 
 async function generateOTP(length) {
     const digits = '0123456789';

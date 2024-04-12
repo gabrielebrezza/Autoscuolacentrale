@@ -24,7 +24,7 @@
             <% for(let i = 0; i < guides.length; i++) { %>
                 <% const guide = guides[i]; %>
                 <% let dateElaborate = []; %>
-                <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                
                     <% for(let j = 0; j < guide.book.length; j++) { %>
                         <% let anyBooking = false; %>
                         <% const dateString = guide.book[j].day; %>
@@ -39,7 +39,9 @@
                                             <tr>
                                                 <th>Ora</th>
                                                 <th>Prenotata</th>
-                                                <th>Azioni</th>
+                                                <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                                                    <th>Azioni</th>
+                                                <% } %> 
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -49,36 +51,44 @@
                                                     <td><%= schedule.hour %></td>
                                                     <td>
                                                         <% if (schedule.student) { %>
-                                                            <span class="si"><%= schedule.student %></span>
+                                                            <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                                                                <span class="si"><%= schedule.student %></span>
+                                                            <% }else{ %>
+                                                                <span class="si">Prenotata</span>
+                                                            <% } %>    
                                                         <% } else { %>
                                                             <span class="no">Non Prenotata</span>
                                                         <% } %>
                                                     </td>
-                                                    <td>
-                                                        <% if (!schedule.student) { %>
-                                                            <span class="material-symbols-outlined deleteGuide" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %> - <%= schedule.hour %>">delete</span>
-                                                        <% } else { %>
-                                                            <% for (let n = 0; n < infos.length; n++) { %>
-                                                                <% if (infos[n].userName === schedule.student) { %>
-                                                                    <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>
+                                                    <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                                                        <td>
+                                                            <% if (!schedule.student) { %>
+                                                                <span class="material-symbols-outlined deleteGuide" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %> - <%= schedule.hour %>">delete</span>
+                                                            <% } else { %>
+                                                                <% for (let n = 0; n < infos.length; n++) { %>
+                                                                    <% if (infos[n].userName === schedule.student) { %>
+                                                                        <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>
+                                                                    <% } %>
                                                                 <% } %>
+                                                                <% anyBooking = true; %>
                                                             <% } %>
-                                                            <% anyBooking = true; %>
-                                                        <% } %>
-                                                    </td>
+                                                        </td>
+                                                    <% } %>   
                                                 </tr>
                                             <% } %>
                                         </tbody>
                                     </table>
                                     <% if (!anyBooking) { %>
-                                        <button  class="deleteAllGuides" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %>">Elimina tutte</button>
+                                        <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                                            <button  class="deleteAllGuides" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %>">Elimina tutte</button>
+                                        <% } %> 
                                     <% } %>
                                 </div>
                             </div>
                         <% } %>
                     <% } %>
                 <% } %>
-            <% } %>
+            
         </div>
         
         <script>
@@ -166,8 +176,16 @@ function updateSectionsVisibility(selectedDate) {
 }
         </script>
 
-        <div id="infosContainer" style="display: none;">
-            <h2>info allievo</h2>
+        <div id="infosContainer" style="display: none;">            
+
+            <h2>
+                info allievo             
+                <a href=" ">
+                    <span class="material-symbols-outlined">
+                        cancel
+                    </span>
+                </a>
+            </h2>
             <div class="field">
                 <h3>Email:</h3>
                 <p id="inputEmail"></p>
