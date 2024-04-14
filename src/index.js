@@ -699,14 +699,14 @@ app.get('/cancel', async (req, res) =>{
 //     console.log('Server running on Port: ' + port);
 // })
 
-const http = require('http');
+// const http = require('http');
 
-const server = http.createServer((req, res) => {
-    res.send('Benvenuto alla pagina principale!');
-});
+// const server = http.createServer((req, res) => {
+//     res.send('Benvenuto alla pagina principale!');
+// });
 
-const PORT = process.env.PORT || 80;
+// const PORT = process.env.PORT || 80;
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
