@@ -702,7 +702,7 @@ app.get('/cancel', async (req, res) =>{
 const http = require('http');
 
 const server = http.createServer((req, res) => {
-      res.redirect('/');
+    res.send('Benvenuto alla pagina principale!');
 });
 
 const PORT = process.env.PORT || 80;
