@@ -703,7 +703,7 @@ const http = require('http');
 
 const server = http.createServer((req, res) => {
     if (req.url === '/') {
-      res.writeHead(301, { 'Location': '/home' });
+      res.writeHead(301, { 'Location': '/' });
       res.end();
     }
 });
