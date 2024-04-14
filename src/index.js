@@ -694,7 +694,20 @@ app.get('/cancel', async (req, res) =>{
 
 
 
-const port = 5000;
-app.listen(port, '0.0.0.0', () =>{
-    console.log('Server running on Port: ' + port);
-})
+// const port = 5000;
+// app.listen(port, '0.0.0.0', () =>{
+//     console.log('Server running on Port: ' + port);
+// })
+
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end('Hello World!\n');
+});
+
+const PORT = process.env.PORT || 80;
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
