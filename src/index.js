@@ -705,7 +705,7 @@ app.get('/cancel', async (req, res) =>{
 //     res.send('Benvenuto alla pagina principale!');
 // });
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
