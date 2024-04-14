@@ -702,9 +702,7 @@ app.get('/cancel', async (req, res) =>{
 const http = require('http');
 
 const server = http.createServer((req, res) => {
-    if (req.url === '/') {
       res.writeHead(301, { 'Location': '/' });
-    }
 });
 
 const PORT = process.env.PORT || 80;
