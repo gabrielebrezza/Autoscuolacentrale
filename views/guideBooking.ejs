@@ -18,7 +18,7 @@
         <img src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
         <div class="actions">
             <button class="storico">Storico Guide</button>
-            <a style="color: red;" href="/" onclick="logout()">LogOut</a>
+            <a style="color: red;" href="/userLogout" >LogOut</a>
         </div>
         <script>
             const storico = document.querySelector('.storico');
@@ -26,20 +26,21 @@
                 document.querySelector('.storicoGuide').style.display = 'block';
             });
             function logout() {
-                fetch('/userLogout', {
-                    method: 'POST',
-                    credentials: 'same-origin'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = '/';
-                    } else {
-                        console.error('Logout fallito');
-                    }
-                })
-                .catch(error => {
-                    console.error('Errore durante il logout:', error);
-                });
+                browser.cookies.remove('userName');
+                // fetch('/userLogout', {
+                //     method: 'POST',
+                //     credentials: 'same-origin'
+                // })
+                // .then(response => {
+                //     if (response.ok) {
+                //         window.location.href = '/';
+                //     } else {
+                //         console.error('Logout fallito');
+                //     }
+                // })
+                // .catch(error => {
+                //     console.error('Errore durante il logout:', error);
+                // });
             }
         </script> 
 

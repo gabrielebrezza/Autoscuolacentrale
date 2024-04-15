@@ -59,9 +59,10 @@ app.get('/', async (req, res) =>{
         res.render('login');
     }
 });
-app.post('/userLogout', (req, res) => {
+app.get('/userLogout', (req, res) => {
     console.log(`L'allievo ${req.cookies.userName} ha appena effettuato il logOut`);
-    res.clearCookie('userName', { expires: new  Date() }).send({ message: 'Logout effettuato con successo' });
+    res.cookie('userName', '', {maxAge: 1});
+    res.redirect('/');
 }); 
 async function generateOTP(length) {
     const digits = '0123456789';
@@ -338,7 +339,7 @@ app.post('/verifica_otp', async (req, res) =>{
     const isOTPMatched = await bcrypt.compare(otpString, check.OTP);
     if(isOTPMatched){
         const sixMonths = 180 * 24 * 60 * 60 * 1000;
-        res.cookie('userName', userName, { maxAge: sixMonths,httpOnly: true });//da controllare se mettere httpsOnly
+        res.cookie('userName', userName, { maxAge: sixMonths, httpOnly: true });//da controllare se mettere httpsOnly
         res.redirect(`/profile/:${req.body.userName}`);
     }else{
         res.json('Il codice OTP inserito è errato');
