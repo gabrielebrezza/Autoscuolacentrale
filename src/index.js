@@ -252,7 +252,7 @@ app.post('/resetPassword', async (req, res) => {
             return res.status(404).send('Email non trovata');
         }
         const subject = 'Codice di reset password scuolaguida';
-        const text = `Gentile ${foundCredentials.billingInfo[0].nome} ${foundCredentials.billingInfo[0].cognome}, ci è arrivata una richiesta per cambiare password. Ti inviamo il codice di verifica per il tuo account ${resetPasswordCode}, clicca sul link per cambiarla http://http://13.39.106.190:5000/newPassword`;
+        const text = `Gentile ${foundCredentials.billingInfo[0].nome} ${foundCredentials.billingInfo[0].cognome}, ci è arrivata una richiesta per cambiare password. Ti inviamo il codice di verifica per il tuo account ${resetPasswordCode}, clicca sul link per cambiarla agenda-autoscuolacentrale.com/newPassword`;
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -526,7 +526,7 @@ app.post('/create-payment',  async (req, res) =>{
         name = "Lezione di Guida";
         sku = 1;
         //da cambiare in produzione
-        returnUrl = `http://13.39.106.190:5000/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&location=${encodeURIComponent(location)}`;
+        returnUrl = `http://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&location=${encodeURIComponent(location)}`;
         }else if(cause == 'exam'){
             price = 100;
             numEsame = req.body.numEsame;
@@ -534,7 +534,7 @@ app.post('/create-payment',  async (req, res) =>{
             name = "Esame di Guida";
             sku = 2;
             //da cambiare in produzione
-            returnUrl = `http://13.39.106.190:5000/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
+            returnUrl = `http://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
 
         }
         const create_payment_json = {
@@ -545,7 +545,7 @@ app.post('/create-payment',  async (req, res) =>{
             redirect_urls: {
                 return_url: returnUrl,
                 //da cambiare in produzione
-                cancel_url: "http://13.39.106.190:5000/cancel",
+                cancel_url: "http://agenda-autoscuolacentrale.com/cancel",
             },
             transactions: [
                 {
@@ -627,7 +627,7 @@ app.get('/success',  async (req, res) =>{
                     }
 
                     //da cambiare in produzione
-                    fetch('http://13.39.106.190:5000/book', {
+                    fetch('http://agenda-autoscuolacentrale.com/book', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -653,7 +653,7 @@ app.get('/success',  async (req, res) =>{
                 }else if(cause == 'exam'){
                     const numEsame = req.query.numEsame;
                     //da cambiare in produzione
-                    const response = await fetch('http://13.39.106.190:5000/bookExam', {
+                    const response = await fetch('http://agenda-autoscuolacentrale.com/bookExam', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
