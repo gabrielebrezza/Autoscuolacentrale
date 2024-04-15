@@ -101,12 +101,17 @@
                     <label for="stato">Stato (Sigla):</label>
                     <input type="text" id="stato" name="stato" value="IT" required>
                 </div>
+                <div class="dataFormField">
+                    <label for="policy">Ho letto e accetto la <a href="/privacy-policy.pdf">Privacy e Cookie policy</a>  e le <a href="/condizioni-uso.pdf">Condizioni di utilizzo</a>.</label>
+                    <input type="checkbox" id="policy" name="policy" required value="Per procedere devi accettare i termini" title="">
+                </div>
                 <button type="submit">Registrati</button>
             </div>
             
         </form>        
     </div>
     <script>
+        document.getElementById('policy').setCustomValidity('Per procedere devi accettare le policy');
         const provinceList = [
             "AG", "AL", "AN", "AR", "AP", "AT", "AV", "BA", "BT", "BL",
             "BN", "BG", "BI", "BO", "BZ", "BS", "BR", "CA", "CL", "CB",

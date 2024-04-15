@@ -72,6 +72,13 @@ async function generateOTP(length) {
     return OTP;
 }
 
+app.get('/privacy-policy.pdf', (req, res) => {
+  res.sendFile(path.join(__dirname, 'privacy-policy.pdf'));
+});
+app.get('/condizioni-uso.pdf', (req, res) => {
+    res.sendFile(path.join(__dirname, 'condizioni-uso.pdf'));
+});
+
 //DA TOGLIERE IN PRODUZIONE
 const tls = require('tls');
 // Middleware per l'invio dell'email
