@@ -86,7 +86,7 @@
     </style>
 </head>
 <body>
-    <%- include('header.ejs') %>
+
     <h1>Generatore Fattura Elettronica</h1>
     <form id="fatturaForm" method="POST" action="/createFattura">
         <input type="hidden" name="userName" value="<%= userName %>">
@@ -189,7 +189,8 @@
 
             <label for="numeroDocumento">Numero Documento:</label><br>
             <input type="text" id="numeroDocumento" name="numeroDocumento" value="d00<%= nFattura[0].numero %>"><br><br>
-
+            <label for="ImportoTotaleDocumento">ImportoTotaleDocumento</label>
+            <input type="text" id="ImportoTotaleDocumento" name="ImportoTotaleDocumento" value="<%= Number(importo).toFixed(2) %>">
         </fieldset>
 
         <fieldset>
@@ -226,7 +227,7 @@
                 <input type="text" id="imposta" name="imposta1" value="<%= (Number(importo).toFixed(2)-(Number(importo)/1.22).toFixed(2)).toFixed(2) %>"><br><br>
 
                 <label for="esigibilitaIVA">Esigibilita IVA:</label><br>
-                <input type="text" id="esigibilitaIVA" name="esigibilitaIVA" value="IVA ad esigibilità immediata"><br><br>
+                <input type="text" id="esigibilitaIVA" name="esigibilitaIVA" value="I"><br><br>
 
                 <!-- //per le guide no per l'esame si
                 <label for="RiferimentoNormativo">Riferimento Normativo:</label><br>
