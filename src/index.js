@@ -149,7 +149,7 @@ app.post('/verification', async (req, res) => {
         const password = req.body.password;
         const intent = req.body.intent;
 
-        console.log(otpCode);
+        console.log(`Codice OTP per ${userName}: ${otpCode}`);
         let saltRounds, hashedOTP;
         if (intent == 'login') { 
             const check = await credentials.findOne({

@@ -57,7 +57,7 @@
 
 
         <div id="personalDataForm" style="display: none;">
-        <form action="/verification" method="POST">
+        <form id="DataForm" action="/verification" method="POST">
             <h1>Per poter emettere le fatture compila questo form con i tuoi dati personali</h1>
             <input type="hidden" name="intent" value="signup">
             <input type="hidden" id="datiEmail" name="email">
@@ -103,7 +103,7 @@
                 </div>
                 <div class="dataFormField">
                     <label for="policy">Ho letto e accetto la <a href="/privacy-policy.pdf">Privacy e Cookie policy</a>  e le <a href="/condizioni-uso.pdf">Condizioni di utilizzo</a>.</label>
-                    <input type="checkbox" id="policy" name="policy" required value="Per procedere devi accettare i termini" title="">
+                    <input type="checkbox" id="policy" name="policy" required>
                 </div>
                 <button type="submit">Registrati</button>
             </div>
@@ -111,7 +111,6 @@
         </form>        
     </div>
     <script>
-        document.getElementById('policy').setCustomValidity('Per procedere devi accettare le policy');
         const provinceList = [
             "AG", "AL", "AN", "AR", "AP", "AT", "AV", "BA", "BT", "BL",
             "BN", "BG", "BI", "BO", "BZ", "BS", "BR", "CA", "CL", "CB",
