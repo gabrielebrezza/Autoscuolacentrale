@@ -91,7 +91,7 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
         text = 'È appena stato effettuato l\'accesso al tuo account, questo è il codice di verifica: ' + otpCode;
     } else if(intent == 'signup'){
         subject = 'Iscrizione effettuata a scuola guida';
-        text = 'Abbiamo inviato i tuoi dati all\'autoscuola. A breve riceverai un\'email di conferma che ti autorizzerà ad accedere all\'agenda. Cordiali saluti.';
+        text = `Abbiamo inviato i tuoi dati all\'autoscuola. A breve riceverai un\'email di conferma che ti autorizzerà ad accedere all\'agenda. Intanto per confermare la tua identità inserisci il codice richiesto sul sito ${otpCode}. Cordiali saluti.`;
     }else if(intent == 'bookGuide'){
         subject = 'Prenotazione effettuata per lezione di guida';
         const content = await formatoEmail.find({})
@@ -226,6 +226,35 @@ app.post('/verification', async (req, res) => {
                 const newUser = new credentials(data);
                 await newUser.save();
                 console.log('nuovo utente registrato in attesa di approvazione: ', data.userName);
+                
+                const transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        //da cambiare in produzione
+                        user: 'brezzagabriele0@gmail.com',
+                        pass: 'cack nyhf wlmc iuox'
+                    },
+                    //DA TOGLIERE IN PRODUZIONE
+                    tls: {
+                        rejectUnauthorized: false
+                    }
+                });
+            
+                const mailOptions = {
+                    from: 'brezzagabriele0@gmail.com',
+                    to: 'brezzagabriele0@gmail.com',
+                    subject: 'Nuovo Allievo',
+                    text: 'Un nuovo allievo è in attesa di essere approvato.'
+                };
+            
+                transporter.sendMail(mailOptions, async function(error, info) {
+                    if (error) {
+                        console.error('Errore nell\'invio dell\'email all\'autoscuola:', error);
+                        res.sendStatus(500);
+                    } else {
+                        console.log('Email di richiesta approvazione inviata con successo all\'autoscuola');
+                    }
+                });
                 sendEmailMiddleware(otpCode, userEmail, userName, intent, res, () => {
                     res.sendStatus(200);
                 }, req);
