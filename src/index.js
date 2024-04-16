@@ -555,7 +555,7 @@ app.post('/create-payment',  async (req, res) =>{
         name = "Lezione di Guida";
         sku = 1;
         //da cambiare in produzione
-        returnUrl = `http://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&location=${encodeURIComponent(location)}`;
+        returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&location=${encodeURIComponent(location)}`;
         }else if(cause == 'exam'){
             price = 100;
             numEsame = req.body.numEsame;
@@ -563,7 +563,7 @@ app.post('/create-payment',  async (req, res) =>{
             name = "Esame di Guida";
             sku = 2;
             //da cambiare in produzione
-            returnUrl = `http://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
+            returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
 
         }
         const create_payment_json = {
@@ -574,7 +574,7 @@ app.post('/create-payment',  async (req, res) =>{
             redirect_urls: {
                 return_url: returnUrl,
                 //da cambiare in produzione
-                cancel_url: "http://agenda-autoscuolacentrale.com/cancel",
+                cancel_url: "https://agenda-autoscuolacentrale.com/cancel",
             },
             transactions: [
                 {
@@ -656,7 +656,7 @@ app.get('/success',  async (req, res) =>{
                     }
 
                     //da cambiare in produzione
-                    fetch('http://agenda-autoscuolacentrale.com/book', {
+                    fetch('https://agenda-autoscuolacentrale.com/book', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -682,7 +682,7 @@ app.get('/success',  async (req, res) =>{
                 }else if(cause == 'exam'){
                     const numEsame = req.query.numEsame;
                     //da cambiare in produzione
-                    const response = await fetch('http://agenda-autoscuolacentrale.com/bookExam', {
+                    const response = await fetch('https://agenda-autoscuolacentrale.com/bookExam', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
