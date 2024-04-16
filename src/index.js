@@ -742,7 +742,7 @@ app.get('/cancel', async (req, res) =>{
 //     res.send('Benvenuto alla pagina principale!');
 // });
 
-const PORT = process.env.PORT || 443;
+const PORT = process.env.PORT || 80;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
