@@ -55,8 +55,6 @@ header img{
     width: 100%;
     object-fit: contain;
     mix-blend-mode: multiply;
-    /* opacity: .8;
-    filter: brightness(130%); */
 }
 
 
