@@ -103,7 +103,6 @@ th, td {
 }
 
 .table th {
-    width: 25px;
     background-color: #007bff;
     border: 2px solid #0000;
     color: white;
