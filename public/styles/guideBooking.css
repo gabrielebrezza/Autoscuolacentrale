@@ -67,6 +67,7 @@ header img{
 .section-title{
     text-transform: capitalize;
     text-align: center;
+    font-size: 1rem;
 }
 
 
@@ -96,7 +97,7 @@ section:has(.bookDisabled) tr:has(.bookDisabled){
     display: none;
 }
 th, td {
-    padding: 10px;
+    padding: 5px;
     border-bottom: 1px solid #dee2e6;
     text-align: center;
 }
