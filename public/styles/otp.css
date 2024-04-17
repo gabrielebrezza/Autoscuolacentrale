@@ -6,6 +6,7 @@ body {
     flex-direction: column;
     height: 100vh;
     margin: 0;
+    background-color: #71a1cb;
     text-align: center;
 }
 
