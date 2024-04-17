@@ -75,7 +75,7 @@
      border-radius: 10px;
      height: 100%;
      width: 50%;
-     background-color: #e2e2e2;
+     background-color: #fff;
      display: flex;
      justify-content: baseline;
      flex-direction: column;
@@ -85,7 +85,7 @@
      height: 100%;
      padding-inline: 15px;
      border-radius: 10px;
-     background-color: #e2e2e2;
+     background-color: #fff;
      display: flex;
      align-items: center;
      z-index: 3;
