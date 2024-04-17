@@ -16,6 +16,7 @@
      align-items: center;
      justify-content: center;
      overflow: auto;
+     background-color: #71a1cb;
 }
 
  .container{
@@ -28,7 +29,7 @@
      display: flex;
      justify-content: space-between;
      flex-direction: row;
-     background-color: #3d405b;
+     background-color: #4075b2;
      color: aliceblue;
      overflow-x: hidden;
 }
@@ -94,7 +95,7 @@
     /* position: absolute;
      */
      text-transform: uppercase;
-     color: #3d405b;
+     color: #1a6dcb;
      font-size: clamp(2rem, 3vw , 3rem);
      margin-left: 30px;
      margin-top: 15px;
@@ -125,7 +126,7 @@
      position: relative;
      display: inline-block;
      border-radius: 4px;
-     background-color: #3d405b;
+     background-color: #4075b2;
      border: none;
      color: #FFFFFF;
      text-align: center;
@@ -151,7 +152,8 @@
      transition: 0.5s;
 }
  button:hover span, h6:hover span{
-     padding-right: 25px;
+    background-color: #1a6dcb;
+    padding-right: 25px;
 }
  button:hover span:after, h6:hover span:after {
      opacity: 1;
