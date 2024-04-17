@@ -148,7 +148,7 @@ aside{
     justify-content: space-evenly;
     align-items: center;
     height: auto;
-    background: #007bff;
+    background: #71a1cb;
     border-radius: 0 0 20px 20px;
 }
 aside input{
@@ -175,7 +175,7 @@ aside .esami, aside .bacheca{
 }
 aside .esami nav, aside .bacheca nav{
     font-size: 1.3rem;
-    background: #343a40;
+    background: #1a6dcb;
     width: 100%;
     height: fit-content;
     text-align: center;
