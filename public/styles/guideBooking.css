@@ -173,8 +173,11 @@ aside .esami, aside .bacheca{
     color: #fff;
     border-radius: 5px;
 }
+aside .esami{
+    max-width: 250px;
+}
 aside .esami nav, aside .bacheca nav{
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     background: #1a6dcb;
     width: 100%;
     height: fit-content;
@@ -185,7 +188,7 @@ aside .esami nav, aside .bacheca nav{
 
 aside .esami nav,
 aside .esami p,
-aside .esami > strong,
+aside .esami > p > strong,
 aside .bacheca nav{
     font-size: 1.5rem;
     letter-spacing: 2px;
@@ -194,7 +197,16 @@ aside .bacheca nav{
     font-style: normal !important;
     padding: 10px;
 }
+aside .esami nav,
+aside .esami p{
+    font-size: 1.1rem;
+}
 
+.pagato,
+.daPagare{
+    font-weight: 1000;
+    font-size: .9rem;
+}
 /* aside .bacheca p{
     padding: 10px;
     font-size: 1.1rem;
