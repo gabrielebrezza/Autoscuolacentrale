@@ -51,7 +51,7 @@ header button:hover{
     background-color: #0056b3;
 }
 header img{
-    max-width: 500px;
+    max-width: 300px;
     width: 100%;
     object-fit: contain;
     mix-blend-mode: multiply;
