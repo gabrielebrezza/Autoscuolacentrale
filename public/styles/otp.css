@@ -6,7 +6,7 @@ body {
     flex-direction: column;
     height: 100vh;
     margin: 0;
-    background-color: #71a1cb;
+    background: #71a1cb;
     text-align: center;
 }
 h1{
@@ -29,7 +29,7 @@ input[type="number"] {
 button[type="submit"] {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #4075b2;
+    background: #4075b2;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -37,7 +37,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #1a6dcb;
+    background: #1a6dcb;
 }
 
 input[type="number"]::-webkit-inner-spin-button,

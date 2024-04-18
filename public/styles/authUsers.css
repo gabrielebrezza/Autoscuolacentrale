@@ -4,11 +4,10 @@
     box-sizing: border-box;
 }
 body {
-    background-color: #121212;
+    background: #71a1cb;
     display: flex;
     align-items: center;
     flex-direction: column;
-
 }
 h1{
   color: #fff;
@@ -63,23 +62,25 @@ button {
   transition: background-color 0.3s;
 }
 .approve-button{
-  background-color: #28a745;
+  background: #4075b2;
 }
 .approve-button:hover {
-  background-color: #218838;
+  background: #1a6dcb;
 }
 .disapprove-button{
-  background-color: #FF0000;
+  background: #FF0000;
 }
 .disapprove-button:hover{
-  background-color: #720707;
+  background: #720707;
 }
 
 
 .visualizza{
-  background: #007bff;
+  background: #4075b2;
 }
-
+.visualizza:hover{
+  background: #1a6dcb;
+}
 
 #userTypeForm {
   border-radius: 5px;
