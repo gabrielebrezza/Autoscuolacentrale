@@ -526,7 +526,8 @@ main{
     .storicoGuide td:before {
         width: 100%;
         height: 100%;
-        background: #5681a9;
+        color: #fff;
+        background: #71a1cb;
         content: attr(data-label)':  ';
         float: left;
         margin-right: 10px;
