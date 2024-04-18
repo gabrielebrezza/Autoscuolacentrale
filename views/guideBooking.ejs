@@ -15,7 +15,8 @@
 </head>
 <body>
     <header class="header">
-        <img src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
+        <img id="mobileLogo" src="/styles/img/image.png" alt="">
+        <img id="desktopLogo" src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
         <div class="actions">
             <button class="storico">Storico Guide</button>
             <a style="color: red;" href="/userLogout" >LogOut</a>
@@ -107,10 +108,10 @@
             <tbody>
                 <% for (let i = 0; i < storicoGuide.lessonList.length; i++) { %>
                     <tr>
-                        <td><%= storicoGuide.lessonList[i].istruttore %></td>
-                        <td><%= storicoGuide.lessonList[i].giorno %></td>
-                        <td><%= storicoGuide.lessonList[i].ora %></td>
-                        <td><%= storicoGuide.lessonList[i].duration.toFixed(2) %>h</td>
+                        <td class="first" data-label="Istruttore"><%= storicoGuide.lessonList[i].istruttore %></td>
+                        <td data-label="Giorno"><%= storicoGuide.lessonList[i].giorno %></td>
+                        <td data-label="Ora"><%= storicoGuide.lessonList[i].ora %></td>
+                        <td class="last" data-label="Durata"><%= storicoGuide.lessonList[i].duration.toFixed(2) %>h</td>
                     </tr>
                 <% } %>
             </tbody>

@@ -52,11 +52,46 @@ header button{
 header button:hover{
     background: #5f97cb;
 }
-header img{
+header #desktopLogo{
+    /* display: block; */
     max-width: 300px;
     width: 100%;
-    object-fit: contain;
+    /* object-fit: contain; */
     mix-blend-mode: multiply;
+}
+header #mobileLogo{
+    display: none;
+}
+@media (max-width:500px) {
+    .ui-datepicker{
+        max-width: 300px !important;
+    }
+    header #mobileLogo{
+        display: block;
+    }
+    header #mobileLogo img{
+        max-width: 200px;
+        width: 100%;
+        object-fit: contain;
+        mix-blend-mode: multiply;
+    }
+    header #desktopLogo{
+        display: none;
+    }
+
+    @media (max-width:300px) {
+        .ui-datepicker{
+            max-width: 275px !important;
+        }
+        @media (max-width:282px) {
+            .ui-datepicker{
+                max-width: 260px !important;
+            }
+            .ui-datepicker-calendar{
+                max-width: 240px !important;
+            }
+        }
+    }
 }
 
 
@@ -472,4 +507,32 @@ main{
 }
 .storicoGuide table tbody:last-child{
     border-bottom: 2px solid #343a40;
+}
+
+@media (max-width:500px) {
+    .storicoGuide table {
+        display: block;
+    }
+      
+    .storicoGuide  thead {
+        display: none;
+    }
+      
+    .storicoGuide td {
+        display: block;
+        width: 100%;
+    }
+      
+    .storicoGuide td:before {
+        width: 100%;
+        height: 100%;
+        background: #5681a9;
+        content: attr(data-label)':  ';
+        float: left;
+        margin-right: 10px;
+        font-weight: bold;
+    }
+    .storicoGuide tr{
+        border: 5px solid #343a40;
+    }
 }
