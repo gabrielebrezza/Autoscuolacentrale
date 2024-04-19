@@ -7,7 +7,7 @@
 .header {
     width: 100%;
     height: 150px;
-    background-color: #5681a9;
+    background: #5681a9;
     color: #fff; 
     padding: 10px 20px;
     display: flex;
@@ -33,9 +33,7 @@
     align-items: center;
     justify-content: start;
     flex-direction: column;
-    
     border-right: 2px solid #fff;
-
 }
 
 #navBar ul{
@@ -66,7 +64,25 @@
     bottom: 0;
 }
 #navBar ul li:last-child a{
-
     font-weight: 1000;
     text-transform: uppercase;
+}
+@media (max-height: 800px) {
+    .header {
+        height: 75px;
+    }
+    #toggleMenuBtn{
+        font-size: 3rem !important;
+    }
+    #navBar{
+        top: 75px;
+    }
+    #navBar ul li{
+        padding:  15px 10px;
+    }
+    @media (max-height: 545px){
+        #navBar ul li{
+            font-size: .8rem;
+        }
+    }
 }
