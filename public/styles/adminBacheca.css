@@ -8,8 +8,10 @@ body {
     background: #71a1cb;
 }
 .container {
+
     max-width: 500px;
     margin: 0 auto;
+    margin-top: 200px;
     padding: 20px;
 }
 
@@ -44,10 +46,6 @@ body {
 .bacheca button:hover {
     background: #1a6dcb;
 }
-
-.header {
-    background-color: #333;
-    color: #fff;
-    padding: 20px;
-    text-align: center;
+.tox{
+    z-index: -100;
 }
