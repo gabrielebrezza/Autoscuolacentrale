@@ -154,7 +154,9 @@ h2 {
     color: green !important;
 }
 
-
+.ui-datepicker{
+    z-index: -100 !important;
+}
 /* Stili per la data odierna */
 .ui-datepicker-today{
     background-color: transparent !important;
