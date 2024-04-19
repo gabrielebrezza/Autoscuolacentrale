@@ -5,12 +5,13 @@
 }
 body {
     background: #71a1cb;
+}
+main{
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
