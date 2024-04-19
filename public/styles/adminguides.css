@@ -153,7 +153,7 @@ h2 {
     text-align: center !important;
     color: green !important;
 }
-ui-datepicker-header{
+.ui-datepicker-header{
     z-index: -100;
 }
 /* Stili per la data odierna */
