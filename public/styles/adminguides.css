@@ -154,7 +154,7 @@ h2 {
     color: green !important;
 }
 
-.ui-datepicker{
+.ui-datepicker-inline, .ui-datepicker, .ui-widget, .ui-widget-content, .ui-helper-clearfix, .ui-corner-all{
     z-index: -100 !important;
 }
 /* Stili per la data odierna */
