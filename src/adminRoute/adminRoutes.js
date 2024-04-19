@@ -726,10 +726,6 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
         console.error('Errore durante il salvataggio del file:', err);
         res.status(500).send('Errore durante il salvataggio del file');
     } else {
-        console.log(dati.userName);
-        console.log(dati.data);
-        console.log(dati.tipologiaFattura);
-        console.log(dati.importoPagamento);
         const updateFatturaDB = await credentials.findOneAndUpdate(
             {
                 "userName": dati.userName,
@@ -748,10 +744,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                 }
             }
         );
-        
-        
-        
-        console.log(updateFatturaDB);
+
         const numero = parseInt(dati.progressivoInvio.replace(/\D/g, ''), 10);
         const nuovaFattura = new storicoFatture({
             numero: numero,
