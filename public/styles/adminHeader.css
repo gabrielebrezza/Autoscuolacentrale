@@ -36,6 +36,7 @@
     align-items: center;
     justify-content: start;
     flex-direction: column;
+    z-index: 99999999999 !important;
 }
 
 #navBar ul{
