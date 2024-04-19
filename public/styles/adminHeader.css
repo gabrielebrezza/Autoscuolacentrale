@@ -38,6 +38,7 @@
 }
 
 #navBar ul{
+    position: relative;
     width: 100%;
     display: none;
     transition: .5s;
