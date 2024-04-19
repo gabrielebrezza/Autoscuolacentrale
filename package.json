@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "archiver": "^7.0.1",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
@@ -21,11 +22,11 @@
   "AppRegistryApplicationStackAssociation": {
     "Type": "AWS::ServiceCatalogAppRegistry::ResourceAssociation",
     "Properties": {
-        "Application": "arn:aws:servicecatalog:eu-west-3:891377112712:/applications/06zwlofrw2fwb9zsy6uriykd1i",
-        "Resource": {
-            "Ref": "AWS::StackId"
-        },
-        "ResourceType": "CFN_STACK"
+      "Application": "arn:aws:servicecatalog:eu-west-3:891377112712:/applications/06zwlofrw2fwb9zsy6uriykd1i",
+      "Resource": {
+        "Ref": "AWS::StackId"
+      },
+      "ResourceType": "CFN_STACK"
     }
-}
+  }
 }

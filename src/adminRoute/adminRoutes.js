@@ -5,8 +5,10 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt'); 
 const bodyParser = require('body-parser');
 const { create } = require('xmlbuilder2');
+const path = require('path');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
+const archiver = require('archiver');
 //DA TOGLIERE IN PRODUZIONE
 const tls = require('tls');
 
@@ -15,6 +17,7 @@ const Admin = require('../Db/Admin');
 const guide = require('../Db/Guide');
 const bacheca = require('../Db/Bacheca');
 const numeroFattura = require('../Db/NumeroFattura');
+const storicoFatture = require('../Db/StoricoFatture');
 const formatoEmail = require('../Db/formatoEmail');
 const prezzoGuida = require('../Db/CostoGuide');
 
@@ -23,7 +26,15 @@ const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 function generateToken(username) {
     return jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' }); // Token scade dopo 3 ore
 }
+
+const cartellaFatture = path.join(__dirname, 'fatture');
+
+router.use('/fatture', express.static(cartellaFatture));
+
 router.use(bodyParser.urlencoded({ extended: false }));
+
+
+
 
 // Parse application/json
 router.use(bodyParser.json());
@@ -710,18 +721,26 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
     const xmlString = xml.end({ prettyPrint: true });
     const cliente = dati.nomeCliente + dati.cognomeCliente;
     const nomeFile = `${dati.IdPaese}${dati.IdCodice}_${dati.progressivoInvio}.xml`;
-    fs.writeFile(nomeFile, xmlString, async (err) => {
+    fs.writeFile(path.join('fatture', nomeFile), xmlString, async (err) => {
     if (err) {
         console.error('Errore durante il salvataggio del file:', err);
         res.status(500).send('Errore durante il salvataggio del file');
     } else {
-
+        console.log(dati.userName);
+        console.log(dati.data);
+        console.log(dati.tipologiaFattura);
+        console.log(dati.importoPagamento);
         const updateFatturaDB = await credentials.findOneAndUpdate(
             {
                 "userName": dati.userName,
-                "fatturaDaFare.data": dati.data,
-                "fatturaDaFare.tipo": dati.tipologiaFattura,
-                "fatturaDaFare.importo": dati.importoTotaleDocumento
+                "fatturaDaFare": {
+                    $elemMatch: {
+                        "data": dati.data,
+                        "tipo": dati.tipologiaFattura,
+                        "importo": dati.importoPagamento,
+                        "emessa": false
+                    }
+                }
             },
             {
                 $set: {
@@ -729,6 +748,23 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                 }
             }
         );
+        
+        
+        
+        console.log(updateFatturaDB);
+        const numero = parseInt(dati.progressivoInvio.replace(/\D/g, ''), 10);
+        const nuovaFattura = new storicoFatture({
+            numero: numero,
+            importo: dati.importoPagamento,
+            data: dati.data,
+            nomeFile: nomeFile,
+        });
+
+        await  nuovaFattura.save()
+        .catch((errore) => {
+            console.error('Si è verificato un errore durante l\'aggiunta della fattura:', errore);
+        });
+
         const nFattura = await numeroFattura.updateOne({$inc: {"numero": 1}});
         res.set('Content-Type', 'application/xml');
         res.set('Content-Disposition', 'attachment; filename="' + nomeFile + '"');
@@ -736,4 +772,82 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
     }
 });
 });
+router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
+    try {
+        const instructor = req.user.username;
+        const [nome, cognome] = instructor.split(" ");
+        const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
+        let filtroData = {};
+        
+        if (req.query.dataInizio && req.query.dataFine) {
+            const startDate = (req.query.dataInizio).split('-').reverse().join('/');
+            const endDate = (req.query.dataFine).split('-').reverse().join('/');
+            filtroData = {
+                data: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            };
+        }
+        
+        // Recupera le fatture dal database filtrate per il range di date, se specificato
+        const fatture = await storicoFatture.find(filtroData);
+
+        // Passa le fatture recuperate alla pagina EJS
+        res.render('admin/adminComponents/storicoFatture', { fatture, role, req});
+    } catch (error) {
+        console.error('Si è verificato un errore durante il recupero delle fatture:', error);
+        res.status(500).send('Si è verificato un errore durante il recupero delle fatture');
+    }
+});
+
+
+
+
+
+router.get('/scaricaFatture', async (req, res) => {
+    try {
+        let filtroData = {};
+        if (req.query.dataInizio && req.query.dataFine) {
+            const startDate = (req.query.dataInizio).split('-').reverse().join('/');
+            const endDate = (req.query.dataFine).split('-').reverse().join('/');
+            filtroData = {
+                data: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            };
+        }
+        
+        // Recupera i nomi dei file delle fatture dal database filtrate per il range di date, se specificato
+        const nomiFile = await storicoFatture.find(filtroData).distinct('nomeFile');
+
+        // Imposta il nome del file ZIP e la disposizione della risposta HTTP
+        res.set('Content-Type', 'application/zip');
+        res.set('Content-Disposition', 'attachment; filename="fatture_filtrate.zip"');
+
+        //creazione archivio zip
+        const zip = archiver('zip');
+
+        // Reindirizzazione dell'output dell'archivio verso la risposta HTTP
+        zip.pipe(res);
+
+        for (const nomeFile of nomiFile) {
+            const filePath = path.join(__dirname, '../../fatture', nomeFile);
+            if (fs.existsSync(filePath)) {
+                // Aggiunta del file all'archivio ZIP
+                zip.append(fs.createReadStream(filePath), { name: nomeFile });
+            } else {
+                console.warn(`Il file ${nomeFile} non esiste nella cartella fatture.`);
+            }
+        }
+
+        // Finalizzazione dell'archivio ZIP
+        await zip.finalize();
+    } catch (error) {
+        console.error('Si è verificato un errore durante il download delle fatture filtrate:', error);
+        res.status(500).send('Si è verificato un errore durante il download delle fatture filtrate');
+    }
+});
+
 module.exports = router;

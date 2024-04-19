@@ -6,7 +6,7 @@
         <IdPaese>IT</IdPaese>
         <IdCodice>06498290011</IdCodice>
       </IdTrasmittente>
-      <ProgressivoInvio>d003</ProgressivoInvio>
+      <ProgressivoInvio>d0029</ProgressivoInvio>
       <FormatoTrasmissione>FPR12</FormatoTrasmissione>
       <CodiceDestinatario>0000000</CodiceDestinatario>
       <ContattiTrasmittente>
@@ -57,7 +57,7 @@
         <TipoDocumento>TD01</TipoDocumento>
         <Divisa>EUR</Divisa>
         <Data>2024-04-09</Data>
-        <Numero>d003</Numero>
+        <Numero>d0029</Numero>
         <ImportoTotaleDocumento>22.50</ImportoTotaleDocumento>
       </DatiGeneraliDocumento>
     </DatiGenerali>
@@ -65,8 +65,8 @@
       <DettaglioLinee>
         <NumeroLinea>1</NumeroLinea>
         <Descrizione>lezione di guida</Descrizione>
-        <PrezzoUnitario>22.50</PrezzoUnitario>
-        <PrezzoTotale>22.50</PrezzoTotale>
+        <PrezzoUnitario>18.44</PrezzoUnitario>
+        <PrezzoTotale>18.44</PrezzoTotale>
         <AliquotaIVA>22.00</AliquotaIVA>
       </DettaglioLinee>
       <DatiRiepilogo>

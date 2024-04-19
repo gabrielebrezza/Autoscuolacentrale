@@ -7,7 +7,8 @@
     <title><%= title %></title>
 
     <style>
-        body{
+        main{
+            margin-top: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -52,7 +53,8 @@
     </style>
 </head>
 <body>
-    <!-- <%- include('header.ejs') %> -->
+    <%- include('header.ejs') %>
+    <main>
     <% for (let i = 0; i < dati.length; i++) { %>
         <% if (!dati[i].emessa) { %>
             <div class="card">
@@ -69,5 +71,6 @@
             <br>
         <% } %>
     <% } %>
+    </main>
 </body>
 </html>

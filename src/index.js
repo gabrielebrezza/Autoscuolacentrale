@@ -143,9 +143,9 @@ app.post('/verification', async (req, res) => {
     try {
         const otpCodePromise = generateOTP(6);
         const otpCode = await otpCodePromise;
-        const userEmail = req.body.email;
-        const userCell = req.body.phone;
-        const userName = req.body.username;
+        const userEmail = req.body.email.replace(/\s/g, "");
+        const userCell = req.body.phone.replace(/\s/g, "");
+        const userName = (req.body.username).replace(/\s/g, "");
         const password = req.body.password;
         const intent = req.body.intent;
 

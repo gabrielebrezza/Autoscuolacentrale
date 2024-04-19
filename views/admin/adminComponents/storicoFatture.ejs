@@ -1,0 +1,119 @@
+<!-- admin-guides.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/adminguides.css">
+    <!-- icone -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <title>Admin - Storico Fatture</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        main{
+            margin-top: 200px;
+        }
+        table{
+            max-width: 600px;
+            width: 100%;
+        }
+/* Stile per il form */
+.form-container {
+    margin-bottom: 20px;
+}
+form{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+/* Stile per gli input nel form */
+.form-container input[type="date"] {
+    margin-right: 10px;
+}
+
+/* Stile per il bottone nel form */
+.form-container button[type="submit"] {
+    margin-right: 10px;
+}
+
+.filter-button {
+    margin-right: 10px;
+    padding: 5px 10px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Stile per le textbox nel form */
+.form-input {
+    outline: #0000;
+    margin-right: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+/* Stile per il link di download */
+.download-link {
+    text-decoration: none;
+    color: white;
+    background-color: #007bff;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+    </style>
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <main>
+        <form action="/admin/storicoFatture" method="GET" class="form-container">
+            <div class="field">
+                <label for="dataInizio">Data Inizio:</label>
+                <input type="date" id="dataInizio" name="dataInizio" class="form-input">
+            </div>
+            <div class="field">
+                <label for="dataFine">Data Fine:</label>
+                <input type="date" id="dataFine" name="dataFine" class="form-input">
+            </div>
+            <button type="submit" class="filter-button">Filtra</button>
+            <% if (fatture.length > 0) { %>
+                <a href="/scaricaFatture?dataInizio=<%= req.query.dataInizio %>&dataFine=<%= req.query.dataFine %>" class="download-link">Scarica tutte le fatture filtrate</a>
+            <% } %>
+        </form>
+        
+        
+        
+    <h1>Fatture</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Numero</th>
+                <th>Importo</th>
+                <th>Data</th>
+                <th>File</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% fatture.forEach(fattura => { %>
+                <tr>
+                    <td><%= fattura.numero %></td>
+                    <td><%= fattura.importo %></td>
+                    <td><%= fattura.data %></td>
+                    <td><%= fattura.nomeFile %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

@@ -11,14 +11,22 @@
 <body>
     <%- include('header.ejs') %>
     <div class="filterSection">
-        <label for="searchName">Cerca per nome:</label>
-        <input type="text" id="searchName" name="searchName">
-        <label for="searchPhone">Cerca per numero di telefono:</label>
-        <input type="tel" id="searchPhone" name="searchPhone">
-        <label for="searchEmail">Cerca per Email:</label>
-        <input type="email" id="searchEmail" name="searchEmail">
-        <label for="searchExams">Cerca per numero di esami:</label>
-        <input type="number" id="searchExams" name="searchExams" min="0">
+        <div class="field">
+            <label for="searchName">Cerca per nome:</label>
+            <input type="text" id="searchName" name="searchName">
+        </div>
+        <div class="field">
+            <label for="searchPhone">Cerca per numero di telefono:</label>
+            <input type="tel" id="searchPhone" name="searchPhone">
+        </div>
+        <div class="field">
+            <label for="searchEmail">Cerca per Email:</label>
+            <input type="email" id="searchEmail" name="searchEmail">
+        </div>
+        <div class="field">
+            <label for="searchExams">Cerca per numero di esami:</label>
+            <input type="number" id="searchExams" name="searchExams" min="0">
+        </div>
     </div>
     
     <div class="tableContainer">

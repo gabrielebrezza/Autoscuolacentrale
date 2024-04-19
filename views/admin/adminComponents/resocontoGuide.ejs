@@ -16,6 +16,9 @@
             margin: 0;
             padding: 0;
         }
+        main{
+            margin-top: 200px;
+        }
         .totalTimeCard{
             width: fit-content;
             padding: 15px;
@@ -69,6 +72,7 @@
 </head>
 <body>
     <%- include('header.ejs') %>
+    <main>
     <% let totalDuration = 0; %>
     <% guide.lessonList.forEach((lesson) => { %>
         <% totalDuration += lesson.duration; %>
@@ -89,5 +93,6 @@
             </div>
         <% } %>
     </div>
+</main>
 </body>
 </html>

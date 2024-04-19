@@ -6,7 +6,7 @@
         <IdPaese>IT</IdPaese>
         <IdCodice>06498290011</IdCodice>
       </IdTrasmittente>
-      <ProgressivoInvio>d0010</ProgressivoInvio>
+      <ProgressivoInvio>d0042</ProgressivoInvio>
       <FormatoTrasmissione>FPR12</FormatoTrasmissione>
       <CodiceDestinatario>0000000</CodiceDestinatario>
       <ContattiTrasmittente>
@@ -56,8 +56,8 @@
       <DatiGeneraliDocumento>
         <TipoDocumento>TD01</TipoDocumento>
         <Divisa>EUR</Divisa>
-        <Data>2024-04-09</Data>
-        <Numero>d0010</Numero>
+        <Data>2024-04-10</Data>
+        <Numero>d0042</Numero>
         <ImportoTotaleDocumento>90.00</ImportoTotaleDocumento>
       </DatiGeneraliDocumento>
     </DatiGenerali>
