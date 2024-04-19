@@ -153,9 +153,8 @@ h2 {
     text-align: center !important;
     color: green !important;
 }
-
-.ui-datepicker-inline, .ui-datepicker, .ui-widget, .ui-widget-content, .ui-helper-clearfix, .ui-corner-all{
-    z-index: -100 !important;
+ui-datepicker-header{
+    z-index: -100;
 }
 /* Stili per la data odierna */
 .ui-datepicker-today{
