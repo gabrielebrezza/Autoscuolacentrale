@@ -34,7 +34,6 @@
     align-items: center;
     justify-content: start;
     flex-direction: column;
-    border-right: 2px solid #fff;
 }
 
 #navBar ul{
