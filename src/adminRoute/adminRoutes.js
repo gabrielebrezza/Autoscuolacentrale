@@ -78,6 +78,7 @@ router.post('/admin/register', async (req, res) => {
             return res.status(400).json({ message: 'L\'utente con questo nome utente esiste già' });
         }
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log(otpCode);
         saltRounds = await bcrypt.genSalt(10);
         hashedOTP = await bcrypt.hash(String(otpCode), 10);
         const newAdmin = new Admin({
@@ -586,7 +587,7 @@ router.get('/admin/fatture/:utente',authenticateJWT , async (req, res)=>{
         {"userName": userName},
         {"fatturaDaFare": 1}
     );
-        const dati = operazioniDaFatturare.fatturaDaFare;
+    const dati = operazioniDaFatturare.fatturaDaFare;
     res.render('admin/adminComponents/fattureDaFare', {title: 'Admin - Fatture Da Emettere', dati, userName, role});
 });
 
@@ -605,7 +606,7 @@ router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT ,
     const nFattura = await numeroFattura.find();
     const dati = datiFatturazione.billingInfo;
     
-    res.render('admin/adminComponents/creaFattura', {dati: dati, userName, tipo, data, importo, nFattura});
+    res.render('admin/adminComponents/creaFattura', {dati: dati, userName, tipo, data, importo, nFattura, role});
 });
 router.post('/createFattura', authenticateJWT, async (req, res) =>{
     // Estrai i dati dalla richiesta
