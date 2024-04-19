@@ -16,6 +16,7 @@
     align-items: center; 
     justify-content: space-between;
     margin-bottom: 50px;
+    z-index: 10210201200;
     /* border-bottom: 1px solid #fff; */
 }
 #toggleMenuBtn{
