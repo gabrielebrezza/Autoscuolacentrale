@@ -157,7 +157,7 @@ h2 {
     z-index: -150 !important;
 }
 .ui-datepicker-header, .ui-widget-header, .ui-helper-clearfix, .ui-corner-all{
-    z-index: 1 !important;
+    z-index: 0 !important;
 }
 /* Stili per la data odierna */
 .ui-datepicker-today{
