@@ -125,21 +125,30 @@ button > a{
 
 
 .filterSection {
+    
+    margin: 0 auto;
     margin-top: 200px;
-
+    max-width: 400px;
+    width: 100%;
+    background: #5681a9;
     display: flex;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     flex-wrap: wrap;
+    text-align: left;
+    padding: 15px;
+    border-radius: 5px;
 }
 .field{
+    width: 100%;
     display: flex;
+    justify-content: space-evenly;
+    align-items: baseline;
     flex-wrap: wrap;
 }
 .field label {
     color: #ddd;
     display: block;
-    margin-inline: 10px;
     margin-bottom: 5px;
     font-weight: 1000;
 }
@@ -155,6 +164,7 @@ button > a{
     border-radius: 3px;
     background-color: #fff;
     color: #1a6dcb;
+    margin-left: auto;
 }
 
 .field input[type="text"]:focus,
@@ -167,3 +177,79 @@ button > a{
 
 
 
+@media (max-width:1085px) and (min-width: 690px) {
+    .tableContainer{
+        padding: 0;
+    }
+    th, td{
+        padding: 4px;
+    }
+    @media (max-width:1000px) {
+        th, td{
+            font-size: .8rem;
+            border: 1px solid #ddd;
+        }
+        @media (max-width:817px) {
+            .tableBtn{
+                padding: 3px;
+                font-size: .8rem;
+            }
+            
+        }
+    }
+}
+
+@media (max-width:689px) {
+    main{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-inline: 15px;
+    }
+    th, td{
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+    thead {
+        display: none;
+    }
+    .tableBtn{
+        border-radius: 0  0 5px 5px;
+    }
+    td span{
+        padding-block: 5px;
+        border: 2px solid #71a1cb;
+        border-radius: 0  0 5px 5px;
+    }
+    td{
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        width: 100%;
+        font-weight: 700;
+        border: none;
+
+    }
+    td a{
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    td:before {
+        width: 100%;
+        height: 100%;
+        color: #fff;
+        background: #71a1cb;
+        content: attr(data-label)':  ';
+        float: left;
+        margin-right: 10px;
+        padding-block: 5px;
+        font-weight: bold;
+        border-radius: 5px 5px 0  0;
+    }
+    tr{
+        border: 5px solid #343a40;
+    }
+}

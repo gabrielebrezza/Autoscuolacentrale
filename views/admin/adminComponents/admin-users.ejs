@@ -47,22 +47,24 @@
 
                 <% for (let i = 0; i < utenti.length; i++) { %>
                     <tr>
-                        <td><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></td>
-                        <td><%= utenti[i].email %></td>
-                        <td><%= utenti[i].cell %></td>
-                            <td> 
-                                <% let totEsami = utenti[i].exams.length; %>
-                                <% if (utenti[i].exams[totEsami-1] == true) { %>
-                                    <%= totEsami %>
-                                <% }else{%>
-                                    <%= totEsami - 1 %>
-                                <% } %>
+                        <td data-label="Allievo"><span><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></span></td>
+                        <td data-label="Email"><span><%= utenti[i].email %></span></td>
+                        <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
+                            <td data-label="Esami pagati"> 
+                                <span>
+                                    <% let totEsami = utenti[i].exams.length; %>
+                                    <% if (utenti[i].exams[totEsami-1] == true) { %>
+                                        <%= totEsami %>
+                                    <% }else{%>
+                                        <%= totEsami - 1 %>
+                                    <% } %>
+                                </span>
                             </td>
                             <% let collegamento = '/admin/fatture/:'+ utenti[i].userName; %>
-                            <td> <button><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
-                            <td> <button class="limitation" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
-                            <td> <button class="boccia" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
-                            <td> <a href=" <%= collegamento %> "><button class="fatture" data-student="<%= utenti[i].userName %>">Fatture</button></a></td>
+                            <td data-label="Guide"> <button class="tableBtn"><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
+                            <td data-label="Limitazioni"> <button class="limitation tableBtn" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
+                            <td data-label="Boccia"> <button class="boccia tableBtn" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
+                            <td data-label="Fatture"> <a href=" <%= collegamento %> "><button class="fatture tableBtn" data-student="<%= utenti[i].userName %>">Fatture</button></a></td>
                         </tr>
                 <% } %>
             

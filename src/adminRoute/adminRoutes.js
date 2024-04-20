@@ -759,9 +759,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
         });
 
         const nFattura = await numeroFattura.updateOne({$inc: {"numero": 1}});
-        res.set('Content-Type', 'application/xml');
-        res.set('Content-Disposition', 'attachment; filename="' + nomeFile + '"');
-        res.send(xmlString); 
+        res.redirect(`/admin/fatture/:${dati.userName}`);
     }
 });
 });

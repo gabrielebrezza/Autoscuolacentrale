@@ -71,7 +71,7 @@
     font-weight: 1000;
     text-transform: uppercase;
 }
-@media (max-height: 800px) {
+@media (max-height: 845px) {
     .header {
         height: 75px;
     }
@@ -84,12 +84,17 @@
     #navBar ul li{
         padding:  15px 10px;
     }
-    @media (max-height: 545px){
+    @media (max-height: 569px){
         #navBar ul li{
             font-size: .8rem;
         }
         #navBar ul li{
             padding:  7px 10px;
+        }
+        @media (max-height: 379px){
+            #navBar ul li{
+                padding:  3px 10px;
+            }
         }
     }
 }
