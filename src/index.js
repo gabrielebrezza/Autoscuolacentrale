@@ -674,7 +674,6 @@ app.get('/success',  async (req, res) =>{
                         duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
                     }
 
-                    //da cambiare in produzione
                     fetch('https://agenda-autoscuolacentrale.com/book', {
                         method: 'POST',
                         headers: {
@@ -686,17 +685,17 @@ app.get('/success',  async (req, res) =>{
                         if (response.ok) {
                             console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
 
-                            res.redirect(`/profile/:${req.cookies.userName}`);
+                            res.redirect(`/profile`);
                         } else {
                             console.error('Errore durante la prenotazione dopo il pagamento');
 
-                            res.redirect(`/profile/:${req.cookies.userName}`);
+                            res.redirect(`/profile`);
                         }
                     })
                     .catch(error => {
                         console.error('Errore durante la prenotazione dopo il pagamento:', error);
 
-                        res.redirect(`/profile/:${req.cookies.userName}`);
+                        res.redirect(`/profile`);
                     });
                 }else if(cause == 'exam'){
                     const numEsame = req.query.numEsame;
@@ -711,11 +710,11 @@ app.get('/success',  async (req, res) =>{
                     if (response.ok) {
                         console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento', req.query);
                         
-                        res.redirect(`/profile/:${req.cookies.userName}`);
+                        res.redirect(`/profile`);
                     } else {
                         console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
                         
-                        res.redirect(`/profile/:${req.cookies.userName}`);
+                        res.redirect(`/profile`);
                     }
                 }
             }
@@ -723,7 +722,7 @@ app.get('/success',  async (req, res) =>{
     } catch (error) {
         console.error('Errore generale:', error);
 
-        res.redirect(`/profile/:${req.cookies.userName}`);
+        res.redirect(`/profile`);
     }
 });
 
