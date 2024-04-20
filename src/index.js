@@ -108,8 +108,8 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
         service: 'gmail',
         auth: {
             //da cambiare in produzione
-            user: 'brezzagabriele0@gmail.com',
-            pass: 'cack nyhf wlmc iuox'
+            user: 'autoscuola.centraletorino@gmail.com',
+            pass: 'Tittike73_'
         },
         //DA TOGLIERE IN PRODUZIONE
         tls: {
@@ -118,7 +118,7 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
     });
 
     const mailOptions = {
-        from: 'brezzagabriele0@gmail.com',
+        from: 'autoscuola.centraletorino@gmail.com',
         to: email,
         subject: subject,
         text: text
@@ -231,8 +231,8 @@ app.post('/verification', async (req, res) => {
                     service: 'gmail',
                     auth: {
                         //da cambiare in produzione
-                        user: 'brezzagabriele0@gmail.com',
-                        pass: 'cack nyhf wlmc iuox'
+                        user: 'autoscuola.centraletorino@gmail.com',
+                        pass: 'Tittike73_'
                     },
                     //DA TOGLIERE IN PRODUZIONE
                     tls: {
@@ -241,8 +241,8 @@ app.post('/verification', async (req, res) => {
                 });
             
                 const mailOptions = {
-                    from: 'brezzagabriele0@gmail.com',
-                    to: 'brezzagabriele0@gmail.com',
+                    from: 'autoscuola.centraletorino@gmail.com',
+                    to: 'autoscuola.centraletorino@gmail.com',
                     subject: 'Nuovo Allievo',
                     text: 'Un nuovo allievo è in attesa di essere approvato.'
                 };
@@ -286,8 +286,8 @@ app.post('/resetPassword', async (req, res) => {
             service: 'gmail',
             auth: {
                 //da cambiare in produzione
-                user: 'brezzagabriele0@gmail.com',
-                pass: 'cack nyhf wlmc iuox'
+                user: 'autoscuola.centraletorino@gmail.com',
+                pass: 'Tittike73_'
             },
             //DA TOGLIERE IN PRODUZIONE
             tls: {
@@ -296,7 +296,7 @@ app.post('/resetPassword', async (req, res) => {
         });
 
         const mailOptions = {
-            from: 'brezzagabriele0@gmail.com',
+            from: 'autoscuola.centraletorino@gmail.com',
             to: email,
             subject: subject,
             text: text

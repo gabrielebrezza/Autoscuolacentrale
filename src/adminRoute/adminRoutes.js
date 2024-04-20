@@ -113,8 +113,8 @@ router.post('/admin/register', async (req, res) => {
             service: 'gmail',
             auth: {
                 //da cambiare in produzione
-                user: 'brezzagabriele0@gmail.com',
-                pass: 'cack nyhf wlmc iuox'
+                user: 'autoscuola.centraletorino@gmail.com',
+                pass: 'Tittike73_'
             },
             //DA TOGLIERE IN PRODUZIONE
             tls: {
@@ -123,7 +123,7 @@ router.post('/admin/register', async (req, res) => {
         });
 
         const mailOptions = {
-            from: 'brezzagabriele0@gmail.com',
+            from: 'autoscuola.centraletorino@gmail.com',
             to: email,
             subject: subject,
             text: text
@@ -172,8 +172,8 @@ router.post('/admin/login', async (req, res) => {
             service: 'gmail',
             auth: {
                 //da cambiare in produzione
-                user: 'brezzagabriele0@gmail.com',
-                pass: 'cack nyhf wlmc iuox'
+                user: 'autoscuola.centraletorino@gmail.com',
+                pass: 'Tittike73_'
             },
             //DA TOGLIERE IN PRODUZIONE
             tls: {
@@ -182,7 +182,7 @@ router.post('/admin/login', async (req, res) => {
         });
 
         const mailOptions = {
-            from: 'brezzagabriele0@gmail.com',
+            from: 'autoscuola.centraletorino@gmail.com',
             to: email,
             subject: subject,
             text: text
@@ -514,8 +514,8 @@ router.post('/approveUser', async (req, res) =>{
         service: 'gmail',
         auth: {
             //da cambiare in produzione
-            user: 'brezzagabriele0@gmail.com',
-            pass: 'cack nyhf wlmc iuox'
+            user: 'autoscuola.centraletorino@gmail.com',
+            pass: 'Tittike73_'
         },
         //DA TOGLIERE IN PRODUZIONE
         tls: {
@@ -524,7 +524,7 @@ router.post('/approveUser', async (req, res) =>{
     });
 
     const mailOptions = {
-        from: 'brezzagabriele0@gmail.com',
+        from: 'autoscuola.centraletorino@gmail.com',
         to: email,
         subject: subject,
         text: text
