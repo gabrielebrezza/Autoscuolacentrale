@@ -349,7 +349,7 @@ async function isAuthenticated(req, res, next) {
 
     jwt.verify(token, JWT_SECRET, async (err, user) => {
         if (err) {
-            return res.status(403).json({ message: 'Autenticazione fallita' });
+            return res.redirect('/');
         }
         
         // Controlla se l'utente è approvato
