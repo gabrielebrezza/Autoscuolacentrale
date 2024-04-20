@@ -24,7 +24,7 @@ const prezzoGuida = require('../Db/CostoGuide');
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 // Funzione per la generazione di token JWT
 function generateToken(username) {
-    return jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' }); // Token scade dopo 3 ore
+    return jwt.sign({ username }, JWT_SECRET, { expiresIn: '3d' });
 }
 
 const cartellaFatture = path.join(__dirname, 'fatture');
@@ -451,12 +451,12 @@ router.post('/bacheca',authenticateJWT , async (req, res) => {
     const instructor = req.user.username;
     const content = req.body.bacheca;
     try {
-        console.log(content);
         const existingDocument = await bacheca.findOne();
             existingDocument.content = content;
             existingDocument.editedBy.push(instructor); 
             await existingDocument.save(); 
-            res.redirect('/admin/bacheca')
+            console.log(`Bacheca modificata da ${instructor}`);
+            res.redirect('/admin/bacheca');
     } catch (error) {
         console.error("Error while adding or updating bacheca entry:", error);
         res.status(500).send('Errore durante la modifica della bacheca');
