@@ -18,7 +18,12 @@
         <img id="mobileLogo" src="/styles/img/image.png" alt="">
         <img id="desktopLogo" src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
         <div class="actions">
-            <button class="storico">Storico Guide</button>
+            <% if (storicoGuide.lessonList.length > 0) { %>
+                <button class="storico">Storico Guide</button>
+            <% } else{ %>
+                <button class="storico disabled" disabled>Storico Guide</button>
+            <% } %>
+            
             <a style="color: red;" href="/userLogout" >LogOut</a>
         </div>
         <script>
@@ -28,20 +33,6 @@
             });
             function logout() {
                 browser.cookies.remove('userName');
-                // fetch('/userLogout', {
-                //     method: 'POST',
-                //     credentials: 'same-origin'
-                // })
-                // .then(response => {
-                //     if (response.ok) {
-                //         window.location.href = '/';
-                //     } else {
-                //         console.error('Logout fallito');
-                //     }
-                // })
-                // .catch(error => {
-                //     console.error('Errore durante il logout:', error);
-                // });
             }
         </script> 
 

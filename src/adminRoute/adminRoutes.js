@@ -160,7 +160,7 @@ router.post('/admin/login', async (req, res) => {
             return res.status(401).json({ message: 'Credenziali non valide' });
         }
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-        console.log(otpCode);
+        console.log(`Codice di verifica per ${email}: ${otpCode}`);
         saltRounds = await bcrypt.genSalt(10);
         hashedOTP = await bcrypt.hash(String(otpCode), 10);
         const implementOTP = await Admin.findOneAndUpdate({ "email": email }, {"otp": hashedOTP});
@@ -231,7 +231,8 @@ router.get('/admin', authenticateJWT, async (req, res) => {
     const istruttore = req.user.username;
     const [nome, cognome] = istruttore.split(" ");
     const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-    res.render('admin/admin', { title: 'Admin - DashBoard', role}); // Invia la pagina HTML protetta
+    // res.render('admin/admin', { title: 'Admin - DashBoard', role});
+    res.redirect('/admin/guides');
 });
 
 router.get('/admin/guides', authenticateJWT, async (req, res) => {

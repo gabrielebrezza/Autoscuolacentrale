@@ -37,6 +37,7 @@
     justify-content: start;
     flex-direction: column;
     z-index: 99999999999 !important;
+    overflow: hidden;
 }
 
 #navBar ul{
@@ -52,6 +53,7 @@
     border-bottom: 1px solid #fff;
     padding:  25px 10px;
     list-style: none;
+    transition: 1s;
 }
 #navBar ul li a{
     text-decoration: none;
@@ -59,19 +61,40 @@
     font-weight: 750;
     text-transform: capitalize;
     margin-block: 25px;
+    transition: .5s;
+}
+#navBar ul li:hover{
+    transform: translateX(10px);
+    background: #fff;
+}
+#navBar ul li:hover a{
+    color: #5681a9;
 }
 #navBar ul li:last-child{
     width: 300px;
     border-top: 1px solid #fff;
+    border-bottom: none;
     text-align: center;
     position: fixed;
     bottom: 0;
 }
+#navBar ul li:last-child:hover{
+    transform: translateX(0);
+    background: #923232;
+}
+#navBar ul li:last-child:hover a{
+    color: #fff !important;
+}
 #navBar ul li:last-child a{
+    height: 0;
+    padding-block: 2px;
     font-weight: 1000;
     text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-@media (max-height: 845px) {
+@media (max-height: 870px) {
     .header {
         height: 75px;
     }
@@ -84,14 +107,14 @@
     #navBar ul li{
         padding:  15px 10px;
     }
-    @media (max-height: 569px){
+    @media (max-height: 596px){
         #navBar ul li{
             font-size: .8rem;
         }
         #navBar ul li{
             padding:  7px 10px;
         }
-        @media (max-height: 379px){
+        @media (max-height: 409px){
             #navBar ul li{
                 padding:  3px 10px;
             }

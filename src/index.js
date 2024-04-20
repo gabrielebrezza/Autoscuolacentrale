@@ -3,7 +3,7 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); 
 const paypal = require('paypal-rest-sdk');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
@@ -17,7 +17,7 @@ const formatoEmail = require('./Db/formatoEmail');
 
 //routes
 const adminRoutes = require('./adminRoute/adminRoutes');
-// Aggiungi cookie-parser come middleware per gestire i cookie
+
 
 paypal.configure({
     //da cambiare in produzione
@@ -46,18 +46,19 @@ app.use(bodyParser.urlencoded({ extended: false}));
 
 app.use(adminRoutes);
 
+const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
+// Funzione per la generazione di token JWT
+function generateUserToken(username) {
+    return jwt.sign({ username }, JWT_SECRET, { expiresIn: '36w' });
+}
+
 app.get('/', async (req, res) =>{
     const user = req.cookies.userName;
-    const isApproved = await credentials.findOne({userName: user});
-    if(user && isApproved){
-        if (isApproved.approved) {
-            res.redirect(`/profile/:${user}`);
-        }else{
-                res.redirect(`/waitingApprovation/:${user}`);
-            }
-    }else{ 
-        res.render('login');
+    const token = req.cookies.userName;
+    if (token) {
+        return res.redirect('/profile');
     }
+        res.render('login');
 });
 app.get('/userLogout', (req, res) => {
     console.log(`L'allievo ${req.cookies.userName} ha appena effettuato il logOut`);
@@ -339,20 +340,38 @@ app.post('/newPasswordVerification', async (req, res)=> {
     }
 });
 // Middleware per controllare l'autenticazione
-const isAuthenticated = async (req, res, next) => {
-    const usernameCookie = req.cookies.userName;
-    const usernameURL = (req.params.userName).replace(":", "");
-    const isApproved = await credentials.findOne({userName: usernameURL});
-    if(isApproved){
-        if (usernameCookie && usernameCookie === usernameURL && isApproved.approved) {
-            // User authenticated
-            return next();
-        } else {
-            // User not authenticated
-            res.redirect(`/waitingApprovation/:${usernameURL}`);
-        }
+
+async function isAuthenticated(req, res, next) {
+    const token = req.cookies.userName;
+    if (!token) {
+        return res.redirect('/');
     }
-};
+
+    jwt.verify(token, JWT_SECRET, async (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Autenticazione fallita' });
+        }
+        
+        // Controlla se l'utente è approvato
+        try {
+            const username = user.username; 
+            const approvedAdmin = await credentials.findOne({ "userName": username, "approved": true });
+            
+            if (!approvedAdmin) {
+                return res.redirect(`/waitingApprovation/:${username}`);
+            }
+        } catch (error) {
+            console.error('Errore durante il recupero dello stato di approvazione dell\'utente:', error);
+            return res.status(500).json({ message: 'Errore del server' });
+        }
+        
+        req.user = user;
+        next();
+    });
+}
+
+
+
 
 app.get('/verificationCode/:userName', async (req, res) => {
     res.render('codiceDiVerifica', {userName: req.params.userName.replace(':', '')});
@@ -367,9 +386,9 @@ app.post('/verifica_otp', async (req, res) =>{
     const check = await credentials.findOne({ "userName": userName });
     const isOTPMatched = await bcrypt.compare(otpString, check.OTP);
     if(isOTPMatched){
-        const sixMonths = 180 * 24 * 60 * 60 * 1000;
-        res.cookie('userName', userName, { maxAge: sixMonths, httpOnly: true });//da controllare se mettere httpsOnly
-        res.redirect(`/profile/:${req.body.userName}`);
+        const token = generateUserToken(userName);
+        res.cookie('userName', token, { httpOnly: true });
+        res.redirect(`/profile`);
     }else{
         res.json('Il codice OTP inserito è errato');
     }
@@ -379,9 +398,9 @@ app.get('/waitingApprovation/:userName', async (req, res) =>{
     const isApproved = await credentials.findOne({userName: user});
     res.render('waitingApprovation', { user: user });
 });
-app.get('/profile/:userName', isAuthenticated, async (req, res) => {
+app.get('/profile', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();
-    const nome = req.params.userName.replace(':', '');
+    const nome = req.user.username;
     const esami = await credentials.findOne({ "userName": nome }, { "exams": 1 });
     const personalData = await credentials.findOne({ "userName": nome }, { "billingInfo": 1});
     const bachecaContent = await bacheca.findOne();
