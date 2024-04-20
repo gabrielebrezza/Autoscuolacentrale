@@ -52,11 +52,14 @@ header button{
 header button:hover{
     background: #5f97cb;
 }
+img{
+    user-select: none;
+    -webkit-user-drag: none;
+}
 header #desktopLogo{
-    /* display: block; */
     max-width: 300px;
     width: 100%;
-    /* object-fit: contain; */
+    object-fit: contain;
     mix-blend-mode: multiply;
 }
 header #mobileLogo{
@@ -68,10 +71,10 @@ header #mobileLogo{
     }
     header #mobileLogo{
         display: block;
+        max-width: 100px;
+        width: 100%;
     }
     header #mobileLogo img{
-        max-width: 200px;
-        width: 100%;
         object-fit: contain;
         mix-blend-mode: multiply;
     }

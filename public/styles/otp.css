@@ -9,6 +9,19 @@ body {
     background: #71a1cb;
     text-align: center;
 }
+header{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+}
+header img{
+    max-width: 350px;
+    width: 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.8;
+}
+
 h1{
     color: #fff;
 }

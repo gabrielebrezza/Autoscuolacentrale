@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prenota Guide</title>
+    <link rel="icon" href="/styles/img/image.png" type="image/x-icon">
     <link rel="stylesheet" href="/styles/guideBooking.css">
     <!-- icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -300,7 +301,6 @@ function updateSectionsVisibility(selectedDate) {
         const causeInput = document.getElementById('causeInput');
         const numEsameInput = document.getElementById('numEsameInput');
         const locationInput = document.getElementById('locationInput');
-        // Gestore per prenotare una lezione
         const bookButtons = document.querySelectorAll('.book');
         bookButtons.forEach(async(button) => {
             button.addEventListener("click", bookHandler);
@@ -323,11 +323,6 @@ function updateSectionsVisibility(selectedDate) {
             }, 100)
         }
 
-
-
-
-
-
         const examBtn = document.querySelector('.daPagare');
         if(examBtn){
             examBtn.addEventListener('click', () =>{
@@ -344,43 +339,6 @@ function updateSectionsVisibility(selectedDate) {
         }
         const noGuideText = document.querySelector('.noGuide');
         noGuideText.style.display = document.querySelectorAll('section') ? 'block' : 'none';
-
-
-        // // Gestore per cancellare una prenotazione
-        // const removeButtons = document.querySelectorAll('.removeBooking');
-        // removeButtons.forEach((button) => {
-        //     button.addEventListener("click", removeBookHandler);
-        // });
-
-        // function removeBookHandler(event) {
-        //     const button = event.currentTarget;
-        //     removeBook(button);
-        //     button.removeEventListener("click", removeBookHandler);
-        // }
-
-        // function removeBook(button) {
-        //     const instructor = button.dataset.instructor;
-        //     const time = button.dataset.time;
-        //     fetch('/removebooking', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         },
-        //         body: JSON.stringify({ instructor: instructor, time: time, student: studente })
-        //     })
-        //     .then(response => {
-        //         if (response.ok) {
-        //             alert('Prenotazione rimossa con successo');
-        //         } else {
-        //             alert('Errore durante la rimozione della prenotazione');
-        //         }
-        //         window.location.reload();
-        //     })
-        //     .catch(error => {
-        //         console.error('Errore durante la rimozione della prenotazione:', error);
-        //     });
-        // }
-
     </script>
 </body>
 </html>

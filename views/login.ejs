@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/styles/img/image.png" type="image/x-icon">
     <title>Login/Sign Up</title>
     <link rel="stylesheet" href="/styles/login.css">
 </head>
 <body>
+    <header>
+        <img src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
+    </header>
     <div class="container">
         <div id="login" class="auth-form">
             <h1>Login</h1>
@@ -20,9 +24,8 @@
                 <a href="/resetPassword">Ho dimenticato la Password</a>
             </form>
             <p id="signupBtn">Non hai un'account?<a onclick="toggleForm('signup')">Registrati</a></p>
-            
         </div>
-        <div id="signup" class="auth-form" >
+        <div id="signup" class="auth-form">
             <h1>Inserisci I Dati</h1>
             <form>
                 <input type="hidden" name="intent" value="signup">
@@ -36,7 +39,6 @@
         </div>
     </div>
     <script>
-
         const addData = document.querySelector('.aggiungiDati');
         addData.addEventListener('click', () =>{
             const signupEmail = document.getElementById('signupEmail').value;
@@ -54,9 +56,7 @@
             document.getElementById('personalDataForm').style.display = 'block';
         });
     </script>
-
-
-        <div id="personalDataForm" style="display: none;">
+    <div id="personalDataForm" style="display: none;">
         <form id="DataForm" action="/verification" method="POST">
             <h1>Per poter emettere le fatture compila questo form con i tuoi dati personali</h1>
             <input type="hidden" name="intent" value="signup">
@@ -107,8 +107,7 @@
                 </div>
                 <button type="submit">Registrati</button>
             </div>
-            
-        </form>        
+        </form>
     </div>
     <script>
         const provinceList = [
@@ -134,38 +133,34 @@
             selectProvince.appendChild(option);
         });
     </script>
-
     <script>
-    // window.addEventListener("resize", toggleForm('signup'));
-
-        function toggleForm(form) {
-            const login = document.getElementById('login');
-            const signup = document.getElementById('signup');
-            if(window.innerWidth > 846){
-                const signupBtn = document.getElementById('signupBtn');
-                const loginBtn = document.getElementById('loginBtn');
-                if (form === 'login') {
-                    login.style.transform = 'translateX(0%)';
-                    loginBtn.style.transform = 'translateX(30vw) translateY(-50%)';
-                    signup.style.transform = 'translateX(100%)';
-                    signupBtn.style.transform = 'translateX(calc(30vw - 50%))  translateY(-50%)';
-                } else if (form === 'signup') {
-                    signup.style.transform = 'translateX( 0%)';
-                    signupBtn.style.transform = 'translateX(0%) translateY(-50%)';
-                    login.style.transform = 'translateX( -100%)';
-                    loginBtn.style.transform = 'translateX(calc(-30vw + 50%)) translateY(-50%)';
-                }
-            }else{
-                if (form === 'login') {
-                    login.style.transform = 'translateX(0%)';
-                    signup.style.transform = 'translateX(50%)';
-                } else if (form === 'signup') {
-                    signup.style.transform = 'translateX( -100%)';
-                    login.style.transform = 'translateX( -110%)';
+            function toggleForm(form) {
+                const login = document.getElementById('login');
+                const signup = document.getElementById('signup');
+                if(window.innerWidth > 846){
+                    const signupBtn = document.getElementById('signupBtn');
+                    const loginBtn = document.getElementById('loginBtn');
+                    if (form === 'login') {
+                        login.style.transform = 'translateX(0%)';
+                        loginBtn.style.transform = 'translateX(30vw) translateY(-50%)';
+                        signup.style.transform = 'translateX(100%)';
+                        signupBtn.style.transform = 'translateX(calc(30vw - 50%))  translateY(-50%)';
+                    } else if (form === 'signup') {
+                        signup.style.transform = 'translateX( 0%)';
+                        signupBtn.style.transform = 'translateX(0%) translateY(-50%)';
+                        login.style.transform = 'translateX( -100%)';
+                        loginBtn.style.transform = 'translateX(calc(-30vw + 50%)) translateY(-50%)';
+                    }
+                }else{
+                    if (form === 'login') {
+                        login.style.transform = 'translateX(0%)';
+                        signup.style.transform = 'translateX(50%)';
+                    } else if (form === 'signup') {
+                        signup.style.transform = 'translateX( -100%)';
+                        login.style.transform = 'translateX( -110%)';
+                    }
                 }
             }
-        }
-        
     </script>
 </body>
 </html>

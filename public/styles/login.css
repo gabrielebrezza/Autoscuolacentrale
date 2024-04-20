@@ -18,7 +18,18 @@
      overflow: auto;
      background-color: #71a1cb;
 }
-
+header{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+}
+header img{
+    max-width: 350px;
+    width: 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.8;
+}
  .container{
      padding: 10px;
      border-radius: 20px;
