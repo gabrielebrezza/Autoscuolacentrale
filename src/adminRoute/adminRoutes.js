@@ -72,7 +72,8 @@ async function authenticateJWT(req, res, next) {
 
 router.post('/logout', authenticateJWT, async (req, res) => {
     console.log(`L'istruttore ${req.user.username} ha appena effettuato il logOut`);
-    res.clearCookie('token', { expires: new Date(0) }).send({ message: 'Logout effettuato con successo' });
+    res.cookie('userName', '', {maxAge: 1});
+    res.redirect('/admin/login');
 }); 
 
 router.get('/admin/register', (req, res) => {

@@ -61,7 +61,6 @@ app.get('/', async (req, res) =>{
         res.render('login');
 });
 app.get('/userLogout', (req, res) => {
-    console.log(`L'allievo ${req.cookies.userName} ha appena effettuato il logOut`);
     res.cookie('userName', '', {maxAge: 1});
     res.redirect('/');
 }); 
