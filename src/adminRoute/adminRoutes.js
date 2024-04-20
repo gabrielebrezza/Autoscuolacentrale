@@ -80,8 +80,10 @@ router.get('/admin/register', (req, res) => {
 });
 
 router.post('/admin/register', async (req, res) => {
-
-    const { nome, cognome, email, password } = req.body;
+    const nome = req.body.nome.replace(/\s/g, "");
+    const cognome = req.body.cognome.replace(/\s/g, "");
+    const email = req.body.email.replace(/\s/g, "");
+    const password = req.body.password;
     try {
         const existingAdmin = await Admin.findOne({ email });
 
@@ -147,7 +149,8 @@ router.get('/admin/login', (req, res) => {
 // Admin panel route
 router.post('/admin/login', async (req, res) => {
 
-    const { email, password } = req.body;
+    const email = (req.body.email).replace(/\s/g, "");
+    const password = req.body.password;
     try {
         // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
         const admin = await Admin.findOne({ "email": email });
