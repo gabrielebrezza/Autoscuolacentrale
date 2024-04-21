@@ -82,13 +82,11 @@
     transform: translateX(0);
     background: #923232;
 }
-#navBar ul li:last-child:hover a{
-    color: #fff !important;
-}
 #navBar ul li:last-child a{
     height: 0;
     padding-block: 2px;
     font-weight: 1000;
+    color: #fff !important;
     text-transform: uppercase;
     display: flex;
     align-items: center;
