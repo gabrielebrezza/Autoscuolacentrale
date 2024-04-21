@@ -114,7 +114,7 @@ router.post('/admin/register', async (req, res) => {
             auth: {
                 //da cambiare in produzione
                 user: 'autoscuolacentraletorino@gmail.com',
-                pass: 'Tittike73_'
+                pass: 'me k r o n e s s p c c w x j q'
             },
             //DA TOGLIERE IN PRODUZIONE
             tls: {
@@ -173,7 +173,7 @@ router.post('/admin/login', async (req, res) => {
             auth: {
                 //da cambiare in produzione
                 user: 'autoscuolacentraletorino@gmail.com',
-                pass: 'Tittike73_'
+                pass: 'me k r o n e s s p c c w x j q'
             },
             //DA TOGLIERE IN PRODUZIONE
             tls: {
@@ -515,7 +515,7 @@ router.post('/approveUser', async (req, res) =>{
         auth: {
             //da cambiare in produzione
             user: 'autoscuolacentraletorino@gmail.com',
-            pass: 'Tittike73_'
+            pass: 'me k r o n e s s p c c w x j q'
         },
         //DA TOGLIERE IN PRODUZIONE
         tls: {

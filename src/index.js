@@ -108,7 +108,7 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
         auth: {
             //da cambiare in produzione
             user: 'autoscuolacentraletorino@gmail.com',
-            pass: 'Tittike73_'
+            pass: 'me k r o n e s s p c c w x j q'
         },
         //DA TOGLIERE IN PRODUZIONE
         tls: {
@@ -231,7 +231,7 @@ app.post('/verification', async (req, res) => {
                     auth: {
                         //da cambiare in produzione
                         user: 'autoscuolacentraletorino@gmail.com',
-                        pass: 'Tittike73_'
+                        pass: 'me k r o n e s s p c c w x j q'
                     },
                     //DA TOGLIERE IN PRODUZIONE
                     tls: {
@@ -286,7 +286,7 @@ app.post('/resetPassword', async (req, res) => {
             auth: {
                 //da cambiare in produzione
                 user: 'autoscuolacentraletorino@gmail.com',
-                pass: 'Tittike73_'
+                pass: 'me k r o n e s s p c c w x j q'
             },
             //DA TOGLIERE IN PRODUZIONE
             tls: {
