@@ -40,7 +40,7 @@
     </header>
     
     <aside>     
-                <% if (!esame[0].paid || !esame[1].paid || !esame[2].paid) { %>
+                 <%#   if (!esami.exams[0].paid || !esami.exams[1].paid || !esami.exams[2].paid) { %> 
                     <div class="esami">
                         <nav>Prenotazione esami di guida</nav>
                         <% const esame = esami.exams; %>
@@ -68,7 +68,7 @@
                             <% } %>
                         <% } %>
                     </div>
-                <% } %>
+                <%# } %>
                 <span  class="material-symbols-outlined" id="data" name="data" readonly></span>
                 <div class="bacheca">
                     <nav>Bacheca</nav>
@@ -107,7 +107,7 @@
             </tbody>
         </table>
     </div>
-    <%if(esame[0].paid){ %>
+    <%if(esami.exams[0].paid){ %>
     <div class="container">
         <% for(var i = 0; i < lezioni.length; i++) { %>
             <% let exclude = false %>
