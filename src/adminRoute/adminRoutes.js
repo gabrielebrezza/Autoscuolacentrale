@@ -9,7 +9,6 @@ const path = require('path');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 const archiver = require('archiver');
-//DA TOGLIERE IN PRODUZIONE
 const tls = require('tls');
 
 const credentials = require('../Db/User');
@@ -33,10 +32,6 @@ router.use('/fatture', express.static(cartellaFatture));
 
 router.use(bodyParser.urlencoded({ extended: false }));
 
-
-
-
-// Parse application/json
 router.use(bodyParser.json());
 // Middleware per l'autenticazione JWT
 async function authenticateJWT(req, res, next) {
@@ -112,11 +107,9 @@ router.post('/admin/register', async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                //da cambiare in produzione
                 user: 'autoscuolacentraletorino@gmail.com',
                 pass: 'me k r o n e s s p c c w x j q'
             },
-            //DA TOGLIERE IN PRODUZIONE
             tls: {
                 rejectUnauthorized: false
             }
@@ -171,11 +164,9 @@ router.post('/admin/login', async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                //da cambiare in produzione
                 user: 'autoscuolacentraletorino@gmail.com',
                 pass: 'me k r o n e s s p c c w x j q'
             },
-            //DA TOGLIERE IN PRODUZIONE
             tls: {
                 rejectUnauthorized: false
             }
@@ -513,11 +504,9 @@ router.post('/approveUser', async (req, res) =>{
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            //da cambiare in produzione
             user: 'autoscuolacentraletorino@gmail.com',
             pass: 'me k r o n e s s p c c w x j q'
         },
-        //DA TOGLIERE IN PRODUZIONE
         tls: {
             rejectUnauthorized: false
         }
@@ -703,14 +692,12 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                 .ele('PrezzoUnitario').txt(dati.prezzoUnitario1).up()
                 .ele('PrezzoTotale').txt(dati.prezzoTotale1).up()
                 .ele('AliquotaIVA').txt(dati.aliquotaIVA1).up()
-                // .ele('Natura').txt(dati.natura1).up()
             .up()
             .ele('DatiRiepilogo')
                 .ele('AliquotaIVA').txt(dati.aliquotaIVARiepilogo1).up()
                 .ele('ImponibileImporto').txt(dati.imponibileImporto1).up()
                 .ele('Imposta').txt(dati.imposta1).up()
                 .ele('EsigibilitaIVA').txt(dati.esigibilitaIVA).up()
-                // .ele('TotaleDocumento').txt(dati.TotaleDocumento).up()
             .up()
         .up()
         .ele('DatiPagamento')

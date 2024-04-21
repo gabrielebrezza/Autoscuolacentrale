@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken'); 
 const paypal = require('paypal-rest-sdk');
 const nodemailer = require('nodemailer');
+const tls = require('tls');
 const crypto = require('crypto');
 
 //DB schemas
@@ -79,8 +80,7 @@ app.get('/condizioni-uso.pdf', (req, res) => {
     res.sendFile(path.join(__dirname, 'condizioni-uso.pdf'));
 });
 
-//DA TOGLIERE IN PRODUZIONE
-const tls = require('tls');
+
 // Middleware per l'invio dell'email
 const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome, cognome, day, hour, locationlink) => {
     let subject, text;
@@ -106,11 +106,9 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            //da cambiare in produzione
             user: 'autoscuolacentraletorino@gmail.com',
             pass: 'me k r o n e s s p c c w x j q'
         },
-        //DA TOGLIERE IN PRODUZIONE
         tls: {
             rejectUnauthorized: false
         }
@@ -229,11 +227,9 @@ app.post('/verification', async (req, res) => {
                 const transporter = nodemailer.createTransport({
                     service: 'gmail',
                     auth: {
-                        //da cambiare in produzione
                         user: 'autoscuolacentraletorino@gmail.com',
                         pass: 'me k r o n e s s p c c w x j q'
                     },
-                    //DA TOGLIERE IN PRODUZIONE
                     tls: {
                         rejectUnauthorized: false
                     }
@@ -284,11 +280,9 @@ app.post('/resetPassword', async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                //da cambiare in produzione
                 user: 'autoscuolacentraletorino@gmail.com',
                 pass: 'me k r o n e s s p c c w x j q'
             },
-            //DA TOGLIERE IN PRODUZIONE
             tls: {
                 rejectUnauthorized: false
             }
@@ -523,7 +517,6 @@ app.post('/removebooking', async (req, res) => {
     try {
         const { instructor, time } = req.body;
 
-        // Aggiorna il documento della guida
         const updatedGuide = await guide.findOneAndUpdate(
             { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
             { $unset: { "book.$.schedule.$[elem].student": "" } },
@@ -571,7 +564,6 @@ app.post('/create-payment',  async (req, res) =>{
         description: "Pagamento per la lezione di guida in AutoScuolaCentrale"; 
         name = "Lezione di Guida";
         sku = 1;
-        //da cambiare in produzione
         returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&location=${encodeURIComponent(location)}`;
         }else if(cause == 'exam'){
             price = 100;
@@ -579,7 +571,6 @@ app.post('/create-payment',  async (req, res) =>{
             description: "Pagamento per l'esame di guida in AutoScuolaCentrale"; 
             name = "Esame di Guida";
             sku = 2;
-            //da cambiare in produzione
             returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
 
         }
@@ -590,7 +581,6 @@ app.post('/create-payment',  async (req, res) =>{
             },
             redirect_urls: {
                 return_url: returnUrl,
-                //da cambiare in produzione
                 cancel_url: "https://agenda-autoscuolacentrale.com/cancel",
             },
             transactions: [
@@ -697,7 +687,6 @@ app.get('/success',  async (req, res) =>{
                     });
                 }else if(cause == 'exam'){
                     const numEsame = req.query.numEsame;
-                    //da cambiare in produzione
                     const response = await fetch('https://agenda-autoscuolacentrale.com/bookExam', {
                         method: 'POST',
                         headers: {
@@ -727,36 +716,6 @@ app.get('/success',  async (req, res) =>{
 app.get('/cancel', async (req, res) =>{
     res.render('payments/cancel');
 });
-
-
-
-
-
-
-
-// app.post('/payPP', async (req, res) => {
-//     res.json({ message: 'Form data received successfully'})
-// });
-
-
-
-
-
-
-
-
-
-
-// const port = 5000;
-// app.listen(port, '0.0.0.0', () =>{
-//     console.log('Server running on Port: ' + port);
-// })
-
-// const http = require('http');
-
-// const server = http.createServer((req, res) => {
-//     res.send('Benvenuto alla pagina principale!');
-// });
 
 const PORT = process.env.PORT || 80;
 
