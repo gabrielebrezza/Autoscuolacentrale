@@ -40,10 +40,20 @@
     </header>
     
     <aside>     
-                 <%#   if (!esami.exams[0].paid || !esami.exams[1].paid || !esami.exams[2].paid) { %> 
+            <% const esame = esami.exams; %>
+            <% let toPay = 0; %>
+            <% let totExams = 0 %>
+                <% if(!esame[0].paid){ %>
+                    <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>
+                <% } %>
+                <% for( let i = 0; i < esame.length; i++ ) { %>
+                    <% toPay = esame[i].paid ? toPay++ : toPay %>
+                    <% totExams++ %>
+                <% } %>
+                <% if (toPay == 0) { %> 
                     <div class="esami">
                         <nav>Prenotazione esami di guida</nav>
-                        <% const esame = esami.exams; %>
+                        
                         <% var print = true; %>
                         <% for( let i = 0; i < esame.length; i++ ) { %>
                             <% if (i<3) { %>
@@ -68,7 +78,7 @@
                             <% } %>
                         <% } %>
                     </div>
-                <%# } %>
+                <% } %>
                 <span  class="material-symbols-outlined" id="data" name="data" readonly></span>
                 <div class="bacheca">
                     <nav>Bacheca</nav>
@@ -107,7 +117,7 @@
             </tbody>
         </table>
     </div>
-    <%if(esami.exams[0].paid){ %>
+    <%if(esame[0].paid){ %>
     <div class="container">
         <% for(var i = 0; i < lezioni.length; i++) { %>
             <% let exclude = false %>
@@ -190,9 +200,7 @@
         <% } %>
         <% } %>
     </div>
-    <% }else if(esame[0].paid == false){ %>
-        <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>
-    <% } %>
+    <% }%>
     <!-- <h1 class="warning noGuide">Non ci sono guide in programma per il giorno selezionato</h1> -->
     </main>
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
