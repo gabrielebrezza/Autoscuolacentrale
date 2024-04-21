@@ -154,7 +154,7 @@
     
         <% if(hasAvailableTime || hasStudentBooking) { %>
         <section class="section" data-date="<%= lezioni[i].book[j].day %>">
-            <h2 class="section-title"> <span>Istruttore: <%= lezioni[i].instructor %></span> <br> Data: <%= lezioni[i].book[j].day %></h2>
+            <h2 class="section-title"> <span>Istruttore: <%= (lezioni[i].instructor.split(' '))[0] %></span> <br> Data: <%= lezioni[i].book[j].day %></h2>
             <table class="table">
                 <thead>
                     <tr>
