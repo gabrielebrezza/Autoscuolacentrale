@@ -38,19 +38,26 @@
         </script> 
 
     </header>
-    
+    <% if(!esami.exams[0].paid){ %>
+        <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>
+    <% } %>
     <aside>     
             <% const esame = esami.exams; %>
-            <% let toPay = 0; %>
+            <% let toPay = 0 %>
+            <% let bocciati = 0 %>
             <% let totExams = 0 %>
-                <% if(!esame[0].paid){ %>
-                    <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>
-                <% } %>
-                <% for( let i = 0; i < esame.length; i++ ) { %>
-                    <% toPay = esame[i].paid ? toPay++ : toPay %>
+
+                <% for( let i = 0; i < esami.exams.length; i++ ) { %>
+                    <% if (!esami.exams[i].paid) {
+                        toPay++;
+                    } %>
+                    <% if (esami.exams[i].bocciato) {
+                        bocciati++;
+                    } %>
                     <% totExams++ %>
                 <% } %>
-                <% if (toPay == 0) { %> 
+                
+                <% if (!esame[0].paid || (toPay <= bocciati && toPay+bocciati==totExams) ) { %> 
                     <div class="esami">
                         <nav>Prenotazione esami di guida</nav>
                         
