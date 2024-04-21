@@ -39,38 +39,36 @@
 
     </header>
     
-    <aside>
-                <div class="esami">
-                    <nav>Prenotazione esami di guida</nav>
-                    <% const esame = esami.exams; %>
-                    <% var print = true; %>
-                    <% for( let i = 0; i < esame.length; i++ ) { %>
-                        
-                        <% if (i<3) { %>
-                            
-                            <div class="esame">
-                                <% if(print == true){ %>
-                                <p><%= i+1 %>° Esame:  
-                                    <% if (esame[i].paid == true) { %>
-                                        <% if (esame[i].bocciato == true) { %>
-                                            <% print = true %>
-                                        <% } else{
-                                            print = false;
-                                        }%>
-                                        
-                                        <strong class="pagato">PAGATO</strong>  
-                                    <% } else{ %> 
-                                        <% print = false %>
-                                        <strong data-esame="<%= i %>" class="daPagare">DA PAGARE</strong>  
+    <aside>     
+                <% if (!esame[0].paid || !esame[1].paid || !esame[2].paid) { %>
+                    <div class="esami">
+                        <nav>Prenotazione esami di guida</nav>
+                        <% const esame = esami.exams; %>
+                        <% var print = true; %>
+                        <% for( let i = 0; i < esame.length; i++ ) { %>
+                            <% if (i<3) { %>
+                                <div class="esame">
+                                    <% if(print == true){ %>
+                                        <p>
+                                            <%= i+1 %>° Esame:  
+                                            <% if (esame[i].paid == true) { %>
+                                                <% if (esame[i].bocciato == true) { %>
+                                                    <% print = true %>
+                                                <% } else{
+                                                    print = false;
+                                                }%>
+                                                <strong class="pagato">PAGATO</strong>  
+                                            <% } else{ %> 
+                                                <% print = false %>
+                                                <strong data-esame="<%= i %>" class="daPagare">DA PAGARE</strong>  
+                                            <% } %>
+                                        </p>
                                     <% } %>
-                                </p>
-                                <% } %>
-                            </div>
-                            
+                                </div>
+                            <% } %>
                         <% } %>
-                    <% } %>
-
-                </div>
+                    </div>
+                <% } %>
                 <span  class="material-symbols-outlined" id="data" name="data" readonly></span>
                 <div class="bacheca">
                     <nav>Bacheca</nav>

@@ -113,7 +113,7 @@ router.post('/admin/register', async (req, res) => {
             service: 'gmail',
             auth: {
                 //da cambiare in produzione
-                user: 'autoscuola.centraletorino@gmail.com',
+                user: 'autoscuolacentraletorino@gmail.com',
                 pass: 'Tittike73_'
             },
             //DA TOGLIERE IN PRODUZIONE
@@ -123,7 +123,7 @@ router.post('/admin/register', async (req, res) => {
         });
 
         const mailOptions = {
-            from: 'autoscuola.centraletorino@gmail.com',
+            from: 'autoscuolacentraletorino@gmail.com',
             to: email,
             subject: subject,
             text: text
@@ -172,7 +172,7 @@ router.post('/admin/login', async (req, res) => {
             service: 'gmail',
             auth: {
                 //da cambiare in produzione
-                user: 'autoscuola.centraletorino@gmail.com',
+                user: 'autoscuolacentraletorino@gmail.com',
                 pass: 'Tittike73_'
             },
             //DA TOGLIERE IN PRODUZIONE
@@ -182,7 +182,7 @@ router.post('/admin/login', async (req, res) => {
         });
 
         const mailOptions = {
-            from: 'autoscuola.centraletorino@gmail.com',
+            from: 'autoscuolacentraletorino@gmail.com',
             to: email,
             subject: subject,
             text: text
@@ -514,7 +514,7 @@ router.post('/approveUser', async (req, res) =>{
         service: 'gmail',
         auth: {
             //da cambiare in produzione
-            user: 'autoscuola.centraletorino@gmail.com',
+            user: 'autoscuolacentraletorino@gmail.com',
             pass: 'Tittike73_'
         },
         //DA TOGLIERE IN PRODUZIONE
@@ -524,7 +524,7 @@ router.post('/approveUser', async (req, res) =>{
     });
 
     const mailOptions = {
-        from: 'autoscuola.centraletorino@gmail.com',
+        from: 'autoscuolacentraletorino@gmail.com',
         to: email,
         subject: subject,
         text: text

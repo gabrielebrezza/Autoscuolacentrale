@@ -20,10 +20,9 @@ const adminRoutes = require('./adminRoute/adminRoutes');
 
 
 paypal.configure({
-    //da cambiare in produzione
     mode: "sandbox",
-    client_id: "AQ_o9Yz9c5nvarfJulXNOBctDZHOPZd4_KsotSdq7K4lcwlDi1gRBi_kJaNICV93KP5n2cmAdxBKngpi",
-    client_secret: "ELznTnRYt4XSn1bNM00e56zPWFbZm_kROe-J5YOAKpO9mQCC-iz0RoblN6fktd6Ojjw5tFgY5XpLzlga"
+    client_id: "AUHPcNe43ZXbRREEakysa85Tjz6Bg4QSo67hqSJw4tnJj-24-AmmrUhEFHtUN3mvxncSkMcKf2yrF26o",
+    client_secret: "EM9NHpEeQFMr31D7hLiDaMUhqPwEEu7edHacb-LkQThaTotira1IhHWMEjyaSEqfeRYYRbuHiam8gsIo"
 });
 
 const app = express();
@@ -108,7 +107,7 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
         service: 'gmail',
         auth: {
             //da cambiare in produzione
-            user: 'autoscuola.centraletorino@gmail.com',
+            user: 'autoscuolacentraletorino@gmail.com',
             pass: 'Tittike73_'
         },
         //DA TOGLIERE IN PRODUZIONE
@@ -118,7 +117,7 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
     });
 
     const mailOptions = {
-        from: 'autoscuola.centraletorino@gmail.com',
+        from: 'autoscuolacentraletorino@gmail.com',
         to: email,
         subject: subject,
         text: text
@@ -231,7 +230,7 @@ app.post('/verification', async (req, res) => {
                     service: 'gmail',
                     auth: {
                         //da cambiare in produzione
-                        user: 'autoscuola.centraletorino@gmail.com',
+                        user: 'autoscuolacentraletorino@gmail.com',
                         pass: 'Tittike73_'
                     },
                     //DA TOGLIERE IN PRODUZIONE
@@ -241,8 +240,8 @@ app.post('/verification', async (req, res) => {
                 });
             
                 const mailOptions = {
-                    from: 'autoscuola.centraletorino@gmail.com',
-                    to: 'autoscuola.centraletorino@gmail.com',
+                    from: 'autoscuolacentraletorino@gmail.com',
+                    to: 'autoscuolacentraletorino@gmail.com',
                     subject: 'Nuovo Allievo',
                     text: 'Un nuovo allievo è in attesa di essere approvato.'
                 };
@@ -286,7 +285,7 @@ app.post('/resetPassword', async (req, res) => {
             service: 'gmail',
             auth: {
                 //da cambiare in produzione
-                user: 'autoscuola.centraletorino@gmail.com',
+                user: 'autoscuolacentraletorino@gmail.com',
                 pass: 'Tittike73_'
             },
             //DA TOGLIERE IN PRODUZIONE
@@ -296,7 +295,7 @@ app.post('/resetPassword', async (req, res) => {
         });
 
         const mailOptions = {
-            from: 'autoscuola.centraletorino@gmail.com',
+            from: 'autoscuolacentraletorino@gmail.com',
             to: email,
             subject: subject,
             text: text
