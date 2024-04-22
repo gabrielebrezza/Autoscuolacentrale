@@ -27,6 +27,9 @@
             <label for="searchExams">Cerca per numero di esami:</label>
             <input type="number" id="searchExams" name="searchExams" min="0">
         </div>
+        <div class="field">
+            <button id="copiaEmail" name="copiaEmail">Copia Email</button>
+        </div>
     </div>
     
     <div class="tableContainer">
@@ -48,7 +51,7 @@
                 <% for (let i = 0; i < utenti.length; i++) { %>
                     <tr>
                         <td data-label="Allievo"><span><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></span></td>
-                        <td data-label="Email"><span><%= utenti[i].email %></span></td>
+                        <td data-label="Email" data-email="<%= utenti[i].email %>"><span><%= utenti[i].email %></span></td>
                         <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
                             <td data-label="Esami pagati"> 
                                 <span>
@@ -99,6 +102,28 @@
         });
     });
 </script>
+
+<script>
+document.getElementById('copiaEmail').addEventListener('click', function() {
+    var emailElements = document.querySelectorAll('td[data-label="Email"]');
+
+    var emails = [];
+
+    emailElements.forEach(function(td) {
+        emails.push(td.dataset.email);
+    });
+
+    var emailsString = emails.join(', ');
+
+    navigator.clipboard.writeText(emailsString).then(function() {
+        alert('Indirizzi email copiati negli appunti: ' + emailsString);
+    }).catch(function(err) {
+        console.error('Errore durante la copia negli appunti:', err);
+    });
+});
+
+</script>
+
 
     </div>
         <div id="formContainer" style="display: none;">
