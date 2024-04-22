@@ -105,7 +105,7 @@
 
 <script>
 document.getElementById('copiaEmail').addEventListener('click', function() {
-    var emailElements = document.querySelectorAll('td[data-label="Email"]');
+    var emailElements = document.querySelectorAll('td[data-label="Email"]:not([style*="display:none"])');
 
     var emails = [];
 
