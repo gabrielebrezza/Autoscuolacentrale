@@ -105,18 +105,29 @@
 
 <script>
 document.getElementById('copiaEmail').addEventListener('click', function() {
-    var emailElements = document.querySelectorAll('td[data-label="Email"]:not([style*="display:none"])');
+    // Seleziona tutte le righe <tr> che contengono gli indirizzi email visibili
+    var visibleEmailRows = document.querySelectorAll('tr:not([style*="display:none"])');
 
-    var emails = [];
+    // Crea un array vuoto per memorizzare gli indirizzi email visibili
+    var visibleEmails = [];
 
-    emailElements.forEach(function(td) {
-        emails.push(td.dataset.email);
+    // Itera su tutte le righe visibili
+    visibleEmailRows.forEach(function(row) {
+        // Seleziona il <td> all'interno della riga corrente
+        var td = row.querySelector('td[data-label="Email"]');
+        // Se l'elemento <td> è presente e visibile
+        if (td && (td.offsetWidth > 0 || td.offsetHeight > 0)) {
+            // Aggiungi l'indirizzo email all'array
+            visibleEmails.push(td.dataset.email);
+        }
     });
 
-    var emailsString = emails.join(', ');
+    // Unisci gli indirizzi email visibili in una stringa separata da virgole
+    var emailsString = visibleEmails.join(', ');
 
+    // Copia la stringa degli indirizzi email negli appunti
     navigator.clipboard.writeText(emailsString).then(function() {
-        alert('Indirizzi email copiati negli appunti: ' + emailsString);
+        alert('Indirizzi email visibili copiati negli appunti: ' + emailsString);
     }).catch(function(err) {
         console.error('Errore durante la copia negli appunti:', err);
     });
