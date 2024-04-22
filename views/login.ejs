@@ -132,6 +132,59 @@
             option.textContent = province;
             selectProvince.appendChild(option);
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+    // Seleziona il modulo
+    var form = document.getElementById('DataForm');
+
+    // Aggiungi un listener per l'evento di invio del modulo
+    form.addEventListener('submit', function(event) {
+        // Seleziona il campo del numero di telefono
+        var phoneInput = document.getElementById('datiPhone');
+
+        // Seleziona gli altri campi da validare
+        var emailInput = document.getElementById('datiEmail');
+        var usernameInput = document.getElementById('datiUsername');
+        var passwordInput = document.getElementById('datiPassword');
+
+        // Verifica se il campo del numero di telefono rispetta il pattern
+        if (!validatePhone(phoneInput)) {
+            // Se il campo del numero di telefono non rispetta il pattern, impedisce l'invio del modulo
+            event.preventDefault();
+            // Avvisa l'utente che il formato del numero di telefono non è valido
+            alert('Il formato del numero di telefono non è valido. Assicurati di inserire un numero valido.');
+        } else if (!validateRequired(emailInput) || !validateRequired(usernameInput) || !validateRequired(passwordInput)) {
+            // Se uno dei campi obbligatori è vuoto, impedisce l'invio del modulo
+            event.preventDefault();
+            // Avvisa l'utente che uno dei campi obbligatori è vuoto
+            alert('Assicurati di compilare tutti i campi obbligatori.');
+        }
+    });
+
+    // Funzione per validare il campo del numero di telefono
+    function validatePhone(input) {
+        // Ottieni il valore del campo del numero di telefono
+        var value = input.value;
+        // Verifica il pattern del campo del numero di telefono
+        var pattern = input.getAttribute('pattern');
+        if (pattern) {
+            var regex = new RegExp(pattern);
+            return regex.test(value);
+        }
+        // Se non c'è un pattern definito, restituisci true
+        return true;
+    }
+
+    // Funzione per verificare se un campo obbligatorio non è vuoto
+    function validateRequired(input) {
+        // Ottieni il valore del campo
+        var value = input.value;
+        // Restituisci false se il campo è vuoto, altrimenti true
+        return value.trim() !== '';
+    }
+});
+
+
     </script>
     <script>
             function toggleForm(form) {
