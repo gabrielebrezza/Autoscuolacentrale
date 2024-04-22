@@ -21,9 +21,8 @@ const adminRoutes = require('./adminRoute/adminRoutes');
 
 
 paypal.configure({
-    mode: "sandbox",
-    client_id: "AUHPcNe43ZXbRREEakysa85Tjz6Bg4QSo67hqSJw4tnJj-24-AmmrUhEFHtUN3mvxncSkMcKf2yrF26o",
-    client_secret: "EM9NHpEeQFMr31D7hLiDaMUhqPwEEu7edHacb-LkQThaTotira1IhHWMEjyaSEqfeRYYRbuHiam8gsIo"
+    client_id: "AWjDhLyGssYR8jG_CSb6LTtajG-1GiqImcVnoVxHvrBg3wsYYszIqK99CWG7vHapMlNIh6nXe1dwG6kp",
+    client_secret: "EJRa3xt9-nOV0QLVqi31cGzLu5ohxVtyx69zCt-ByMbawOlrgLKRzt_VDrT49lDqd72xgqF6IbXIQiJW"
 });
 
 const app = express();
