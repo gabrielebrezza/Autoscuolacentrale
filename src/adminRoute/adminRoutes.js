@@ -500,7 +500,7 @@ router.post('/approveUser', async (req, res) =>{
         {"billingInfo.nome": 1,"billingInfo.cognome": 1}
     );
     const subject = 'Approvazione Scuola Guida';
-    const text = `Gentile ${info.billingInfo[0].nome} ${info.billingInfo[0].cognome}, ti informiamo che il tuo account è stato attivato. Accedi per prenotare le tue lezioni di guida: https://agenda-autoscuolacentrale.com`;
+    const text = `Gentile ${info.billingInfo[0].nome} ${info.billingInfo[0].cognome}, ti informiamo che il tuo account è stato attivato. Accedi per prenotare le tue lezioni di guida: agenda-autoscuolacentrale.com`;
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
