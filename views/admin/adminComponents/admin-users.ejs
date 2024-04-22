@@ -105,27 +105,19 @@
 
 <script>
 document.getElementById('copiaEmail').addEventListener('click', function() {
-    // Seleziona tutte le righe <tr> che contengono gli indirizzi email visibili
     var visibleEmailRows = document.querySelectorAll('tr:not([style*="display:none"])');
 
-    // Crea un array vuoto per memorizzare gli indirizzi email visibili
     var visibleEmails = [];
 
-    // Itera su tutte le righe visibili
     visibleEmailRows.forEach(function(row) {
-        // Seleziona il <td> all'interno della riga corrente
         var td = row.querySelector('td[data-label="Email"]');
-        // Se l'elemento <td> è presente e visibile
         if (td && (td.offsetWidth > 0 || td.offsetHeight > 0)) {
-            // Aggiungi l'indirizzo email all'array
             visibleEmails.push(td.dataset.email);
         }
     });
 
-    // Unisci gli indirizzi email visibili in una stringa separata da virgole
     var emailsString = visibleEmails.join(', ');
 
-    // Copia la stringa degli indirizzi email negli appunti
     navigator.clipboard.writeText(emailsString).then(function() {
         alert('Indirizzi email visibili copiati negli appunti: ' + emailsString);
     }).catch(function(err) {
