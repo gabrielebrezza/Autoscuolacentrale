@@ -66,7 +66,9 @@
         <h2>Ore svolte dagli istruttori</h2>
         <select id="instructor">
             <% for( let i = 0; i < oreIstruttori.length; i++ ) { %>
-                 <option value="<%= oreIstruttori[i].email %>"><%= oreIstruttori[i].nome %> <%= oreIstruttori[i].cognome %></option>
+                <% if (oreIstruttori[i].nome != 'Esame') { %>
+                    <option value="<%= oreIstruttori[i].email %>"><%= oreIstruttori[i].nome %> <%= oreIstruttori[i].cognome %></option>
+                <% } %>    
             <% } %>
         </select>
         <label for="fromDate">Da data:</label>
@@ -79,9 +81,7 @@
         <input type="number" id="price" name="price" placeholder="€">
         <button id="visualizzaOreBtn">Visualizza ore</button>
 
-        <div id="oreContainer">
-            <!-- Qui verrà visualizzato il totale delle ore svolte -->
-        </div>
+        <div id="oreContainer"></div>
     </div>
 
     <script>
