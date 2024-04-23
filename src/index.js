@@ -378,7 +378,9 @@ app.post('/verifica_otp', async (req, res) =>{
     const isOTPMatched = await bcrypt.compare(otpString, check.OTP);
     if(isOTPMatched){
         const token = generateUserToken(userName);
-        res.cookie('userName', token, { httpOnly: true });
+        const ottoMesi = 8 * 30;
+        const durataInMillisecondi = ottoMesi * 24 * 60 * 60 * 1000;
+        res.cookie('userName', token, { httpOnly: true, maxAge: durataInMillisecondi });
         res.redirect(`/profile`);
     }else{
         res.json('Il codice OTP inserito è errato');

@@ -212,7 +212,7 @@ router.post('/admin/verifica_otp', async (req, res) =>{
         const username = nome+' '+cognome;
         const token = generateToken(username);
 
-        res.cookie('token', token, { httpOnly: true });
+        res.cookie('token', token, { httpOnly: true, maxAge: 604800000 });
         res.redirect(`/admin`);
     }else{
         res.json('Il codice OTP inserito è errato');
