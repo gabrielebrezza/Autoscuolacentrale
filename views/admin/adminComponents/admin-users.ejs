@@ -67,7 +67,17 @@
                             <td data-label="Guide"> <button class="tableBtn"><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
                             <td data-label="Limitazioni"> <button class="limitation tableBtn" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
                             <td data-label="Boccia"> <button class="boccia tableBtn" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
-                            <td data-label="Fatture"> <a href=" <%= collegamento %> "><button class="fatture tableBtn" data-student="<%= utenti[i].userName %>">Fatture</button></a></td>
+                            <% let noFatture = true %>
+                            <% for( let j = 0; j < utenti[i].fatturaDaFare.length; j++ ) { %>
+                                <% if (!utenti[i].fatturaDaFare[j].emessa) { %>
+                                    <td data-label="Fatture"> <a href=" <%= collegamento %> "><button class="fatture tableBtn" style="background-color: orange !important;" data-student="<%= utenti[i].userName %>">Fatture</button></a></td>
+                                    <% noFatture = false %>
+                                    <% break; %>
+                                <% } %>
+                            <% } %>
+                            <% if (noFatture) { %>
+                                <td data-label="Fatture"> <a href=" <%= collegamento %> "><button class="fatture tableBtn" data-student="<%= utenti[i].userName %>">Fatture</button></a></td>
+                            <% } %>
                         </tr>
                 <% } %>
             
