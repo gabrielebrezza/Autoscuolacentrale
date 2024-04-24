@@ -216,7 +216,7 @@
                 cancel
             </span>
         </a>
-        <form id="paymentForm" action="/create-payment" method="POST">
+        <form id="paymentForm" method="POST">
             <input type="hidden" id="causeInput" name="cause" value="">
             <input type="hidden" id="locationInput" name="location" value="">
             <div class="form-group">
@@ -226,9 +226,24 @@
             </div>
                     <input type="hidden" id="instructorInput" name="instructor" value="">
                     <input type="hidden" id="timeInput" name="time" value="">
-                    <input type="hidden" id="numEsameInput" name="numEsame" value=""> 
-            <button id="payButton" type="submit" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
-        </form>
+                    <input type="hidden" id="numEsameInput" name="numEsame" value="">
+                    <label for="codicePagamento">Paga con codice</label>
+                    <input type="text" id="codicePagamento" name="codicePagamento"> 
+                    <button id="payPalButton" type="button" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
+                    <button id="codiceButton" type="button" class="btn btn-primary">Paga con codice</button>
+                </form>
+                
+                <script>
+                document.getElementById("payPalButton").addEventListener("click", function() {
+                    document.getElementById("paymentForm").action = "/create-payment";
+                    document.getElementById("paymentForm").submit();
+                });
+                
+                document.getElementById("codiceButton").addEventListener("click", function() {
+                    document.getElementById("paymentForm").action = "/create-code-payment";
+                    document.getElementById("paymentForm").submit();
+                });
+                </script>
     </div>
     
     <script>

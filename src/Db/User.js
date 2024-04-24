@@ -136,7 +136,15 @@ const LoginSchema = new mongoose.Schema({
     resetPasswordCode: {
         type: String,
         required: false
-    }
+    },
+    codicePagamento: [
+        {
+            codice: {
+                type: String,
+                required: false
+            }
+        }
+    ]
 });
 
 const credentials = new mongoose.model('users', LoginSchema);

@@ -403,6 +403,8 @@ app.get('/profile', isAuthenticated, async (req, res) => {
     res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide});
 });
 
+app.post
+
 app.post('/book', async (req, res) => {
     try {
         const { instructor, time, day, duration, student, price, location } = req.body;
