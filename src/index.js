@@ -542,7 +542,15 @@ app.post('/create-code-payment', async (req, res) => {
         let price, returnUrl, day, hour, numEsame, name;
         price = !req.body.price ? 100 : req.body.price;
         const code = req.body.codicePagamento;
-        const exists = !!(await credentials.findOne({"userName": student, "codicePagamento": {"codice": code, "importo": price} }));
+        const exists = !!(await credentials.findOne({
+            "userName": student,
+            "codicePagamento": {
+              $elemMatch: {
+                "codice": code,
+                "importo": price
+              }
+            }
+        }));
         if(exists){
             if(cause == 'lesson'){
                 instructor = req.body.instructor;
