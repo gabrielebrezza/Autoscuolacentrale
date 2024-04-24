@@ -31,7 +31,14 @@
             <button id="copiaEmail" name="copiaEmail">Copia Email</button>
         </div>
     </div>
-    
+    <div class="codici">
+        <label for="utenti">Utenti:</label>
+        <select id="utenti" name="utenti">
+            <% for (let i = 0; i < utenti.length; i++) { %>
+                <option value="<%= utenti[i].email %>"><%= utenti[i].email %></option>
+            <% } %>
+        </select>
+    </div>
     <div class="tableContainer">
     <table>
         <thead>
