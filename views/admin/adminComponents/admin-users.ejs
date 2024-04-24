@@ -86,8 +86,9 @@
             document.getElementById("code").value = codici;
             const prezzoTotLabel = document.getElementById('prezzoTotale');
             const durata = document.getElementById('durata').value;
-            console.log(durata)
-            prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * (Number(prezzoTotLabel.dataset.prezzoOra) * (Number(durata)/60)) + "€";
+            console.log(Number(prezzoTotLabel.dataset.prezzoOra))
+            const prezzoOra =Number(prezzoTotLabel.dataset.prezzoOra);
+            prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * (prezzoOra * (Number(durata)/60)) + "€";
         });
 
         document.getElementById('createCodeForm').addEventListener('submit', function(event) {
