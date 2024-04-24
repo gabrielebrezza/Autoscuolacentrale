@@ -42,8 +42,17 @@
                 </select>
             </div>
             <div class="field">
-                <label for="importo">Importo:</label>
-                <input type="number" name="importo" id="importo" min="0" step="any" required>
+                <label for="totaleCodici">Numero di codici:</label>
+                <input type="number" name="totaleCodici" id="totaleCodici" min="1">
+            </div>
+            <div class="field">
+                <label for="durata">Durata:</label>
+                <select id="durata" name="durata" required>
+                        <option value="30">30 minuti</option>
+                        <option value="40">40 minuti</option>
+                        <option value="1">1 ora</option>
+                        <option value="2">2 ore</option>
+                </select>
             </div>
             <div class="field">
                 <button type="button" id="createCode">Genera Codice</button>
@@ -59,13 +68,21 @@
     </div>
     <script>
         document.getElementById("createCode").addEventListener("click", function() {
-            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            var codeLength = 10;
-            var generatedCode = '';
-            for (var i = 0; i < codeLength; i++) {
-                generatedCode += characters.charAt(Math.floor(Math.random() * characters.length));
+            var totCodes = document.getElementById("totaleCodici").value;
+            let codici;
+            for(var i = 0; i < totCodes; i++){
+
+
+                var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                var codeLength = 10;
+                var generatedCode = '';
+                for (var j = 0; j < codeLength; j++) {
+                    generatedCode += characters.charAt(Math.floor(Math.random() * characters.length));
+                }
+                codici.push(generatedCode);
             }
-            document.getElementById("code").value = generatedCode;
+            codici.join(', ')
+            document.getElementById("code").value = codici;
         });
 
         document.getElementById('createCodeForm').addEventListener('submit', function(event) {
