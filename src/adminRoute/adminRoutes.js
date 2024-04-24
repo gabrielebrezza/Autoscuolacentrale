@@ -262,7 +262,8 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
     const importo = req.body.importo;
     const insertCode = await credentials.findOneAndUpdate(
         {"email": email},
-        {"codicePagamento": { "codice": code, "importo": importo}}
+        {$push: {"codicePagamento": { "codice": code, "importo": importo}}},
+        { new: true }
     );
     res.redirect('/admin/users');
 });
