@@ -403,7 +403,9 @@ app.get('/profile', isAuthenticated, async (req, res) => {
     res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide});
 });
 
-app.post
+app.post('/create-code-payment', async (req, res) => {
+    res.send('funzione Non Ancora implementata <a href"https://agenda-autoscuolacentrale.com/">torna alla home</a>')
+});
 
 app.post('/book', async (req, res) => {
     try {
