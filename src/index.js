@@ -593,8 +593,11 @@ app.post('/create-code-payment', async (req, res) => {
                 })
                 .then(async  response => {
                     if (response.ok) {
-                        const deletePaymentCode = await credentials.deleteOne({"userName": student, "codicePagamento.codice": code});
-                        console.log('Prenotazione effettuata con successo dopo il pagamento con codice');
+                        const deletePaymentCode = await credentials.updateOne(
+                            {"userName": student},
+                            { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
+                          );
+                                                  console.log('Prenotazione effettuata con successo dopo il pagamento con codice');
                         res.redirect(`/profile`);
                     } else {
                         console.error('Errore durante la prenotazione dopo il pagamento');
