@@ -597,7 +597,7 @@ app.post('/create-code-payment', async (req, res) => {
                             {"userName": student},
                             { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
                           );
-                                                  console.log('Prenotazione effettuata con successo dopo il pagamento con codice');
+                        console.log('Prenotazione effettuata con successo dopo il pagamento con codice');
                         res.redirect(`/profile`);
                     } else {
                         console.error('Errore durante la prenotazione dopo il pagamento');
@@ -621,8 +621,11 @@ app.post('/create-code-payment', async (req, res) => {
                     body: JSON.stringify({ student, numEsame, price})
                     });
                     if (response.ok) {
+                        const deletePaymentCode = await credentials.updateOne(
+                            {"userName": student},
+                            { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
+                          );
                         console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento', req.query);
-                        
                         res.redirect(`/profile`);
                     } else {
                         console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
@@ -637,7 +640,6 @@ app.post('/create-code-payment', async (req, res) => {
         console.error(error);
         res.status(500).json({ error: "Internal server error" });
     }
-    
 });
 
 
