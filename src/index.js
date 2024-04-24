@@ -403,9 +403,7 @@ app.get('/profile', isAuthenticated, async (req, res) => {
     res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide});
 });
 
-app.post('/create-code-payment', async (req, res) => {
-    res.send('funzione Non Ancora implementata <a href"https://agenda-autoscuolacentrale.com/">torna alla home</a>')
-});
+
 
 app.post('/book', async (req, res) => {
     try {
@@ -536,7 +534,83 @@ app.post('/removebooking', async (req, res) => {
 });
 
 
+app.post('/create-code-payment', async (req, res) => {
+    try {
+        const student = req.body.student;
+        const cause = req.body.cause;
+        let instructor, location;
+        let price, returnUrl, day, hour, numEsame, name;
+        const code = req.body.codicePagamento;
+        const exists = !!(await credentials.findOne({"userName": student, "codicePagamento": code}));
+        if(exists){
+            if(cause == 'lesson'){
+                instructor = req.body.instructor;
+                location = req.body.location;
+                const time = req.body.time;
+                const timeParts = req.body.time.split(' - '); 
+                day = timeParts[0];
+                hour = timeParts[1];
+                const [startTime, endTime] = hour.split('-').map(t => t.trim());
+                    
+                const [startHour, startMin] = startTime.split(':').map(Number);
+                const [endHour, endMin] = endTime.split(':').map(Number);
+                
+                let duration;
+                if (endHour > startHour || (endHour === startHour && endMin >= startMin)) {
+                    duration = (endHour - startHour) * 60 + (endMin - startMin);
+                } else {
+                    duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
+                }
+                const guides = await guide.findOne({ instructor: instructor });
+                if (!guides) {
+                    return res.status(404).json({ error: "Instructor not found" });
+                }
+                const schedule = guides.book.find(item => item.day === day);
+                if (!schedule) {
+                    return res.status(404).json({ error: "Schedule not found" });
+                }
+                const lesson = schedule.schedule.find(item => item.hour === hour);
+                if (!lesson) {
+                    return res.status(404).json({ error: "Lesson not found" });
+                }
+                price = lesson.price;
+                fetch('https://agenda-autoscuolacentrale.com/book', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ instructor, time, day, duration, student, price, location})
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
 
+                        res.redirect(`/profile`);
+                    } else {
+                        console.error('Errore durante la prenotazione dopo il pagamento');
+
+                        res.redirect(`/profile`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore durante la prenotazione dopo il pagamento:', error);
+
+                    res.redirect(`/profile`);
+                });
+            }else if(cause == 'exam'){
+                price = 100;
+                numEsame = req.body.numEsame;
+                returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
+            }
+        }else{
+            res.send('codice non esistente')
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+    
+});
 
 
 app.post('/create-payment',  async (req, res) =>{
@@ -547,15 +621,15 @@ app.post('/create-payment',  async (req, res) =>{
         let instructor, location;
         let price, description, returnUrl, day, hour, numEsame, name, sku;
         if(cause == 'lesson'){
-        instructor = req.body.instructor;
-        location = req.body.location;
-        const timeParts = req.body.time.split(' - '); 
-        day = timeParts[0];
-        hour = timeParts[1];
-        const guides = await guide.findOne({ instructor: instructor });
-        if (!guides) {
-            return res.status(404).json({ error: "Instructor not found" });
-        }
+            instructor = req.body.instructor;
+            location = req.body.location;
+            const timeParts = req.body.time.split(' - '); 
+            day = timeParts[0];
+            hour = timeParts[1];
+            const guides = await guide.findOne({ instructor: instructor });
+            if (!guides) {
+                return res.status(404).json({ error: "Instructor not found" });
+            }
 
         const schedule = guides.book.find(item => item.day === day);
         if (!schedule) {
