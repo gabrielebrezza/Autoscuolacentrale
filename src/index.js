@@ -581,9 +581,10 @@ app.post('/create-code-payment', async (req, res) => {
                     },
                     body: JSON.stringify({ instructor, time, day, duration, student, price, location})
                 })
-                .then(response => {
+                .then(async  response => {
                     if (response.ok) {
-                        console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
+                        const deletePaymentCode = await credentials.deleteOne({"userName": student, "codicePagamento.codice": code});
+                        console.log('Prenotazione effettuata con successo dopo il pagamento con codice');
 
                         res.redirect(`/profile`);
                     } else {
