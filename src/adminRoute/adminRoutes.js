@@ -264,6 +264,7 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
         {"email": email},
         {"codicePagamento": { "codice": code, "importo": importo}}
     );
+    res.redirect('/admin/users');
 });
 router.post('/excludeInstructor', authenticateJWT, async (req, res) =>{
     try {
