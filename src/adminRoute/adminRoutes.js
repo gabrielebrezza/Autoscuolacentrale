@@ -257,14 +257,19 @@ router.get('/admin/users',authenticateJWT , async (req, res) => {
     }
 });
 router.post('/createCode', authenticateJWT, async (req, res)=>{
-    const code = req.body.code;
+    const code = (req.body.code).split(',');
     const email = req.body.utenti;
-    const importo = req.body.importo;
-    const insertCode = await credentials.findOneAndUpdate(
-        {"email": email},
-        {$push: {"codicePagamento": { "codice": code, "importo": importo}}},
-        { new: true }
-    );
+    const nCodes = req.body.totaleCodici;
+    const durata = req.body.durata;
+    const pricePerHour = await prezzoGuida.findOne();
+    const importo = (pricePerHour.prezzo * (durata/60));
+    for(var i = 0; i< nCodes; i++){
+        const insertCode = await credentials.findOneAndUpdate(
+            {"email": email},
+            {$push: {"codicePagamento": { "codice": code[i], "importo": importo}}},
+            { new: true }
+        );
+    }
     res.redirect('/admin/users');
 });
 router.post('/excludeInstructor', authenticateJWT, async (req, res) =>{
