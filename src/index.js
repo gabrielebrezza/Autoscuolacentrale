@@ -541,8 +541,8 @@ app.post('/create-code-payment', async (req, res) => {
         let instructor, location;
         let price, returnUrl, day, hour, numEsame, name;
         const code = req.body.codicePagamento;
-        const exists = !!(await credentials.findOne({"userName": student, "codicePagamento.codice": code}));
-        if(exists){
+        const exists = await credentials.findOne({"userName": student, "codicePagamento": {"codice": code, "importo": price} });
+        if(!!exists){
             if(cause == 'lesson'){
                 instructor = req.body.instructor;
                 location = req.body.location;
@@ -585,7 +585,6 @@ app.post('/create-code-payment', async (req, res) => {
                     if (response.ok) {
                         const deletePaymentCode = await credentials.deleteOne({"userName": student, "codicePagamento.codice": code});
                         console.log('Prenotazione effettuata con successo dopo il pagamento con codice');
-
                         res.redirect(`/profile`);
                     } else {
                         console.error('Errore durante la prenotazione dopo il pagamento');
