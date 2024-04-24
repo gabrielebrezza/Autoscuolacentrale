@@ -250,7 +250,8 @@ router.get('/admin/users',authenticateJWT , async (req, res) => {
         const utenti = await credentials.find();
         const listaIstruttori = await Admin.find({}, 'nome cognome');
         const istruttori = listaIstruttori.map(admin => `${admin.nome} ${admin.cognome}`);
-        res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', istruttore, utenti, istruttori, role});
+        const pricePerHour = await prezzoGuida.findOne();
+        res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', istruttore, utenti, istruttori, role, pricePerHour});
     } catch (error) {
         console.error('Errore durante il recupero degli utenti:', error);
         res.status(500).json({ message: 'Errore durante il recupero degli utenti' });

@@ -64,6 +64,7 @@
             <div class="field">
                 <button type="submit" >Invia</button>
             </div>
+            <label id="prezzoTotale" data-prezzoOra="<%= pricePerHour.prezzo %>"></label>
         </form>
     </div>
     <script>
@@ -83,6 +84,9 @@
             }
             codici.join(' , ')
             document.getElementById("code").value = codici;
+            const prezzoTotLabel = document.getElementById('prezzoTotale');
+            const durata = document.getElementById('durata').value;
+            prezzoTotLabel.innerText = "Il prezzo totale è di ", totCodes * (prezzoTotLabel.dataset.prezzoOra * durata/60);
         });
 
         document.getElementById('createCodeForm').addEventListener('submit', function(event) {
