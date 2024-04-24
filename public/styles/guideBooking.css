@@ -438,7 +438,7 @@ aside .esami p{
     margin-bottom: 15px;
 }
 
-.paymentModal #payButton {
+.paymentModal .btn {
     background-color:#fff ;
     font-size: 1rem;
     font-weight: bold;
@@ -449,10 +449,10 @@ aside .esami p{
     cursor: pointer;
     transition: .5s;
 }
-.paymentModal #payButton i{
+.paymentModal .btn i{
     font-size: 1.2rem;
 }
-.paymentModal #payButton:hover {
+.paymentModal .btn:hover {
     background-color: #5681a9;
     color: #fff;
 }
