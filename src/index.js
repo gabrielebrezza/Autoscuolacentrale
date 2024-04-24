@@ -613,10 +613,25 @@ app.post('/create-code-payment', async (req, res) => {
             }else if(cause == 'exam'){
                 price = 100;
                 numEsame = req.body.numEsame;
-                returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
+                const response = await fetch('https://agenda-autoscuolacentrale.com/bookExam', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ student, numEsame, price})
+                    });
+                    if (response.ok) {
+                        console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento', req.query);
+                        
+                        res.redirect(`/profile`);
+                    } else {
+                        console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
+                        
+                        res.redirect(`/profile`);
+                    }
             }
         }else{
-            res.send('codice non esistente')
+            res.send('codice non esistente o importo diverso da quello del codice');
         }
     } catch (error) {
         console.error(error);
