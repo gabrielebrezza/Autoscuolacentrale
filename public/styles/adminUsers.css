@@ -122,7 +122,11 @@ button > a{
 
 
 
-
+.headerFormsContainer{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
 
 .headerForms {
     
