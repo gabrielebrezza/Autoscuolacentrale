@@ -156,7 +156,8 @@ button > a{
 .field input[type="text"],
 .field input[type="tel"],
 .field input[type="email"],
-.field input[type="number"] {
+.field input[type="number"],
+.field input[type="select"] {
     width: 100px;
     padding: 5px;
     margin-bottom: 10px;
