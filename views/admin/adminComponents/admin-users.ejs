@@ -35,9 +35,13 @@
         <label for="utenti">Utenti:</label>
         <select id="utenti" name="utenti">
             <% for (let i = 0; i < utenti.length; i++) { %>
-                <option value="<%= utenti[i].email %>"><%= utenti[i].email %></option>
+                <option value="<%= utenti[i].email %>"><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></option>
             <% } %>
         </select>
+        <input type="button" id="createCode" value="Genera Codice">
+        <label for="code">Codice:</label>
+        <input type="text" name="code" id="code" readonly>
+        <input type="submit" value="Invia">
     </div>
     <div class="tableContainer">
     <table>
