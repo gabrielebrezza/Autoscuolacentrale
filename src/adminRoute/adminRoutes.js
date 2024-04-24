@@ -256,6 +256,15 @@ router.get('/admin/users',authenticateJWT , async (req, res) => {
         res.status(500).json({ message: 'Errore durante il recupero degli utenti' });
     }
 });
+router.post('/createCode', authenticateJWT, async (req, res)=>{
+    const code = req.body.code;
+    const email = req.body.utenti;
+    const importo = req.body.importo;
+    const insertCode = await credentials.findOneAndUpdate(
+        {"email": email},
+        {"codicePagamento": { "codice": code, "importo": importo}}
+    );
+});
 router.post('/excludeInstructor', authenticateJWT, async (req, res) =>{
     try {
         const student = req.body.student;

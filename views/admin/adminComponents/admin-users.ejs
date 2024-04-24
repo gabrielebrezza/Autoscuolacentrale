@@ -32,16 +32,20 @@
         </div>
     </div>
     <div class="codici">
-        <label for="utenti">Utenti:</label>
-        <select id="utenti" name="utenti">
-            <% for (let i = 0; i < utenti.length; i++) { %>
-                <option value="<%= utenti[i].email %>"><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></option>
-            <% } %>
-        </select>
-        <input type="button" id="createCode" value="Genera Codice">
-        <label for="code">Codice:</label>
-        <input type="text" name="code" id="code" readonly>
-        <input type="submit" value="Invia">
+        <form action="/createCode" method="POST">
+            <label for="utenti">Utenti:</label>
+            <select id="utenti" name="utenti">
+                <% for (let i = 0; i < utenti.length; i++) { %>
+                    <option value="<%= utenti[i].email %>"><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></option>
+                <% } %>
+            </select>
+            <label for="importo">Importo:</label>
+            <input type="number" name="importo" id="importo" min="0">
+            <input type="button" id="createCode" value="Genera Codice">
+            <label for="code">Codice:</label>
+            <input type="text" name="code" id="code" readonly>
+            <input type="submit" value="Invia">
+        </form>
     </div>
     <script>
         document.getElementById("createCode").addEventListener("click", function() {
