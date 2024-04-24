@@ -31,23 +31,28 @@
             <button id="copiaEmail" name="copiaEmail">Copia Email</button>
         </div>
     </div>
-    <div class="codici">
-        <form id="createCodeForm" action="/createCode" method="POST">
+        <form class="headerForms" id="createCodeForm" action="/createCode" method="POST">
+            <div class="field">
             <label for="utenti">Utenti:</label>
-            <select id="utenti" name="utenti" required>
-                <% for (let i = 0; i < utenti.length; i++) { %>
-                    <option value="<%= utenti[i].email %>"><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></option>
-                <% } %>
-            </select>
-            <label for="importo">Importo:</label>
-            <input type="number" name="importo" id="importo" min="0" step="any" required>
-            <input type="button" id="createCode" value="Genera Codice">
-            <label for="code">Codice:</label>
-            <input type="text" name="code" id="code" readonly required>
-
-            <input type="submit" value="Invia">
+                <select id="utenti" name="utenti" required>
+                    <% for (let i = 0; i < utenti.length; i++) { %>
+                        <option value="<%= utenti[i].email %>"><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></option>
+                    <% } %>
+                </select>
+            </div>
+            <div class="field">
+                <label for="importo">Importo:</label>
+                <input type="number" name="importo" id="importo" min="0" step="any" required>
+            </div>
+            <div class="field">
+                <input type="button" id="createCode" value="Genera Codice">
+                <label for="code">Codice:</label>
+                <input type="text" name="code" id="code" readonly required>
+            </div>
+            <div class="field">
+                <input type="submit" value="Invia">
+            </div>
         </form>
-    </div>
     <script>
         document.getElementById("createCode").addEventListener("click", function() {
             var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
