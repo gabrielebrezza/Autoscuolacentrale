@@ -43,6 +43,17 @@
         <input type="text" name="code" id="code" readonly>
         <input type="submit" value="Invia">
     </div>
+    <script>
+        document.getElementById("createCode").addEventListener("click", function() {
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var codeLength = 10;
+            var generatedCode = '';
+            for (var i = 0; i < codeLength; i++) {
+                generatedCode += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            document.getElementById("code").value = generatedCode;
+        });
+    </script>
     <div class="tableContainer">
     <table>
         <thead>
