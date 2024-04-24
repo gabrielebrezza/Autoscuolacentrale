@@ -10,6 +10,7 @@
 </head>
 <body>
     <%- include('header.ejs') %>
+    <div class="headerFormsContainer">
     <div class="headerForms filterSection">
         <div class="field">
             <label for="searchName">Cerca per nome:</label>
@@ -55,6 +56,7 @@
                 <button type="submit" >Invia</button>
             </div>
         </form>
+    </div>
     <script>
         document.getElementById("createCode").addEventListener("click", function() {
             var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
