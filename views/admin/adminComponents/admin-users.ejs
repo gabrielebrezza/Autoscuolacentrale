@@ -32,7 +32,7 @@
         </div>
     </div>
     <div class="codici">
-        <form action="/createCode" method="POST">
+        <form id="createCodeForm" action="/createCode" method="POST">
             <label for="utenti">Utenti:</label>
             <select id="utenti" name="utenti" required>
                 <% for (let i = 0; i < utenti.length; i++) { %>
@@ -44,6 +44,7 @@
             <input type="button" id="createCode" value="Genera Codice">
             <label for="code">Codice:</label>
             <input type="text" name="code" id="code" readonly required>
+
             <input type="submit" value="Invia">
         </form>
     </div>
@@ -56,6 +57,14 @@
                 generatedCode += characters.charAt(Math.floor(Math.random() * characters.length));
             }
             document.getElementById("code").value = generatedCode;
+        });
+
+        document.getElementById('createCodeForm').addEventListener('submit', function(event) {
+            var codeInput = document.getElementById('code');
+            if (codeInput.value.trim() === '') {
+                event.preventDefault();
+                alert('Il campo del codice è obbligatorio.');
+            }
         });
     </script>
     <div class="tableContainer">
