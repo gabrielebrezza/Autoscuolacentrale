@@ -64,7 +64,7 @@
             <div class="field">
                 <button type="submit" >Invia</button>
             </div>
-            <label id="prezzoTotale" data-prezzoOra="<%= pricePerHour.prezzo %>"></label>
+            <label id="prezzoTotale" data-prezzo="<%= pricePerHour.prezzo %>"></label>
         </form>
     </div>
     <script>
@@ -86,8 +86,8 @@
             document.getElementById("code").value = codici;
             const prezzoTotLabel = document.getElementById('prezzoTotale');
             const durata = document.getElementById('durata').value;
-            console.log(Number(prezzoTotLabel.dataset.prezzoOra))
-            const prezzoOra =Number(prezzoTotLabel.dataset.prezzoOra);
+            console.log(Number(prezzoTotLabel.dataset.prezzo))
+            const prezzoOra =Number(prezzoTotLabel.dataset.prezzo);
             prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * (prezzoOra * (Number(durata)/60)) + "€";
         });
 
