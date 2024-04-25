@@ -48,6 +48,14 @@
                 <input type="text" id="locationLink" name="locationLink" placeholder="Link di google maps">
             </div>
             <div class="form-group">
+                <select name="Reserved" id="Reserved">
+                    <option value=""></option>
+                    <% for( let i = 0; i < allievi.length; i++ ) { %>
+                        <option value="<%= allievi[i].email %>"><%= allievi[i].billingInfo[0].nome + ' ' + allievi[i].billingInfo[0].cognome %></option>
+                    <% } %>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="lessonsNumber">numero di guide:</label>
                 <input type="number" id="lessonsNumber" name="lessonsNumber" min="1" required>
             </div>

@@ -260,18 +260,32 @@ router.get('/admin/users',authenticateJWT , async (req, res) => {
 router.post('/createCode', authenticateJWT, async (req, res)=>{
     const code = (req.body.code).split(',');
     const email = req.body.utenti;
-    const nCodes = req.body.totaleCodici;
+    const nCodes = Number(req.body.totaleCodici);
     const durata = req.body.durata;
     const pricePerHour = await prezzoGuida.findOne();
     const importo = (pricePerHour.prezzo * (durata/60));
+    const totalCodes = await credentials.findOneAndUpdate(
+        {"email": email},
+        {$inc: {"totalCodes": nCodes}}
+    );
+    var today = new Date();
+    var day = today.getDate();
+    var month = today.getMonth() + 1;
+    var year = today.getFullYear();
+
+    if (day < 10) {
+        day = '0' + day;
+    }
+    if (month < 10) {
+        month = '0' + month;
+    }
+
+    var date = day + '/' + month + '/' + year;
+
     for(var i = 0; i< nCodes; i++){
-        const totalCodes = await credentials.findOneAndUpdate(
-            {"email": email},
-            {$inc: {"totalCodes": 1}}
-        );
         const insertCode = await credentials.findOneAndUpdate(
             {"email": email},
-            {$push: {"codicePagamento": { "codice": code[i], "importo": importo}}},
+            {$push: {"codicePagamento": { "codice": code[i], "data": date, "importo": importo}}},
             { new: true }
         );
     }
@@ -354,13 +368,15 @@ router.get('/admin/addGuides',authenticateJWT , async (req, res) => {
     const [nome, cognome] = instructor.split(" ");
     const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     const guides = await guide.find();
-    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor, guides, role, istruttori});
+    const allievi = await credentials.find({}, {"billingInfo" : 1, "email": 1});
+    res.render('admin/adminComponents/addGuides', { title: 'Admin - Crea Guide', instructor, guides, role, istruttori, allievi});
 });
 
 router.post('/create-guide', authenticateJWT, async (req, res) => {
     const { startHour, lessonsNumber, duration, locationLink} = req.body;
-    let istruttore = req.user.username;
+    let istruttore;
     const instructor = req.user.username;
+    const reservation = req.body.Reserved == ''? null : req.body.Reserved;
     const [nome, cognome] = instructor.split(" ");
     const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
     if(role.role == 'Super'){
@@ -383,7 +399,7 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
                 let finalMinutes = totalMinutes % 60;
                 let endTime = `${finalHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`;
                 let ora = `${oraDiInizio}-${endTime}`
-                schedule.push({ hour: ora, price: price, student: null, locationLink: locationLink }); // assuming student is null initially
+                schedule.push({ hour: ora, price: price, student: null, reservedTo: reservation, locationLink: locationLink }); // assuming student is null initially
                 oraDiInizio = endTime;
             }
     

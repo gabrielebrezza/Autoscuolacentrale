@@ -168,7 +168,7 @@
                         <% const schedule = lezioni[i].book[j].schedule[k]; %>
 
                         
-                        <% if(!schedule.student && lessonBookedYet != 2) { %>
+                        <% if(!schedule.student && lessonBookedYet != 2 && (!schedule.reservedTo || schedule.reservedTo == userEmail)) { %>
                         <tr>
                             <td class="hour"><%= schedule.hour %></td>
                             <td>

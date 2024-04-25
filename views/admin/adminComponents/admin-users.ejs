@@ -107,6 +107,7 @@
     <table>
         <thead>
             <tr>
+                <th>N.</th>
                 <th>Allievo</th>
                 <th>Email</th>
                 <th>Cellulare</th>
@@ -123,7 +124,8 @@
                     <tr class="allievi" data-archiviato="<%= utenti[i].archiviato %>">
                         <% let nomeAllievo = utenti[i].billingInfo[0].nome + ' ' + utenti[i].billingInfo[0].cognome %>
                         <% let codice = utenti[i].codicePagamento.length + '/' + (!utenti[i].totalCodes ? 0 : utenti[i].totalCodes)  %>
-                        <td data-label="Allievo"><a class="nameModal" data-nomeallievo="<%= nomeAllievo %>" data-email="<%= utenti[i].email %>" data-codes="<%= codice %>" href=""><span><%= nomeAllievo %></span></a></td>
+                        <td data-label="N."><span><%= i+1 %></span></td>
+                        <td data-label="Allievo"><a class="nameModal" data-nomeallievo="<%= nomeAllievo %>" data-email="<%= utenti[i].email %>" data-codici="<%= JSON.stringify(utenti[i].codicePagamento) %>" data-codes="<%= codice %>" href=""><span><%= nomeAllievo %></span></a></td>
                         <td data-label="Email" data-email="<%= utenti[i].email %>"><span><%= utenti[i].email %></span></td>
                         <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
                             <td data-label="Esami pagati"> 
@@ -173,24 +175,18 @@ $(document).ready(function() {
         var archivedFilter = $('#searchArchived').is(':checked');
 
         $('tbody tr.allievi').each(function() {
-            var name = $(this).find('td:nth-child(1)').text().toLowerCase();
-            var phone = $(this).find('td:nth-child(3)').text().toLowerCase();
-            var email = $(this).find('td:nth-child(2)').text().toLowerCase();
-            var exams = parseInt($(this).find('td:nth-child(4)').text());
+            var name = $(this).find('td:nth-child(2)').text().toLowerCase();
+            var phone = $(this).find('td:nth-child(4)').text().toLowerCase();
+            var email = $(this).find('td:nth-child(3)').text().toLowerCase();
+            var exams = parseInt($(this).find('td:nth-child(5)').text());
             var archived = $(this).data('archiviato');
 
             var nameMatch = name.includes(nameFilter);
             var phoneMatch = phone.includes(phoneFilter);
             var emailMatch = email.includes(emailFilter);
             var examsMatch = isNaN(examsFilter) || exams === examsFilter;
-            var archivedMatch = !archivedFilter || (archivedFilter && archived);
 
-            if (nameMatch && phoneMatch && emailMatch && examsMatch && archivedMatch) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-            if(archivedFilter == archived){
+            if (nameMatch && phoneMatch && emailMatch && examsMatch && (archivedFilter == archived)) {
                 $(this).show();
             } else {
                 $(this).hide();
@@ -249,6 +245,18 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
                 </tr>
             </tbody>
         </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Codice</th>
+                    <th>Data</th>
+                    <th>Importo</th>
+                </tr>
+            </thead>
+            <tbody class="codiciBody">
+
+            </tbody>
+        </table>
     </div>
     <script>
         const nameModal = document.querySelectorAll('.nameModal');
@@ -256,17 +264,38 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
         const codiciTh = document.getElementById('codiciTh');
         const actionsModal = document.querySelector('.actionsModal');
         const archivia = document.getElementById('archivia');
+        const codiciBody = document.querySelector('.codiciBody');
         nameModal.forEach((name)=>{
             name.addEventListener('click', (event) =>{
+                event.preventDefault();
+                codiciBody.innerHTML = '';
                 actionsModal.style.display = 'block';
-                const codici = name.dataset.codes;
+                const codes = name.dataset.codes;
                 const nome = name.dataset.nomeallievo;
                 const email = name.dataset.email;
+                const codici = JSON.parse(name.dataset.codici);
+                codici.forEach(codice => {
+                    const row = document.createElement('tr');
+                    
+                    const codiceCell = document.createElement('td');
+                    codiceCell.textContent = codice.codice;
+                    row.appendChild(codiceCell);
+                    
+                    const dataCell = document.createElement('td');
+                    dataCell.textContent = codice.data;
+                    row.appendChild(dataCell);
+                    
+                    const importoCell = document.createElement('td');
+                    importoCell.textContent = (codice.importo).toFixed(2) + '€';
+                    row.appendChild(importoCell);
+                    
+                    codiciBody.appendChild(row);
+                });
                 codiciRimanentiLabel.dataset.label = 'Codici di ' + nome;
                 codiciTh.innerText = 'Codici di ' + nome;
-                codiciRimanentiLabel.innerText = (codici == '0/0' ? 'Nessun Codice Attivo' : codici);
+                codiciRimanentiLabel.innerText = (codes == '0/0' ? 'Nessun Codice Attivo' : codes);
                 archivia.dataset.email = email;
-                event.preventDefault();
+                
             });
         });
         archivia.addEventListener('click', function(event) {

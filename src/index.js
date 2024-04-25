@@ -404,7 +404,9 @@ app.get('/profile', isAuthenticated, async (req, res) => {
     const exclude = await credentials.findOne({ "userName": nome }, { "exclude": 1 });
     const storicoGuide = await credentials.findOne({ "userName": nome }, {"lessonList": 1})
     const excludeInstructor = exclude.exclude;
-    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide});
+    const email = await credentials.findOne({"userName": nome}, {"email": 1});
+    const userEmail = email.email;
+    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide, userEmail});
 });
 
 
