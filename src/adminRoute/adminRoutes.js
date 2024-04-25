@@ -384,7 +384,7 @@ router.post('/create-guide', authenticateJWT, async (req, res) => {
     }else{
         istruttore = req.user.username;
     }
-    const days = req.body.day.split(", "); // Ottieni un array di date nel formato "gg/mm/aaaa"
+    const days = req.body.day.split(", ");
     try {
         const pricePerHour = await prezzoGuida.findOne();
         const price = (pricePerHour.prezzo/60) * duration;

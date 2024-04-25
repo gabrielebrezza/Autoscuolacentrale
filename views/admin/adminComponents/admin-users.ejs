@@ -120,11 +120,12 @@
         </thead>
         <tbody>
 
+            
                 <% for (let i = 0; i < utenti.length; i++) { %>
                     <tr class="allievi" data-archiviato="<%= utenti[i].archiviato %>">
-                        <% let nomeAllievo = utenti[i].billingInfo[0].nome + ' ' + utenti[i].billingInfo[0].cognome %>
+                        <% let nomeAllievo = utenti[i].billingInfo[0].cognome + ' ' + utenti[i].billingInfo[0].nome %>
                         <% let codice = utenti[i].codicePagamento.length + '/' + (!utenti[i].totalCodes ? 0 : utenti[i].totalCodes)  %>
-                        <td data-label="N."><span><%= i+1 %></span></td>
+                        <td data-label="N"><span><%= i+1 %></span></td>
                         <td data-label="Allievo"><a class="nameModal" data-nomeallievo="<%= nomeAllievo %>" data-email="<%= utenti[i].email %>" data-codici="<%= JSON.stringify(utenti[i].codicePagamento) %>" data-codes="<%= codice %>" href=""><span><%= nomeAllievo %></span></a></td>
                         <td data-label="Email" data-email="<%= utenti[i].email %>"><span><%= utenti[i].email %></span></td>
                         <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
@@ -225,23 +226,20 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
 
     </div>
     <div class="actionsModal">
-        <table>
+        <a href=" " class="close">
+            <span class="material-symbols-outlined">
+                cancel
+            </span>
+        </a>
+        <table class="panoramicaCodiciTable">
             <thead>
                 <tr>
                     <th id="codiciTh">Codici</th>
-                    <th>Archivia</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td data-label="Codici" id="codiciRimanenti"></td>
-                    <td data-label="Archivia" >
-                        <a href="" id="archivia">
-                            <span class="material-symbols-outlined">
-                                archive
-                            </span>
-                        </a>
-                    </td>
                 </tr>
             </tbody>
         </table>
@@ -255,6 +253,24 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
             </thead>
             <tbody class="codiciBody">
 
+            </tbody>
+        </table>
+        <table class="archiviaTable">
+            <thead>
+                <tr>
+                    <th>Archivia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="Archivia" >
+                        <a href="" id="archivia">
+                            <span class="material-symbols-outlined">
+                                archive
+                            </span>
+                        </a>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -278,14 +294,17 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
                     const row = document.createElement('tr');
                     
                     const codiceCell = document.createElement('td');
+                    codiceCell.setAttribute('data-label', 'Codice');
                     codiceCell.textContent = codice.codice;
                     row.appendChild(codiceCell);
                     
                     const dataCell = document.createElement('td');
+                    dataCell.setAttribute('data-label', 'Data');
                     dataCell.textContent = codice.data;
                     row.appendChild(dataCell);
-                    
+
                     const importoCell = document.createElement('td');
+                    importoCell.setAttribute('data-label', 'Importo');
                     importoCell.textContent = (codice.importo).toFixed(2) + '€';
                     row.appendChild(importoCell);
                     

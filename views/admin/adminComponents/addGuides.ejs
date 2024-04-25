@@ -48,12 +48,55 @@
                 <input type="text" id="locationLink" name="locationLink" placeholder="Link di google maps">
             </div>
             <div class="form-group">
-                <select name="Reserved" id="Reserved">
-                    <option value=""></option>
-                    <% for( let i = 0; i < allievi.length; i++ ) { %>
-                        <option value="<%= allievi[i].email %>"><%= allievi[i].billingInfo[0].nome + ' ' + allievi[i].billingInfo[0].cognome %></option>
-                    <% } %>
+                <label for="Reserved">Riservato a:</label>
+                <select name="Reserved" id="Reserved" multiple>
+                    <% 
+                    let options = [];
+                    for(let i = 0; i < allievi.length; i++) {
+                        options.push({
+                            value: allievi[i].email,
+                            text: allievi[i].billingInfo[0].nome + ' ' + allievi[i].billingInfo[0].cognome
+                        });
+                    }
+                
+                    options.sort((a, b) => {
+                        return a.text.localeCompare(b.text);
+                    });
+
+                    options.forEach(option => { %>
+                        <option value="<%= option.value %>">
+                            <%= option.text %>
+                        </option>
+                    <% }); %>
                 </select>
+                <script>
+                    document.getElementById("Reserved").addEventListener("mousedown", function(event) {
+                        event.preventDefault();
+                        var option = event.target;
+                        
+                        if (option.selected) {
+                            option.selected = false;
+                        } 
+                        else {
+                            option.selected = true;
+                        }
+                        
+                        var mouseMoveListener = function(event) {
+                            var targetOption = document.elementFromPoint(event.clientX, event.clientY);
+                            if (targetOption.tagName === "OPTION") {
+                                targetOption.selected = !targetOption.selected;
+                            }
+                        };
+                        
+                        var mouseUpListener = function() {
+                            document.removeEventListener("mousemove", mouseMoveListener);
+                            document.removeEventListener("mouseup", mouseUpListener);
+                        };
+                        
+                        document.addEventListener("mousemove", mouseMoveListener);
+                        document.addEventListener("mouseup", mouseUpListener);
+                    });
+                </script>
             </div>
             <div class="form-group">
                 <label for="lessonsNumber">numero di guide:</label>

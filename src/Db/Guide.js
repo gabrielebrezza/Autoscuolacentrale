@@ -33,10 +33,12 @@ const guideSchema = new mongoose.Schema({
                         type: String,
                         required: false
                     },
-                    reservedTo: {
-                        type: String,
-                        required: false
-                    },
+                    reservedTo:[
+                        {
+                            type: String,
+                            required: false
+                        }
+                    ],
                     student: {
                         type: String,
                         required: false

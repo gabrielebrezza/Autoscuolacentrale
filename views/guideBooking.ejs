@@ -166,9 +166,14 @@
                         <% let lessonBookedYet = 0;%>
                         <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
                         <% const schedule = lezioni[i].book[j].schedule[k]; %>
-
-                        
-                        <% if(!schedule.student && lessonBookedYet != 2 && (!schedule.reservedTo || schedule.reservedTo == userEmail)) { %>
+                        <% let reserved = false %>
+                        <% for( let n = 0; n < schedule.reservedTo.length; n++ ) { 
+                            if(schedule.reservedTo[n] == userEmail || !schedule.reservedTo[n]){
+                                reserved = true;
+                                break;
+                            } 
+                        } %>
+                        <% if(!schedule.student && lessonBookedYet != 2 && reserved) { %>
                         <tr>
                             <td class="hour"><%= schedule.hour %></td>
                             <td>

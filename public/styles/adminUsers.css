@@ -260,6 +260,10 @@ button > a{
     tr{
         border: 5px solid #343a40;
     }
+    .actionsModal{
+        height: 50vh;
+        overflow-Y: scroll;
+    }
 }
 
 .actionsModal{
@@ -270,6 +274,16 @@ button > a{
     transform: translateX(-50%) translateY(-50%);
     max-width: 500px;
     width: 100%;
+}
+.actionsModal a.close{
+    position: relative;
+    top: 30px;
+    text-align: right;
+    color: #fff;
+    transition: .5s;
+}
+.actionsModal a:hover{
+    color: red;
 }
 .actionsModal table{
     border: none;
@@ -287,4 +301,7 @@ button > a{
 #archivia{
     color: #ccc;
     cursor: pointer;
+}
+.archiviaTable th, .archiviaTable td,.panoramicaCodiciTable th, .panoramicaCodiciTable td{
+    text-align: center;
 }
