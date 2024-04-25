@@ -434,7 +434,14 @@ aside .esami p{
 .paymentModal .form-group {
     margin-bottom: 15px;
 }
-
+.paymentModal input[type="text"]{
+    margin-block: 10px;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    color: #5681a9;
+}
 .paymentModal .btn {
     background:#fff ;
     font-size: 1rem;
