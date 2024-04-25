@@ -137,72 +137,71 @@
                 <% continue; %>
             <% } %>
         <% let dateElaborate = []; %>
-        <% let hasAvailableTime = false; %>
-        <% for(j = 0; j < lezioni[i].book.length; j++) { %>
-        <% if (!dateElaborate.includes(lezioni[i].book[j].day)) { %>
-        <% dateElaborate.push(lezioni[i].book[j].day); %>
         
-        <% let hasStudentBooking = false; %>
-        <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
-            <% const schedule = lezioni[i].book[j].schedule[k]; %>
-            <% if(!schedule.student) { %>
-                <% hasAvailableTime = true; %>
-            <% } else if (schedule.student == nome) { %>
-                <% hasStudentBooking = true; %>
-            <% } %>
-        <% } %>
-    
-        <% if((hasAvailableTime || hasStudentBooking) && (lezioni[i].instructor.split(' '))[0] != 'Esame') { %>
-        <section class="section" data-date="<%= lezioni[i].book[j].day %>">
-            <h2 class="section-title"> <span>Istruttore: <%= (lezioni[i].instructor.split(' '))[0] %></span> <br> Data: <%= lezioni[i].book[j].day %></h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Ora</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% let lessonBookedYet = 0;%>
-                    <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
+        <% for(j = 0; j < lezioni[i].book.length; j++) { %>
+            <% if (!dateElaborate.includes(lezioni[i].book[j].day)) { %>
+                <% dateElaborate.push(lezioni[i].book[j].day); %>
+                <% let hasAvailableTime = false; %>
+                <% let hasStudentBooking = false; %>
+                <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
                     <% const schedule = lezioni[i].book[j].schedule[k]; %>
-
-                    
-                    <% if(!schedule.student && lessonBookedYet != 2) { %>
-                    <tr>
-                        <td class="hour"><%= schedule.hour %></td>
-                        <td>
-                            <button class="book" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
-                                data-instructor="<%= lezioni[i].instructor %>"
-                                data-price="<%= schedule.price %>">Costo: <%= Number(schedule.price).toFixed(2) %>€ <br> <strong>PRENOTA</strong></button>
-                        </td>
-                    </tr>
+                    <% if(schedule.student === null) { %>
+                        <% hasAvailableTime = true; %>
                     <% } else if (schedule.student == nome) { %>
-                    <tr>
-                        <td class="hour"><%= schedule.hour %></td>
-                        <td>
-                            <button class="removeBooking" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
-                                data-instructor="<%= lezioni[i].instructor %>">Prenotato</button>
-                        </td>
-                    </tr>
-                    <% } else if(!schedule.student && lessonBookedYet == 2){ %>
+                        <% hasStudentBooking = true; %>
+                    <% } %>
+            <% } %>
+            <% if(hasAvailableTime && (lezioni[i].instructor.split(' '))[0] != 'Esame') { %>
+            <section class="section" data-date="<%= lezioni[i].book[j].day %>">
+                <h2 class="section-title"> <span>Istruttore: <%= (lezioni[i].instructor.split(' '))[0] %></span> <br> Data: <%= lezioni[i].book[j].day %></h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Ora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% let lessonBookedYet = 0;%>
+                        <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
+                        <% const schedule = lezioni[i].book[j].schedule[k]; %>
+
+                        
+                        <% if(!schedule.student && lessonBookedYet != 2) { %>
                         <tr>
                             <td class="hour"><%= schedule.hour %></td>
                             <td>
-                                <button class="bookDisabled" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
-                                    data-instructor="<%= lezioni[i].instructor %>">Disattivato</button>
+                                <button class="book" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
+                                    data-instructor="<%= lezioni[i].instructor %>"
+                                    data-price="<%= schedule.price %>">Costo: <%= Number(schedule.price).toFixed(2) %>€ <br> <strong>PRENOTA</strong></button>
                             </td>
                         </tr>
-                    <% } %>
-                    <% if(schedule.student) { 
-                        lessonBookedYet = 1;
-                        continue;
-                    }%>
-                    <% lessonBookedYet = lessonBookedYet == 1 || lessonBookedYet== 2? 2: 0; %>
-                    <% } %>
-                </tbody>
-            </table>
-        </section>
-        <% } %>
+                        <% } else if (schedule.student == nome) { %>
+                        <tr>
+                            <td class="hour"><%= schedule.hour %></td>
+                            <td>
+                                <button class="removeBooking" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
+                                    data-instructor="<%= lezioni[i].instructor %>">Prenotato</button>
+                            </td>
+                        </tr>
+                        <% } else if(!schedule.student && lessonBookedYet == 2){ %>
+                            <tr>
+                                <td class="hour"><%= schedule.hour %></td>
+                                <td>
+                                    <button class="bookDisabled" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
+                                        data-instructor="<%= lezioni[i].instructor %>">Disattivato</button>
+                                </td>
+                            </tr>
+                        <% } %>
+                        <% if(schedule.student) { 
+                            lessonBookedYet = 1;
+                            continue;
+                        }%>
+                        <% lessonBookedYet = lessonBookedYet == 1 || lessonBookedYet== 2? 2: 0; %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </section>
+            <% } %>
         <% } %>
         <% } %>
         <% } %>
@@ -227,9 +226,10 @@
                     <input type="hidden" id="instructorInput" name="instructor" value="">
                     <input type="hidden" id="timeInput" name="time" value="">
                     <input type="hidden" id="numEsameInput" name="numEsame" value="">
-                    <label for="codicePagamento">Paga con codice</label>
-                    <input type="text" id="codicePagamento" name="codicePagamento"> 
+                    
                     <button id="payPalButton" type="button" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
+                    <label for="codicePagamento">O paga con codice</label>
+                    <input type="text" id="codicePagamento" name="codicePagamento"> 
                     <button id="codiceButton" type="button" class="btn btn-primary">Paga con codice</button>
                 </form>
                 
