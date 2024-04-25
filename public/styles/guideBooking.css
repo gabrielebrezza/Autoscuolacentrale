@@ -397,7 +397,6 @@ aside .esami p{
 }
 
 
-/* Stile per il modulo di pagamento */
 .paymentModal {
     opacity: 0;
     position: fixed;
@@ -407,8 +406,7 @@ aside .esami p{
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #71a1cb;
-    /* border: 1px solid #999696; */
+    background: #71a1cb;
     filter: drop-shadow(15px 15px 2px #32327f1f);
     border-radius: 5px;
     padding: 20px;
@@ -439,7 +437,7 @@ aside .esami p{
 }
 
 .paymentModal .btn {
-    background-color:#fff ;
+    background:#fff ;
     font-size: 1rem;
     font-weight: bold;
     border: none;
@@ -453,7 +451,7 @@ aside .esami p{
     font-size: 1.2rem;
 }
 .paymentModal .btn:hover {
-    background-color: #5681a9;
+    background: #5681a9;
     color: #fff;
 }
 
@@ -472,13 +470,8 @@ main{
     width: fit-content;
     background-color: #f8f9fa;
     border: 1px solid #0056b3;
-    /* position: fixed; */
-    /* top: 50%; */
-    /* left: 50%; */
-    /* filter: drop-shadow(15px 15px 2px #1515354f); */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    /* transform: translateX(-50%) translateY(-50%); */
-    z-index: 10000000;
+    z-index: 10;
 }
 
 .storicoGuide th{
@@ -539,4 +532,73 @@ main{
     .storicoGuide tr{
         border: 5px solid #343a40;
     }
+}
+button.SpostaGuida  {
+    background: #5681a9;
+    color: #fff;
+    outline: none;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#spostaGuidaForm{
+    z-index: 11;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    max-width: 300px;
+    width: 100%;
+}
+#spostaGuidaForm a{
+    color: #fff;
+    font-weight: 1000;
+    text-align: right;
+    transition: .5s;
+}
+#spostaGuidaForm a:hover{
+    color: red;
+}
+#spostaGuidaForm p{
+    font-weight: 600;
+    text-align: center;
+}
+#spostaGuidaForm form{
+    padding: 25px;
+    background: #71a1cb;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    filter: drop-shadow(15px 15px 2px #32327f1f);
+    border-radius: 5px;
+}
+#spostaGuidaForm .field{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-block: 10px;
+    border-radius: 5px;
+}
+#spostaGuidaForm .field select:focus{
+    border-radius: 5px;
+    outline: 3px solid #5681a9;
+}
+#spostaGuidaForm form button{
+    background:#fff ;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    color: #5681a9;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: .5s;
+}
+#spostaGuidaForm form button i{
+    font-size: 1.2rem;
+}
+#spostaGuidaForm form button:hover {
+    background: #5681a9;
+    color: #fff;
 }

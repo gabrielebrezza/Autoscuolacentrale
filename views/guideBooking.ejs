@@ -110,6 +110,7 @@
                     <th>Giorno</th>
                     <th>Ora</th>
                     <th>Durata</th>
+                    <th>Sposta</th>
                 </tr>
             </thead>
             <tbody>
@@ -118,7 +119,8 @@
                         <td class="first" data-label="Istruttore"><%= storicoGuide.lessonList[i].istruttore %></td>
                         <td data-label="Giorno"><%= storicoGuide.lessonList[i].giorno %></td>
                         <td data-label="Ora"><%= storicoGuide.lessonList[i].ora %></td>
-                        <td class="last" data-label="Durata"><%= storicoGuide.lessonList[i].duration < 1 ? storicoGuide.lessonList[i].duration * 60 + 'min' : storicoGuide.lessonList[i].duration.toFixed(2) + 'h'%></td>
+                        <td data-label="Durata"><%= storicoGuide.lessonList[i].duration < 1 ? storicoGuide.lessonList[i].duration * 60 + 'min' : storicoGuide.lessonList[i].duration.toFixed(2) + 'h'%></td>
+                        <td class="last" data-label="Sposta"><button class="SpostaGuida" data-durata="<%= storicoGuide.lessonList[i].duration %>" data-ora="<%= storicoGuide.lessonList[i].ora %>" data-giorno="<%= storicoGuide.lessonList[i].giorno %>" data-istruttore="<%= storicoGuide.lessonList[i].istruttore %>">Sposta Guida</button></td>
                     </tr>
                 <% } %>
             </tbody>
@@ -209,6 +211,7 @@
     <% }%>
     <!-- <h1 class="warning noGuide">Non ci sono guide in programma per il giorno selezionato</h1> -->
     </main>
+
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <a href=" ">
             <span class="material-symbols-outlined">
@@ -318,7 +321,163 @@ function updateSectionsVisibility(selectedDate) {
 }
 
     </script>
+    <div id="spostaGuidaForm" style="display: none;">
 
+        <form action="/create-payment" method="POST">
+            <a href=" ">
+                <span class="material-symbols-outlined">
+                    cancel
+                </span>
+            </a>
+            <p>Per spostare la guida dovrai pagare 5€</p>
+            <input type="hidden" name="student" value="<%= nome %>">
+            <input type="hidden" name="cause" value="spostaGuida">
+            <input type="hidden" name="istruttoreLezioneDaSpostare" id="istruttoreLezioneDaSpostare" value="">
+            <input type="hidden" name="dataLezioneDaSpostare" id="dataLezioneDaSpostare" value="">
+            <input type="hidden" name="oraLezioneDaSpostare" id="oraLezioneDaSpostare" value="">
+            <input type="hidden" name="durataLezioneDaSpostare" id="durataLezioneDaSpostare" value="">
+            <div class="field">
+                <label for="nuovoIstruttore">Istruttore:</label>
+                <select name="nuovoIstruttore" id="nuovoIstruttore">
+                    <% for( let i = 0; i < lezioni.length; i++ ) { %>
+                        <% if(lezioni[i].instructor != 'Esame Guida' && lezioni[i].instructor != 'Developer Account'){ %>
+                            <option value="<%= lezioni[i].instructor %>"><%= lezioni[i].instructor.split(' ')[0] %></option>
+                        <% } %>
+                    <% } %>
+                </select>
+            </div>
+            <div class="field">
+                <label for="nuovaData">Data:</label>
+                <select name="nuovaData" id="nuovaData"></select>
+            </div>
+            <div class="field">
+                <label for="nuovaOra">Fascia Oraria:</label>
+                <select name="nuovaOra" id="nuovaOra"></select>
+            </div>
+            <button type="submit"><i class="fa fa-paypal"></i> Paga con PayPal</button>
+        </form>
+    </div>
+    <script>
+        let disponibilitaDate = [];  
+        const sections = document.querySelectorAll('.section');
+        sections.forEach(section => {
+            const data = section.getAttribute('data-date');
+            const istruttore = section.querySelector('.section-title').querySelector('span').textContent.trim().split(' ')[1];
+            const fasceOrarie = section.querySelectorAll('.hour');
+        
+            let fasceOrarieDisponibili = [];
+            fasceOrarie.forEach(ora => {
+                const oraDisponibile = ora.textContent.trim();
+                fasceOrarieDisponibili.push(oraDisponibile);
+            });
+            
+            if (fasceOrarieDisponibili.length > 0) {
+                disponibilitaDate.push({
+                    giorno: data,
+                    istruttore: istruttore,
+                    fasceOrarie: fasceOrarieDisponibili
+                });
+            }
+        });
+    </script>
+
+    <script>
+        const SpostaGuidaBtn = document.querySelectorAll('.SpostaGuida');
+        const spostaGuidaForm = document.getElementById('spostaGuidaForm');
+        const istruttoreLezioneDaSpostare = document.getElementById('istruttoreLezioneDaSpostare');
+        const dataLezioneDaSpostare = document.getElementById('dataLezioneDaSpostare');
+        const oraLezioneDaSpostare = document.getElementById('oraLezioneDaSpostare');
+        const durataLezioneDaSpostare = document.getElementById('durataLezioneDaSpostare');    
+        SpostaGuidaBtn.forEach((btn) =>{
+            btn.addEventListener('click', () =>{
+                const durata = btn.dataset.durata;
+                const ora = btn.dataset.ora;
+                const giorno = btn.dataset.giorno;
+                const istruttore = btn.dataset.istruttore;
+                spostaGuidaForm.style.display = 'block';
+                istruttoreLezioneDaSpostare.value = istruttore;
+                dataLezioneDaSpostare.value = giorno;
+                oraLezioneDaSpostare.value = ora;
+                durataLezioneDaSpostare.value = durata;
+                popolaDate();
+                popolaFasceOrarie();
+
+            });
+        });
+
+        const dateSelect = document.getElementById('nuovaData');
+            const fasceOrarieSelect = document.getElementById('nuovaOra');
+            const istruttoreSelect = document.getElementById('nuovoIstruttore');
+    
+            function popolaDate() {
+                const istruttoreSelezionato = istruttoreSelect.value.split(' ')[0];
+                dateSelect.innerHTML = "";
+            
+                disponibilitaDate.forEach(item => {
+                    let oggi = new Date();
+                    oggi.setDate(oggi.getDate() + 2);
+
+                    let dataDopodomani = new Date(oggi.getFullYear(), oggi.getMonth(), oggi.getDate());
+
+                    let dataItem = new Date(item.giorno.split("/").reverse().join("-"));
+
+                    if (item.istruttore === istruttoreSelezionato && dataItem >= dataDopodomani) {
+                        const option = document.createElement('option');
+                        option.textContent = item.giorno;
+                        dateSelect.appendChild(option);
+                    }
+                });
+            }
+    
+            // Popola inizialmente le date
+            
+    
+            function popolaFasceOrarie() {
+                const istruttoreSelezionato = istruttoreSelect.value.split(' ')[0];
+                const giornoSelezionato = dateSelect.value;
+                
+                fasceOrarieSelect.innerHTML = "";
+            
+                disponibilitaDate.forEach(item => {
+                    if (item.istruttore === istruttoreSelezionato && item.giorno === giornoSelezionato) {
+                        item.fasceOrarie.forEach(ora => {
+                            const [startTime, endTime] = ora.split('-').map(t => t.trim());
+
+                            const [startHour, startMin] = startTime.split(':').map(Number);
+                            const [endHour, endMin] = endTime.split(':').map(Number);
+
+                            let duration;
+                            if (endHour > startHour || (endHour === startHour && endMin >= startMin)) {
+                                duration = (endHour - startHour) * 60 + (endMin - startMin);
+                            } else {
+                                duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
+                            }
+                            
+                            if(duration == Math.floor((document.getElementById('durataLezioneDaSpostare').value)*60)){
+                                const option = document.createElement('option');
+                                option.textContent = ora;
+                                fasceOrarieSelect.appendChild(option);
+                            }
+                        });
+                    }
+                });
+            }
+    
+            // Popola inizialmente le fasce orarie
+            
+    
+            // Aggiorna le date quando l'istruttore viene cambiato
+            istruttoreSelect.addEventListener('change', popolaDate);
+    
+            // Aggiorna le fasce orarie quando l'istruttore viene cambiato o la data viene cambiata
+            istruttoreSelect.addEventListener('change', popolaFasceOrarie);
+            dateSelect.addEventListener('change', popolaFasceOrarie);
+    
+
+    </script>
+        <script>
+            
+        </script>
     <script>
         const studente = '<%= nome %>';
         const paymentModal = document.getElementById('paymentModal');
@@ -367,7 +526,6 @@ function updateSectionsVisibility(selectedDate) {
             });
         }
         const noGuideText = document.querySelector('.noGuide');
-        noGuideText.style.display = document.querySelectorAll('section') ? 'block' : 'none';
     </script>
 </body>
 </html>

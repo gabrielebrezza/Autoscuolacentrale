@@ -18,6 +18,7 @@ const formatoEmail = require('./Db/formatoEmail');
 
 //routes
 const adminRoutes = require('./adminRoute/adminRoutes');
+const { Admin } = require('mongodb');
 
 
 paypal.configure({
@@ -685,6 +686,19 @@ app.post('/create-payment',  async (req, res) =>{
             sku = 2;
             returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
 
+        }else if(cause == 'spostaGuida'){
+            const istruttoreLezioneDaSpostare = req.body.istruttoreLezioneDaSpostare;
+            const dataLezioneDaSpostare = req.body.dataLezioneDaSpostare;
+            const oraLezioneDaSpostare = req.body.oraLezioneDaSpostare;
+            const nuovoIstruttore = req.body.nuovoIstruttore;
+            const nuovaData = req.body.nuovaData;
+            const nuovaOra = req.body.nuovaOra;
+            const durata = req.body.durataLezioneDaSpostare;
+            price = 5;
+            description: "Pagamento per lo spostamento della lezione di guida in AutoScuolaCentrale"; 
+            name = "Spostamento lezione di Guida";
+            sku = 3;
+            returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&oldInstructor=${encodeURIComponent(istruttoreLezioneDaSpostare)}&oldDate=${encodeURIComponent(dataLezioneDaSpostare)}&oldHour=${encodeURIComponent(oraLezioneDaSpostare)}&newInstructor=${encodeURIComponent(nuovoIstruttore)}&newDate=${encodeURIComponent(nuovaData)}&newHour=${encodeURIComponent(nuovaOra)}&durata=${encodeURIComponent(durata)}`;
         }
         const create_payment_json = {
             intent: "sale",
@@ -815,6 +829,151 @@ app.get('/success',  async (req, res) =>{
                         
                         res.redirect(`/profile`);
                     }
+                }else if(cause == 'spostaGuida'){
+                    const oldInstructor = req.query.oldInstructor;
+                    const oldDate = req.query.oldDate;
+                    const oldHour = req.query.oldHour;
+                    const newInstructor = req.query.newInstructor;
+                    const newDate = req.query.newDate;
+                    const newHour = req.query.newHour;
+                    const durata = Number(req.query.durata);
+                        const [oldName, oldSurName] = oldInstructor.split(" ");
+                        const updateOldInstructorHour = await admin.findOneAndUpdate(
+                            {
+                                "nome": oldName,
+                                "cognome": oldSurName,
+                                "ore.data": oldDate
+                            },
+                            {
+                                $inc: {
+                                    "ore.$.totOreGiorno": -durata
+                                }
+                            }
+                        );
+                        const [newName, newSurName] = newInstructor.split(" ");
+                        const existingOrario = await admin.findOne({"nome": newName, "cognome": newSurName, "ore.data": newDate});
+                        if (existingOrario) {
+                            const updateNewInstructorHour = await admin.findOneAndUpdate(
+                                {
+                                    "nome": newName,
+                                    "cognome": newSurName,
+                                    "ore.data": newDate
+                                },
+                                {
+                                    $inc: {
+                                        "ore.$.totOreGiorno": durata
+                                    }
+                                },
+                                {
+                                    new: true
+                                }
+                            );
+                        } else {
+                            const updateNewInstructorHour = await admin.findOneAndUpdate(
+                                {
+                                    "nome": newName,
+                                    "cognome": newSurName
+                                },
+                                {
+                                    $addToSet: {
+                                        "ore": {
+                                            "data": newDate,
+                                            "totOreGiorno": durata
+                                        }
+                                    }
+                                },
+                                {
+                                    new: true
+                                }
+                            );
+                        }
+                    const removeGuide = await guide.findOneAndUpdate(
+                        {
+                            "instructor": oldInstructor,
+                            "book": {
+                                $elemMatch: {
+                                    "day": oldDate,
+                                    "schedule": {
+                                        $elemMatch: {
+                                            "hour": oldHour,
+                                            "student": student
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            $set: {
+                                "book.$[outer].schedule.$[inner].student": null
+                            }
+                        },
+                        {
+                            arrayFilters: [
+                                { "outer.day": oldDate },
+                                { "inner.hour": oldHour, "inner.student": student }
+                            ]
+                        }
+                    );
+                    
+                    const addGuide = await guide.findOneAndUpdate(
+                        {
+                            "instructor": newInstructor,
+                            "book": {
+                                $elemMatch: {
+                                    "day": newDate,
+                                    "schedule": {
+                                        $elemMatch: {
+                                            "hour": newHour,
+                                            "student": null
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            $set: {
+                                "book.$[outer].schedule.$[inner].student": student
+                            }
+                        },
+                        {
+                            arrayFilters: [
+                                { "outer.day": newDate },
+                                { "inner.hour": newHour, "inner.student": null }
+                            ]
+                        }
+                    );
+                     
+                    const today = new Date();
+                    const d = String(today.getDate()).padStart(2, '0'); 
+                    const month = String(today.getMonth() + 1).padStart(2, '0'); 
+                    const year = today.getFullYear(); 
+                    const dataFatturazione = `${d}/${month}/${year}`;
+                    const rimuoviGuidaDaLessons = await credentials.findOneAndUpdate(
+                        {
+                            "userName": student
+                        },
+                        {
+                            $pull: {
+                                "lessonList": {
+                                        "istruttore": oldInstructor,
+                                        "giorno": oldDate,
+                                        "ora": oldHour,
+                                        "duration": durata
+                                }
+                            }
+                        }
+                    );            
+                    const updateDataFatturazione = await credentials.findOneAndUpdate(
+                        {"userName": student},
+                        {
+                            $addToSet: {
+                                "fatturaDaFare": {"tipo": 'spostamento lezione di guida', "data": dataFatturazione, "importo": price, "emessa": false},
+                                "lessonList": {"istruttore": newInstructor, "giorno": newDate, "ora": newHour, "duration": durata}
+                            }
+                        },
+                        {new: true}
+                    );   
+                    res.redirect('/profile');                 
                 }
             }
         });
