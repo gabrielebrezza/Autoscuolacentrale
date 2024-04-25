@@ -265,6 +265,10 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
     const pricePerHour = await prezzoGuida.findOne();
     const importo = (pricePerHour.prezzo * (durata/60));
     for(var i = 0; i< nCodes; i++){
+        const totalCodes = await credentials.findOneAndUpdate(
+            {"email": email},
+            {$inc: {"totalCodes": 1}}
+        );
         const insertCode = await credentials.findOneAndUpdate(
             {"email": email},
             {$push: {"codicePagamento": { "codice": code[i], "importo": importo}}},
@@ -272,6 +276,20 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
         );
     }
     res.redirect('/admin/users');
+});
+router.post('/ArchiviaUtente', authenticateJWT, async (req, res) =>{
+    const email = req.body.email;
+    const user = await credentials.findOne({"email": email});
+    if (user) {
+        const nuovoArchiviato = !user.archiviato;
+        const archiviazione = await credentials.findOneAndUpdate(
+            {"email": email},
+            {$set: {"archiviato": nuovoArchiviato}}
+        );
+        res.json(nuovoArchiviato ? 'Utente Archiviato Con Successo' : 'Utente Rimosso Dall\'Archivio Con Successo');
+    } else {
+        res.json('Si è verificato un errore nell\'archiviazione dell\'Allievo');
+    }
 });
 router.post('/excludeInstructor', authenticateJWT, async (req, res) =>{
     try {

@@ -137,6 +137,10 @@ const LoginSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    totalCodes: {
+        type: Number,
+        required:false
+    },
     codicePagamento: [
         {
             codice: {
@@ -148,7 +152,11 @@ const LoginSchema = new mongoose.Schema({
                 required: false
             }
         }
-    ]
+    ],
+    archiviato: {
+        type: Boolean,
+        default: false
+    }
 });
 
 const credentials = new mongoose.model('users', LoginSchema);

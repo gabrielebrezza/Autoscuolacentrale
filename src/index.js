@@ -347,9 +347,12 @@ async function isAuthenticated(req, res, next) {
         try {
             const username = user.username; 
             const approvedAdmin = await credentials.findOne({ "userName": username, "approved": true });
-            
+            const archiviato = await credentials.findOne({ "userName": username, "archiviato": true });
             if (!approvedAdmin) {
                 return res.redirect(`/waitingApprovation/:${username}`);
+            }
+            if(archiviato){
+                return res.send('Il tuo account è stato Archiviato, se ritieni ci sia stato un errore contatta l\'autoscuola');
             }
         } catch (error) {
             console.error('Errore durante il recupero dello stato di approvazione dell\'utente:', error);

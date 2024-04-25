@@ -163,6 +163,7 @@ button > a{
 .field input[type="tel"],
 .field input[type="email"],
 .field input[type="number"],
+.field input[type="checkbox"],
 .field select {
     width: 100px;
     padding: 5px;
@@ -259,4 +260,31 @@ button > a{
     tr{
         border: 5px solid #343a40;
     }
+}
+
+.actionsModal{
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    max-width: 500px;
+    width: 100%;
+}
+.actionsModal table{
+    border: none;
+}
+.actionsModal th{
+    background: #5681a9;
+    color: #ddd;
+    border: none;
+}
+.actionsModal td{
+    background: #71a1cb;
+    color: #ddd;
+    border: none;
+}
+#archivia{
+    color: #ccc;
+    cursor: pointer;
 }

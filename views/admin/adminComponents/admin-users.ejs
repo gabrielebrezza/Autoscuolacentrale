@@ -29,6 +29,10 @@
             <input type="number" id="searchExams" name="searchExams" min="0">
         </div>
         <div class="field">
+            <label for="searchArchived">Archiviati:</label>
+            <input type="checkbox" id="searchArchived" name="searchArchived">
+        </div>
+        <div class="field">
             <button id="copiaEmail" name="copiaEmail">Copia Email</button>
         </div>
     </div>
@@ -116,8 +120,10 @@
         <tbody>
 
                 <% for (let i = 0; i < utenti.length; i++) { %>
-                    <tr>
-                        <td data-label="Allievo"><span><%= utenti[i].billingInfo[0].nome %> <%= utenti[i].billingInfo[0].cognome %></span></td>
+                    <tr class="allievi" data-archiviato="<%= utenti[i].archiviato %>">
+                        <% let nomeAllievo = utenti[i].billingInfo[0].nome + ' ' + utenti[i].billingInfo[0].cognome %>
+                        <% let codice = utenti[i].codicePagamento.length + '/' + (!utenti[i].totalCodes ? 0 : utenti[i].totalCodes)  %>
+                        <td data-label="Allievo"><a class="nameModal" data-nomeallievo="<%= nomeAllievo %>" data-email="<%= utenti[i].email %>" data-codes="<%= codice %>" href=""><span><%= nomeAllievo %></span></a></td>
                         <td data-label="Email" data-email="<%= utenti[i].email %>"><span><%= utenti[i].email %></span></td>
                         <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
                             <td data-label="Esami pagati"> 
@@ -149,34 +155,51 @@
                 <% } %>
         </tbody>
     </table>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#searchName, #searchPhone, #searchEmail, #searchExams').on('input', function() {
-            var nameFilter = $('#searchName').val().toLowerCase();
-            var phoneFilter = $('#searchPhone').val().toLowerCase();
-            var emailFilter = $('#searchEmail').val().toLowerCase();
-            var examsFilter = parseInt($('#searchExams').val());
+$(document).ready(function() {
+    $('tbody tr.allievi').each(function() {
+        var archived = $(this).data('archiviato');
+        if (archived) {
+            $(this).hide();
+        }
+    });
+    $('#searchName, #searchPhone, #searchEmail, #searchExams, #searchArchived').on('input', function() {
+        var nameFilter = $('#searchName').val().toLowerCase();
+        var phoneFilter = $('#searchPhone').val().toLowerCase();
+        var emailFilter = $('#searchEmail').val().toLowerCase();
+        var examsFilter = parseInt($('#searchExams').val());
+        var archivedFilter = $('#searchArchived').is(':checked');
 
-            $('tbody tr').each(function() {
-                var name = $(this).find('td:nth-child(1)').text().toLowerCase();
-                var phone = $(this).find('td:nth-child(3)').text().toLowerCase();
-                var email = $(this).find('td:nth-child(2)').text().toLowerCase();
-                var exams = parseInt($(this).find('td:nth-child(4)').text());
+        $('tbody tr.allievi').each(function() {
+            var name = $(this).find('td:nth-child(1)').text().toLowerCase();
+            var phone = $(this).find('td:nth-child(3)').text().toLowerCase();
+            var email = $(this).find('td:nth-child(2)').text().toLowerCase();
+            var exams = parseInt($(this).find('td:nth-child(4)').text());
+            var archived = $(this).data('archiviato');
 
-                var nameMatch = name.includes(nameFilter);
-                var phoneMatch = phone.includes(phoneFilter);
-                var emailMatch = email.includes(emailFilter);
-                var examsMatch = isNaN(examsFilter) || exams === examsFilter;
+            var nameMatch = name.includes(nameFilter);
+            var phoneMatch = phone.includes(phoneFilter);
+            var emailMatch = email.includes(emailFilter);
+            var examsMatch = isNaN(examsFilter) || exams === examsFilter;
+            var archivedMatch = !archivedFilter || (archivedFilter && archived);
 
-                if (nameMatch && phoneMatch && emailMatch && examsMatch) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            });
+            if (nameMatch && phoneMatch && emailMatch && examsMatch && archivedMatch) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+            if(archivedFilter == archived){
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
         });
     });
+});
+
+
 </script>
 
 <script>
@@ -205,6 +228,78 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
 
 
     </div>
+    <div class="actionsModal">
+        <table>
+            <thead>
+                <tr>
+                    <th id="codiciTh">Codici</th>
+                    <th>Archivia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="Codici" id="codiciRimanenti"></td>
+                    <td data-label="Archivia" >
+                        <a href="" id="archivia">
+                            <span class="material-symbols-outlined">
+                                archive
+                            </span>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const nameModal = document.querySelectorAll('.nameModal');
+        const codiciRimanentiLabel = document.getElementById('codiciRimanenti');
+        const codiciTh = document.getElementById('codiciTh');
+        const actionsModal = document.querySelector('.actionsModal');
+        const archivia = document.getElementById('archivia');
+        nameModal.forEach((name)=>{
+            name.addEventListener('click', (event) =>{
+                actionsModal.style.display = 'block';
+                const codici = name.dataset.codes;
+                const nome = name.dataset.nomeallievo;
+                const email = name.dataset.email;
+                codiciRimanentiLabel.dataset.label = 'Codici di ' + nome;
+                codiciTh.innerText = 'Codici di ' + nome;
+                codiciRimanentiLabel.innerText = (codici == '0/0' ? 'Nessun Codice Attivo' : codici);
+                archivia.dataset.email = email;
+                event.preventDefault();
+            });
+        });
+        archivia.addEventListener('click', function(event) {
+            event.preventDefault();
+            if(confirm(`Sei sicuro di voler archiviare questo allievo?`)){
+                const email = archivia.dataset.email;
+                fetch('/ArchiviaUtente', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({email: email})
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Errore durante la richiesta POST');
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data);
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Si è verificato un errore:', error);
+                });
+            }
+        });
+
+
+    </script>
+
         <div id="formContainer" style="display: none;">
             <a href=" ">
                 <span class="material-symbols-outlined">
@@ -334,8 +429,6 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
             .catch(error => {
                 console.error('Si è verificato un errore:', error);
             });
-        } else {
-
         }
         
     });
