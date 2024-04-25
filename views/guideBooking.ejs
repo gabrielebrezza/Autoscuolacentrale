@@ -120,7 +120,20 @@
                         <td data-label="Giorno"><%= storicoGuide.lessonList[i].giorno %></td>
                         <td data-label="Ora"><%= storicoGuide.lessonList[i].ora %></td>
                         <td data-label="Durata"><%= storicoGuide.lessonList[i].duration < 1 ? storicoGuide.lessonList[i].duration * 60 + 'min' : storicoGuide.lessonList[i].duration.toFixed(2) + 'h'%></td>
-                        <td class="last" data-label="Sposta"><button class="SpostaGuida" data-durata="<%= storicoGuide.lessonList[i].duration %>" data-ora="<%= storicoGuide.lessonList[i].ora %>" data-giorno="<%= storicoGuide.lessonList[i].giorno %>" data-istruttore="<%= storicoGuide.lessonList[i].istruttore %>">Sposta Guida</button></td>
+                        <% var oggi = new Date(); %>
+                        <% 
+                          var partiData = storicoGuide.lessonList[i].giorno.split('/');
+                          var giornoLezione = new Date(partiData[2], partiData[1] - 1, partiData[0]); 
+                        %>
+                        <% var differenzaGiorni = (giornoLezione - oggi) / (1000 * 60 * 60 * 24); %>
+                        
+                        <% if (differenzaGiorni >= 2 && giornoLezione > oggi) { %>
+                          <td class="last" data-label="Sposta">
+                            <button class="SpostaGuida" data-durata="<%= storicoGuide.lessonList[i].duration %>" data-ora="<%= storicoGuide.lessonList[i].ora %>" data-giorno="<%= storicoGuide.lessonList[i].giorno %>" data-istruttore="<%= storicoGuide.lessonList[i].istruttore %>">Sposta Guida</button>
+                          </td>
+                        <% } else{ %>
+                            <td></td>
+                        <% } %>
                     </tr>
                 <% } %>
             </tbody>
