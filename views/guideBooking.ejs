@@ -179,9 +179,9 @@
                         <% let lessonBookedYet = 0;%>
                         <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
                         <% const schedule = lezioni[i].book[j].schedule[k]; %>
-                        <% let reserved = false %>
+                        <% let reserved = schedule.reservedTo.length == 0 ? true : false %>
                         <% for( let n = 0; n < schedule.reservedTo.length; n++ ) { 
-                            if(schedule.reservedTo[n] == userEmail || !schedule.reservedTo[n]){
+                            if(schedule.reservedTo[n] == userEmail){
                                 reserved = true;
                                 break;
                             } 
