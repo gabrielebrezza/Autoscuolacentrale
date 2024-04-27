@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const { create } = require('xmlbuilder2');
 const path = require('path');
 const fs = require('fs');
+const PDFDocument = require('pdfkit');
 const nodemailer = require('nodemailer');
 const archiver = require('archiver');
 const tls = require('tls');
@@ -42,7 +43,7 @@ async function authenticateJWT(req, res, next) {
 
     jwt.verify(token, JWT_SECRET, async (err, user) => {
         if (err) {
-            return res.status(403).json({ message: 'Autenticazione fallita' });
+            return res.redirect('/admin/login');
         }
         
         // Controlla se l'utente è approvato
@@ -665,7 +666,6 @@ router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT ,
     res.render('admin/adminComponents/creaFattura', {dati: dati, userName, tipo, data, importo, nFattura, role});
 });
 router.post('/createFattura', authenticateJWT, async (req, res) =>{
-    // Estrai i dati dalla richiesta
     const dati = req.body;
     const data = (((dati.data).split('/')).reverse()).join('-'); 
     // Costruisci il documento XML della fattura elettronica
@@ -760,7 +760,6 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
         .up()
     .up();
 
-    // Converti il documento XML in una stringa
     const xmlString = xml.end({ prettyPrint: true });
     const cliente = dati.nomeCliente + dati.cognomeCliente;
     const nomeFile = `${dati.IdPaese}${dati.IdCodice}_${dati.progressivoInvio}.xml`;
@@ -788,21 +787,106 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             }
         );
 
-        const numero = parseInt(dati.progressivoInvio.replace(/\D/g, ''), 10);
-        const nuovaFattura = new storicoFatture({
-            numero: numero,
-            importo: dati.importoPagamento,
-            data: dati.data,
-            nomeFile: nomeFile,
+        const doc = new PDFDocument();
+
+
+        doc.fontSize(16).text('Autoscuola Centrale', { align: 'left' });
+        doc.text('Corso Marconi 33 - 10125 Torino (TO)', { align: 'left' });
+        doc.text('P.IVA 06498290011', { align: 'left' });
+        doc.text('Fattura di Cortesia', { align: 'right' });
+        doc.moveDown();
+      
+        doc.moveDown();
+        doc.rect(50, doc.y, 500, 1).fill('#000');
+        doc.moveDown();
+
+        doc.text('CLIENTE', { underline: true });
+        doc.rect(50, doc.y + 10, 500, 200).stroke();
+        doc.moveDown();
+        doc.text(`Nome: ${dati.nomeCliente} ${dati.cognomeCliente}`, 60, doc.y + 20);
+        doc.text(`Numero: ${dati.progressivoInvio}`, 60, doc.y + 20);
+        doc.text(`Indirizzo: ${dati.indirizzoSedeCliente} ${dati.capSedeCliente} ${dati.comuneSedeCliente} (${dati.provinciaSedeCliente})`,  60, doc.y + 20);
+        doc.text(`Data: ${data}`, 60, doc.y + 20);
+        doc.text(`C.Fiscale: ${dati.codiceFiscaleCliente}`, 60, doc.y + 20);
+        doc.moveDown();
+      
+        // Box per dettagli della fattura
+        doc.text('Dettagli Fattura', { underline: true });
+        doc.moveDown();
+        doc.text('Data             Descrizione                            QTA     EURO');
+        doc.text(`${data}     ${dati.descrizione1}                           ${dati.imponibileImporto1}€`);
+        doc.moveDown();
+        doc.fillColor("#FF0000").text(`Fattura di cortesia  non valida ai fini fiscali.`);
+        doc.text(`La fattura è stata emessa in formato elettronico ed è consultabile nel cassetto fiscale`);
+        doc.fillColor("#000000");
+        doc.moveDown();
+        doc.text('Modalità di pagamento', { underline: true });
+        doc.moveDown();
+        doc.text('TOTALE IMPONIBILE: ', { continued: true });
+        doc.text(`${dati.imponibileImporto1} €`);
+        doc.text('IVA 22%: ', { continued: true });
+        doc.text(`${(Number(dati.imponibileImporto1) * 0.22).toFixed(2)} €`);
+        doc.text('TOTALE FATTURA: ', { continued: true });
+        doc.text(`${dati.ImportoTotaleDocumento} €`);
+        doc.moveDown();
+      
+        doc.pipe(fs.createWriteStream(`./fatture/fattura_${dati.nomeCliente}_${dati.cognomeCliente}.pdf`));
+        doc.end();
+
+        const email = await credentials.findOne(
+            {
+                "userName": dati.userName,
+            },
+            {
+                "email": 1
+            }
+        );
+        const attachment = {
+            filename: `fattura_${dati.nomeCliente}_${dati.cognomeCliente}.pdf`,
+            content: fs.createReadStream(`./fatture/fattura_${dati.nomeCliente}_${dati.cognomeCliente}.pdf`)
+        };
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'autoscuolacentraletorino@gmail.com',
+                pass: 'me k r o n e s s p c c w x j q'
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
         });
 
-        await  nuovaFattura.save()
-        .catch((errore) => {
-            console.error('Si è verificato un errore durante l\'aggiunta della fattura:', errore);
-        });
+        const mailOptions = {
+            from: 'autoscuolacentraletorino@gmail.com',
+            to: email,
+            subject: 'Fattura di cortesia',
+            text: `Gentile ${dati.cognomeCliente} ${dati.nomeCliente} ti inviamo la fattura di cortesia per il pagamento che hai effettuato.`,
+            attachments: [attachment]
+        };
 
-        const nFattura = await numeroFattura.updateOne({$inc: {"numero": 1}});
-        res.redirect(`/admin/fatture/:${dati.userName}`);
+        transporter.sendMail(mailOptions, async function(error, info) {
+            if (error) {
+                console.error('Errore nell\'invio dell\'email per la fattura:', error);
+                res.sendStatus(500);
+            } else {
+                console.log('Email per la fattura di cortesia inviata con successo a: ' + dati.cognomeCliente + ' ' + dati.nomeCliente); 
+                const numero = parseInt(dati.progressivoInvio.replace(/\D/g, ''), 10);
+                const nuovaFattura = new storicoFatture({
+                    numero: numero,
+                    importo: dati.importoPagamento,
+                    data: dati.data,
+                    nomeFile: nomeFile,
+                });
+            
+                await  nuovaFattura.save()
+                .catch((errore) => {
+                    console.error('Si è verificato un errore durante l\'aggiunta della fattura:', errore);
+                });
+            
+                const nFattura = await numeroFattura.updateOne({$inc: {"numero": 1}});
+                res.redirect(`/admin/fatture/:${dati.userName}`);
+            }
+        });
     }
 });
 });

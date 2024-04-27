@@ -225,6 +225,7 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
 
 
     </div>
+    <div class="containerModal">
     <div class="actionsModal">
         <a href=" " class="close">
             <span class="material-symbols-outlined">
@@ -274,18 +275,19 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
             </tbody>
         </table>
     </div>
+</div>
     <script>
         const nameModal = document.querySelectorAll('.nameModal');
         const codiciRimanentiLabel = document.getElementById('codiciRimanenti');
         const codiciTh = document.getElementById('codiciTh');
-        const actionsModal = document.querySelector('.actionsModal');
+        const containerModal = document.querySelector('.containerModal');
         const archivia = document.getElementById('archivia');
         const codiciBody = document.querySelector('.codiciBody');
         nameModal.forEach((name)=>{
             name.addEventListener('click', (event) =>{
                 event.preventDefault();
                 codiciBody.innerHTML = '';
-                actionsModal.style.display = 'block';
+                containerModal.style.display = 'block';
                 const codes = name.dataset.codes;
                 const nome = name.dataset.nomeallievo;
                 const email = name.dataset.email;

@@ -265,9 +265,16 @@ button > a{
         overflow-Y: scroll;
     }
 }
-
-.actionsModal{
+.containerModal{
     display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #fff;
+}
+.actionsModal{
     position: fixed;
     top: 50%;
     left: 50%;
