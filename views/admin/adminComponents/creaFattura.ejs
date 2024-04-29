@@ -158,29 +158,29 @@
             <legend>Dati Cessionario/Committente</legend>
 
             <label for="nomeCliente">Nome Cliente:</label><br>
-            <input type="text" id="nomeCliente" name="nomeCliente" value="<%= dati[0].nome %>"><br><br>
+            <input type="text" id="nomeCliente" name="nomeCliente" value="<%= (dati[0].nome).replace(/\s+/g, ' ').trim() %>"><br><br>
             
             <label for="cognomeCliente">Cognome Cliente:</label><br>
-            <input type="text" id="cognomeCliente" name="cognomeCliente" value="<%= dati[0].cognome %>"><br><br>
+            <input type="text" id="cognomeCliente" name="cognomeCliente" value="<%= (dati[0].cognome).replace(/\s+/g, ' ').trim() %>"><br><br>
 
             <label for="codiceFiscaleCliente">Codice Fiscale Cliente:</label><br>
-            <input type="text" id="codiceFiscaleCliente" name="codiceFiscaleCliente" value="<%= dati[0].codiceFiscale %>"><br><br>
+            <input type="text" id="codiceFiscaleCliente" name="codiceFiscaleCliente" value="<%= (dati[0].codiceFiscale).replace(/\s+/g, ' ').trim() %>"><br><br>
             <fieldset>
                 <legend>Sede Cessionario/Committente</legend>
                 <label for="indirizzoSedeCliente">Indirizzo:</label><br>
-                <input type="text" id="indirizzoSedeCliente" name="indirizzoSedeCliente" value="<%= dati[0].via + ' ' + dati[0].nCivico%>"><br><br>
+                <input type="text" id="indirizzoSedeCliente" name="indirizzoSedeCliente" value="<%= (dati[0].via).replace(/\s+/g, ' ').trim() + ' ' + (dati[0].nCivico).replace(/\s+/g, ' ').trim()%>"><br><br>
 
                 <label for="capSedeCliente">CAP:</label><br>
-                <input type="text" id="capSedeCliente" name="capSedeCliente" value="<%= dati[0].CAP %>"><br><br>
+                <input type="text" id="capSedeCliente" name="capSedeCliente" value="<%= (dati[0].CAP).replace(/\s+/g, ' ').trim() %>"><br><br>
 
                 <label for="comuneSedeCliente">Comune:</label><br>
-                <input type="text" id="comuneSedeCliente" name="comuneSedeCliente" value="<%= dati[0].citta %>"><br><br>
+                <input type="text" id="comuneSedeCliente" name="comuneSedeCliente" value="<%= (dati[0].citta).replace(/\s+/g, ' ').trim() %>"><br><br>
 
                 <label for="provinciaSedeCliente">Provincia:</label><br>
-                <input type="text" id="provinciaSedeCliente" name="provinciaSedeCliente" value="<%= dati[0].provincia %>"><br><br>
+                <input type="text" id="provinciaSedeCliente" name="provinciaSedeCliente" value="<%= (dati[0].provincia).replace(/\s+/g, ' ').trim() %>"><br><br>
 
                 <label for="nazioneSedeCliente">Nazione:</label><br>
-                <input type="text" id="nazioneSedeCliente" name="nazioneSedeCliente" value="<%= dati[0].stato %>"><br><br>
+                <input type="text" id="nazioneSedeCliente" name="nazioneSedeCliente" value="<%= (dati[0].stato).replace(/\s+/g, ' ').trim() %>"><br><br>
             </fieldset>
         </fieldset>
 
@@ -196,7 +196,7 @@
             <input type="text" id="data" name="data" value="<%= data %>"><br><br>
 
             <label for="numeroDocumento">Numero Documento:</label><br>
-            <input type="text" id="numeroDocumento" name="numeroDocumento" value="d00<%= nFattura[0].numero %>"><br><br>
+            <input type="text" id="numeroDocumento" name="numeroDocumento" value="g00<%= nFattura[0].numero %>"><br><br>
             <label for="ImportoTotaleDocumento">ImportoTotaleDocumento</label>
             <input type="text" id="ImportoTotaleDocumento" name="ImportoTotaleDocumento" value="<%= Number(importo).toFixed(2) %>">
         </fieldset>

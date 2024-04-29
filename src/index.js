@@ -181,9 +181,9 @@ app.post('/verification', async (req, res) => {
             saltRounds = await bcrypt.genSalt(10);
             hashedOTP = await bcrypt.hash(String(otpCode), 10);
             const data = {
-                email: userEmail,
-                cell: userCell,
-                userName: userName,
+                email: userEmail.trim(),
+                cell: userCell.trim(),
+                userName: userName.trim(),
                 password: password,
                 OTP: hashedOTP,
                 approved: false,
@@ -195,15 +195,15 @@ app.post('/verification', async (req, res) => {
                 ],
                 billingInfo: [
                     {
-                        nome: nome,
-                        cognome: cognome,
-                        codiceFiscale: codiceFiscale,
-                        via: via,
-                        nCivico: nCivico,
-                        CAP: CAP,
-                        citta: citta,
-                        provincia: provincia,
-                        stato: stato
+                        nome: nome.trim(),
+                        cognome: cognome.trim(),
+                        codiceFiscale: codiceFiscale.trim(),
+                        via: via.trim(),
+                        nCivico: nCivico.trim(),
+                        CAP: CAP.trim(),
+                        citta: citta.trim(),
+                        provincia: provincia.trim(),
+                        stato: stato.trim()
                     }
                 ]
             }
