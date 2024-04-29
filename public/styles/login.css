@@ -16,7 +16,7 @@
      align-items: center;
      justify-content: center;
      overflow: auto;
-     background-color: #71a1cb;
+     background: #71a1cb;
 }
 header{
     position: fixed;
