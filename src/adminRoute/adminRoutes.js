@@ -906,24 +906,13 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
         let filtroData = {};
         
         if (req.query.dataInizio && req.query.dataFine) {
-            const dataInizio = new Date(req.query.dataInizio);
-
-            const dataFine = new Date(req.query.dataFine);
-
-            // Costruire il filtro per giorno, mese e anno
+            const startDate = (req.query.dataInizio).split('-').reverse().join('/');
+            const endDate = (req.query.dataFine).split('-').reverse().join('/');
             filtroData = {
-                $and: [
-                    {
-                        $or: [
-                            { 'data': { $gte: dataInizio } }
-                        ]
-                    },
-                    {
-                        $or: [
-                            { 'data': { $lte: dataFine } }
-                        ]
-                    }
-                ]
+                data: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
             };
         }
         
