@@ -906,32 +906,23 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
         let filtroData = {};
         
         if (req.query.dataInizio && req.query.dataFine) {
-            const [annoInizio, meseInizio, giornoInizio] = req.query.dataInizio.split('-');
-            // Converti in numero intero
-            const giornoInizioInt = parseInt(giornoInizio);
-            const meseInizioInt = parseInt(meseInizio);
-            const annoInizioInt = parseInt(annoInizio);
-        
-            // Estrarre giorno, mese e anno dalla data di fine
-            const [annoFine, meseFine, giornoFine] = req.query.dataFine.split('-');
-            // Converti in numero intero
-            const giornoFineInt = parseInt(giornoFine);
-            const meseFineInt = parseInt(meseFine);
-            const annoFineInt = parseInt(annoFine);
-        
+            const dataInizio = new Date(req.query.dataInizio);
+
+            const dataFine = new Date(req.query.dataFine);
+
             // Costruire il filtro per giorno, mese e anno
             filtroData = {
                 $and: [
                     {
                         $or: [
-                            { 'data': { $gt: `${giornoInizioInt}/${meseInizioInt}/${annoInizioInt}` } },
-                            { 'data': { $eq: `${giornoInizioInt}/${meseInizioInt}/${annoInizioInt}` } }
+                            { 'data': { $gt: dataInizio } },
+                            { 'data': { $eq: dataInizio } }
                         ]
                     },
                     {
                         $or: [
-                            { 'data': { $lt: `${giornoFineInt}/${meseFineInt}/${annoFineInt}` } },
-                            { 'data': { $eq: `${giornoFineInt}/${meseFineInt}/${annoFineInt}` } }
+                            { 'data': { $lt: dataFine } },
+                            { 'data': { $eq: dataFine } }
                         ]
                     }
                 ]
