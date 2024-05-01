@@ -906,32 +906,32 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
         let filtroData = {};
         
         if (req.query.dataInizio && req.query.dataFine) {
-            const [giornoInizio, meseInizio, annoInizio] = parseInt(req.query.dataInizio.split('/'));
+            const [giornoInizio, meseInizio, annoInizio] = req.query.dataInizio.split('/');
             // Converti in numero intero
-            // const giornoInizioInt = parseInt(giornoInizio);
-            // const meseInizioInt = parseInt(meseInizio);
-            // const annoInizioInt = parseInt(annoInizio);
+            const giornoInizioInt = parseInt(giornoInizio);
+            const meseInizioInt = parseInt(meseInizio);
+            const annoInizioInt = parseInt(annoInizio);
         
             // Estrarre giorno, mese e anno dalla data di fine
-            const [giornoFine, meseFine, annoFine] = parseInt(req.query.dataFine.split('/'));
+            const [giornoFine, meseFine, annoFine] = req.query.dataFine.split('/');
             // Converti in numero intero
-            // const giornoFineInt = giornoFine;
-            // const meseFineInt = parseInt(meseFine);
-            // const annoFineInt = parseInt(annoFine);
+            const giornoFineInt = parseInt(giornoFine);
+            const meseFineInt = parseInt(meseFine);
+            const annoFineInt = parseInt(annoFine);
         
             // Costruire il filtro per giorno, mese e anno
             filtroData = {
                 $and: [
                     {
                         $or: [
-                            { 'data': { $gt: `${giornoInizio}/${meseInizio}/${annoInizio}` } },
-                            { 'data': { $eq: `${giornoInizio}/${meseInizio}/${annoInizio}` } }
+                            { 'data': { $gt: `${annoInizioInt}/${meseInizioInt}/${giornoInizioInt}` } },
+                            { 'data': { $eq: `${annoInizioInt}/${meseInizioInt}/${giornoInizioInt}` } }
                         ]
                     },
                     {
                         $or: [
-                            { 'data': { $lt: `${giornoFine}/${meseFine}/${annoFine}` } },
-                            { 'data': { $eq: `${giornoFine}/${meseFine}/${annoFine}` } }
+                            { 'data': { $lt: `${annoFineInt}/${meseFineInt}/${giornoFineInt}` } },
+                            { 'data': { $eq: `${annoFineInt}/${meseFineInt}/${giornoFineInt}` } }
                         ]
                     }
                 ]
