@@ -924,14 +924,14 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
                 $and: [
                     {
                         $or: [
-                            { 'data': { $gt: `${annoInizioInt}/${meseInizioInt}/${giornoInizioInt}` } },
-                            { 'data': { $eq: `${annoInizioInt}/${meseInizioInt}/${giornoInizioInt}` } }
+                            { 'data': { $gt: `${giornoInizioInt}/${meseInizioInt}/${annoInizioInt}` } },
+                            { 'data': { $eq: `${giornoInizioInt}/${meseInizioInt}/${annoInizioInt}` } }
                         ]
                     },
                     {
                         $or: [
-                            { 'data': { $lt: `${annoFineInt}/${meseFineInt}/${giornoFineInt}` } },
-                            { 'data': { $eq: `${annoFineInt}/${meseFineInt}/${giornoFineInt}` } }
+                            { 'data': { $lt: `${giornoFineInt}/${meseFineInt}/${annoFineInt}` } },
+                            { 'data': { $eq: `${giornoFineInt}/${meseFineInt}/${annoFineInt}` } }
                         ]
                     }
                 ]
