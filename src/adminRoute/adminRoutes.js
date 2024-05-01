@@ -762,11 +762,19 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
 
     const xmlString = xml.end({ prettyPrint: true });
     const cliente = dati.nomeCliente + dati.cognomeCliente;
-    const nomeFile = `${dati.IdPaese}${dati.IdCodice}_${dati.progressivoInvio}.xml`;
+    const nomeBaseFile = `${dati.IdPaese}${dati.IdCodice}_${dati.progressivoInvio}.xml`;
+    let nomeFile = nomeBaseFile;
+
+    let counter = 1;
+
+    while (fs.existsSync(path.join('fatture', nomeFile))) {
+        nomeFile = `${nomeBaseFile}_${counter}.xml`;
+        counter++;
+    }
     fs.writeFile(path.join('fatture', nomeFile), xmlString, async (err) => {
     if (err) {
         console.error('Errore durante il salvataggio del file:', err);
-        res.status(500).send('Errore durante il salvataggio del file');
+        return res.status(500).send('Errore durante il salvataggio del file');
     } else {
         const updateFatturaDB = await credentials.findOneAndUpdate(
             {
