@@ -915,14 +915,12 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
                 $and: [
                     {
                         $or: [
-                            { 'data': { $gt: dataInizio } },
-                            { 'data': { $eq: dataInizio } }
+                            { 'data': { $gte: dataInizio } }
                         ]
                     },
                     {
                         $or: [
-                            { 'data': { $lt: dataFine } },
-                            { 'data': { $eq: dataFine } }
+                            { 'data': { $lte: dataFine } }
                         ]
                     }
                 ]
