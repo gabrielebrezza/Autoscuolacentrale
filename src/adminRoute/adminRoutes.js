@@ -906,14 +906,14 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
         let filtroData = {};
         
         if (req.query.dataInizio && req.query.dataFine) {
-            const [giornoInizio, meseInizio, annoInizio] = req.query.dataInizio.split('/');
+            const [annoInizio, meseInizio, giornoInizio] = req.query.dataInizio.split('-');
             // Converti in numero intero
             const giornoInizioInt = parseInt(giornoInizio);
             const meseInizioInt = parseInt(meseInizio);
             const annoInizioInt = parseInt(annoInizio);
         
             // Estrarre giorno, mese e anno dalla data di fine
-            const [giornoFine, meseFine, annoFine] = req.query.dataFine.split('/');
+            const [annoFine, meseFine, giornoFine] = req.query.dataFine.split('-');
             // Converti in numero intero
             const giornoFineInt = parseInt(giornoFine);
             const meseFineInt = parseInt(meseFine);
