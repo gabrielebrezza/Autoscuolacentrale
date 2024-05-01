@@ -906,8 +906,8 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
         let filtroData = {};
         
         if (req.query.dataInizio && req.query.dataFine) {
-            const startDate = (req.query.dataInizio);//.split('-').reverse().join('/');
-            const endDate = (req.query.dataFine);//.split('-').reverse().join('/');
+            const startDate = moment(req.query.dataInizio, 'YYYY-MM-DD').toDate();//.split('-').reverse().join('/');
+            const endDate = moment(req.query.dataFine, 'YYYY-MM-DD').toDate();//.split('-').reverse().join('/');
             filtroData = {
                 data: {
                     $gte: startDate,
