@@ -176,7 +176,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% let lessonBookedYet = 0;%>
+                        <% let lessonBookedYet = 0; %>
+                        <% let atLeastOneLesson = false %>
                         <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
                         <% const schedule = lezioni[i].book[j].schedule[k]; %>
                         <% let reserved = schedule.reservedTo.length == 0 ? true : false %>
@@ -186,7 +187,7 @@
                                 break;
                             } 
                         } %>
-                        <% if(!schedule.student && lessonBookedYet != 2 && reserved) { %>
+                        <% if(!schedule.student && !lessonBookedYet && reserved) { %>
                         <tr>
                             <td class="hour"><%= schedule.hour %></td>
                             <td>
@@ -195,6 +196,7 @@
                                     data-price="<%= schedule.price %>">Costo: <%= Number(schedule.price).toFixed(2) %>€ <br> <strong>PRENOTA</strong></button>
                             </td>
                         </tr>
+                        <% atLeastOneLesson = true %>
                         <% } else if (schedule.student == nome) { %>
                         <tr>
                             <td class="hour"><%= schedule.hour %></td>
@@ -203,20 +205,12 @@
                                     data-instructor="<%= lezioni[i].instructor %>">Prenotato</button>
                             </td>
                         </tr>
-                        <% } else if(!schedule.student && lessonBookedYet == 2){ %>
-                            <tr>
-                                <td class="hour"><%= schedule.hour %></td>
-                                <td>
-                                    <button class="bookDisabled" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
-                                        data-instructor="<%= lezioni[i].instructor %>">Disattivato</button>
-                                </td>
-                            </tr>
+                        <% break; %>
                         <% } %>
-                        <% if(schedule.student) { 
-                            lessonBookedYet = 1;
-                            continue;
+                        <% if(schedule.student && atLeastOneLesson) { 
+                            break;
                         }%>
-                        <% lessonBookedYet = lessonBookedYet == 1 || lessonBookedYet== 2? 2: 0; %>
+                        <% lessonBookedYet = false; %>
                         <% } %>
                     </tbody>
                 </table>

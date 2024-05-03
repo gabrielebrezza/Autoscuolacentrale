@@ -25,72 +25,75 @@
             <% for(let i = 0; i < guides.length; i++) { %>
                 <% const guide = guides[i]; %>
                 <% let dateElaborate = []; %>
-                
-                    <% for(let j = 0; j < guide.book.length; j++) { %>
-                        <% let anyBooking = false; %>
-                        <% const dateString = guide.book[j].day; %>
-                        <% if (!dateElaborate.includes(dateString)) { %>
-                            <% dateElaborate.push(dateString); %>
-                            <div class="day-card" data-date="<%= dateString %>" style="display: none;">
-                                <h2 class="day-title">Giorno: <%= dateString %></h2>
-                                <div class="guide-info">
-                                    <h3 class="guide-name">Istruttore: <%= guide.instructor %></h3>
-                                    <table class="guide-table">
-                                        <thead>
+        
+                <% for(let j = 0; j < guide.book.length; j++) { %>
+                    <% let anyBooking = false; %>
+                    <% const dateString = guide.book[j].day; %>
+                    <% if (!dateElaborate.includes(dateString)) { %>
+                        <% dateElaborate.push(dateString); %>
+                        <div class="day-card" data-date="<%= dateString %>" style="display: none;">
+                            <h2 class="day-title">Giorno: <%= dateString %></h2>
+                            <div class="guide-info">
+                                <h3 class="guide-name">Istruttore: <%= guide.instructor %></h3>
+                                <table class="guide-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Ora</th>
+                                            <th>Prenotata</th>
+                                            <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                                                <th>Azioni</th>
+                                            <% } %> 
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% const sortedSchedule = guide.book[j].schedule.sort((a, b) => {
+                                            return a.hour.localeCompare(b.hour); // Ordina le ore in ordine alfabetico (se sono stringhe)
+                                        }); %>
+                                        <% for(let k = 0; k < sortedSchedule.length; k++) { %>
+                                            <% const schedule = sortedSchedule[k]; %>
                                             <tr>
-                                                <th>Ora</th>
-                                                <th>Prenotata</th>
+                                                <td><%= schedule.hour %></td>
+                                                <td>
+                                                    <% if (schedule.student) { %>
+                                                        <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                                                            <span class="si"><%= schedule.student %></span>
+                                                        <% }else{ %>
+                                                            <span class="si">Prenotata</span>
+                                                        <% } %>    
+                                                    <% } else { %>
+                                                        <span class="no">Non Prenotata</span>
+                                                    <% } %>
+                                                </td>
                                                 <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
-                                                    <th>Azioni</th>
-                                                <% } %> 
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% for(let k = 0; k < guide.book[j].schedule.length; k++) { %>
-                                                <% const schedule = guide.book[j].schedule[k]; %>
-                                                <tr>
-                                                    <td><%= schedule.hour %></td>
                                                     <td>
-                                                        <% if (schedule.student) { %>
-                                                            <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
-                                                                <span class="si"><%= schedule.student %></span>
-                                                            <% }else{ %>
-                                                                <span class="si">Prenotata</span>
-                                                            <% } %>    
+                                                        <% if (!schedule.student) { %>
+                                                            <span class="material-symbols-outlined deleteGuide" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %> - <%= schedule.hour %>">delete</span>
                                                         <% } else { %>
-                                                            <span class="no">Non Prenotata</span>
+                                                            <% for (let n = 0; n < infos.length; n++) { %>
+                                                                <% if (infos[n].userName === schedule.student) { %>
+                                                                    <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>
+                                                                <% } %>
+                                                            <% } %>
+                                                            <% anyBooking = true; %>
                                                         <% } %>
                                                     </td>
-                                                    <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
-                                                        <td>
-                                                            <% if (!schedule.student) { %>
-                                                                <span class="material-symbols-outlined deleteGuide" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %> - <%= schedule.hour %>">delete</span>
-                                                            <% } else { %>
-                                                                <% for (let n = 0; n < infos.length; n++) { %>
-                                                                    <% if (infos[n].userName === schedule.student) { %>
-                                                                        <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>
-                                                                    <% } %>
-                                                                <% } %>
-                                                                <% anyBooking = true; %>
-                                                            <% } %>
-                                                        </td>
-                                                    <% } %>   
-                                                </tr>
-                                            <% } %>
-                                        </tbody>
-                                    </table>
-                                    <% if (!anyBooking) { %>
-                                        <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
-                                            <button  class="deleteAllGuides" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %>">Elimina tutte</button>
-                                        <% } %> 
-                                    <% } %>
-                                </div>
+                                                <% } %>   
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                                <% if (!anyBooking) { %>
+                                    <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                                        <button style="cursor: pointer;" class="deleteAllGuides" data-instructor="<%= guide.instructor %>" data-time="<%= guide.book[j].day %>">Elimina tutte</button>
+                                    <% } %> 
+                                <% } %>
                             </div>
-                        <% } %>
+                        </div>
                     <% } %>
                 <% } %>
-            
+            <% } %>
         </div>
+        
         
         <script>
             document.addEventListener("DOMContentLoaded", function() {

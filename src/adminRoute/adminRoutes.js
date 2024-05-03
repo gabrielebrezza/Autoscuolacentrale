@@ -761,7 +761,6 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
     .up();
 
     const xmlString = xml.end({ prettyPrint: true });
-    const cliente = dati.nomeCliente + dati.cognomeCliente;
     const nomeBaseFile = `${dati.IdPaese}${dati.IdCodice}_${dati.progressivoInvio}.xml`;
     let nomeFile = nomeBaseFile;
 
