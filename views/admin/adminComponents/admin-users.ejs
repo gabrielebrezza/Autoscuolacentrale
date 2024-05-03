@@ -56,6 +56,7 @@
                         <option value="40">40 minuti</option>
                         <option value="60">1 ora</option>
                         <option value="120">2 ore</option>
+                        <option value="esame">esame</option>
                 </select>
             </div>
             <div class="field">
@@ -90,9 +91,12 @@
             document.getElementById("code").value = codici;
             const prezzoTotLabel = document.getElementById('prezzoTotale');
             const durata = document.getElementById('durata').value;
-            console.log(Number(prezzoTotLabel.dataset.prezzo))
-            const prezzoOra =Number(prezzoTotLabel.dataset.prezzo);
-            prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * (prezzoOra * (Number(durata)/60)) + "€";
+            if(durata == 'esame'){
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * 100 + "€";
+            }else{
+                const prezzoOra =Number(prezzoTotLabel.dataset.prezzo);
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * (prezzoOra * (Number(durata)/60)) + "€";
+            }
         });
 
         document.getElementById('createCodeForm').addEventListener('submit', function(event) {
@@ -385,7 +389,6 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
         </div>
         <script>
             const istruttori = Array('<%= istruttori %>');
-            console.log(istruttori);
             const limitationBtn = document.querySelectorAll('.limitation');
             const container = document.getElementById('formContainer');
             const excludeStudentInput = document.getElementById('excludeStudentInput');

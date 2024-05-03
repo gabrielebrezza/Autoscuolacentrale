@@ -15,6 +15,7 @@ const admin = require('./Db/Admin');
 const guide = require('./Db/Guide');
 const bacheca = require('./Db/Bacheca');
 const formatoEmail = require('./Db/formatoEmail');
+const prezzoGuida = require('./Db/CostoGuide');
 
 //routes
 const adminRoutes = require('./adminRoute/adminRoutes');
@@ -545,9 +546,26 @@ app.post('/create-code-payment', async (req, res) => {
         const student = req.body.student;
         const cause = req.body.cause;
         let instructor, location;
-        let price, returnUrl, day, hour, numEsame, name;
-        price = cause == 'exam' ? 100 : Number(req.body.price);
-        console.log(price);
+        let price, time, day, hour, numEsame, duration;
+        if(req.body.time){
+            time = req.body.time;
+            const timeParts = time.split(' - '); 
+            day = timeParts[0];
+            hour = timeParts[1];
+            const [startTime, endTime] = hour.split('-').map(t => t.trim());
+
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+            
+            
+            if (endHour > startHour || (endHour === startHour && endMin >= startMin)) {
+                duration = (endHour - startHour) * 60 + (endMin - startMin);
+            } else {
+                duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
+            }
+        }
+        const pricePerHour = await prezzoGuida.findOne();
+        price = cause == 'exam' ? 100 : (pricePerHour.prezzo * (duration/60));
         const code = req.body.codicePagamento;
         const exists = !!(await credentials.findOne({
             "userName": student,
@@ -562,21 +580,7 @@ app.post('/create-code-payment', async (req, res) => {
             if(cause == 'lesson'){
                 instructor = req.body.instructor;
                 location = req.body.location;
-                const time = req.body.time;
-                const timeParts = req.body.time.split(' - '); 
-                day = timeParts[0];
-                hour = timeParts[1];
-                const [startTime, endTime] = hour.split('-').map(t => t.trim());
-                    
-                const [startHour, startMin] = startTime.split(':').map(Number);
-                const [endHour, endMin] = endTime.split(':').map(Number);
                 
-                let duration;
-                if (endHour > startHour || (endHour === startHour && endMin >= startMin)) {
-                    duration = (endHour - startHour) * 60 + (endMin - startMin);
-                } else {
-                    duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
-                }
                 const guides = await guide.findOne({ instructor: instructor });
                 if (!guides) {
                     return res.status(404).json({ error: "Instructor not found" });

@@ -264,7 +264,12 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
     const nCodes = Number(req.body.totaleCodici);
     const durata = req.body.durata;
     const pricePerHour = await prezzoGuida.findOne();
-    const importo = (pricePerHour.prezzo * (durata/60));
+    let importo;
+    if(durata == 'esame'){
+        importo = 100;
+    }else{
+        importo = (pricePerHour.prezzo * (durata/60));
+    }
     const totalCodes = await credentials.findOneAndUpdate(
         {"email": email},
         {$inc: {"totalCodes": nCodes}}
