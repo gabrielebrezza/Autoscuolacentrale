@@ -769,6 +769,9 @@ app.get('/success',  async (req, res) =>{
                 }
             ]
         };
+        if(!paymentId || !payerId){
+            return res.status(500).json('Il pagamento non è avvenuto con successo')
+        }
 
         paypal.payment.execute(paymentId, execute_payment_json, async (error, payment) =>{
             if(error){
