@@ -939,20 +939,25 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
 
 router.get('/scaricaFatture', async (req, res) => {
     try {
-        let filtroData = {};
+        let nomiFile = [];
         if (req.query.dataInizio && req.query.dataFine) {
-            const startDate = (req.query.dataInizio).split('-').reverse().join('/');
-            const endDate = (req.query.dataFine).split('-').reverse().join('/');
-            filtroData = {
-                data: {
-                    $gte: startDate,
-                    $lte: endDate
+            const [startD, startM, startY] = req.query.dataInizio.split('-').reverse();
+            const [endD, endM, endY] = req.query.dataFine.split('-').reverse();
+            const startDate = new Date(startY, startM - 1, startD);
+            const endDate = new Date(endY, endM - 1, endD);  
+            
+            const fatture = await storicoFatture.find();
+            for (let i = 0; i < fatture.length; i++) {
+                const [fatturaD, fatturaM, fatturaY] = fatture[i].data.split('/');
+                const fatturaDate = new Date(fatturaY, fatturaM - 1, fatturaD);
+                if (fatturaDate >= startDate && fatturaDate <= endDate) {
+                    nomiFile.push(fatture[i].nomeFile);
                 }
-            };
+            }
+        }else{
+            nomiFile = await storicoFatture.distinct('nomeFile');
         }
         
-        // Recupera i nomi dei file delle fatture dal database filtrate per il range di date, se specificato
-        const nomiFile = await storicoFatture.find(filtroData).distinct('nomeFile');
 
         // Imposta il nome del file ZIP e la disposizione della risposta HTTP
         res.set('Content-Type', 'application/zip');
