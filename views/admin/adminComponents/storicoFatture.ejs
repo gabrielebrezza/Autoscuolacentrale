@@ -154,7 +154,7 @@ form{
             <div class="field">
                 <button type="submit" class="filter-button">Filtra</button>
             </div>
-            <% if (fatture.length > 0) { %>
+            <% if (fattureArr.length > 0) { %>
                 <div class="field">
                     <a href="/scaricaFatture?dataInizio=<%= req.query.dataInizio %>&dataFine=<%= req.query.dataFine %>" class="download-link">Scarica tutte le fatture filtrate</a>
                 </div>
@@ -174,7 +174,7 @@ form{
             </tr>
         </thead>
         <tbody>
-            <% fatture.forEach(fattura => { %>
+            <% fattureArr.forEach(fattura => { %>
                 <tr>
                     <td data-label="Numero"><%= fattura.numero %></td>
                     <td data-label="Importo"><%= fattura.importo %></td>

@@ -907,24 +907,26 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
         const instructor = req.user.username;
         const [nome, cognome] = instructor.split(" ");
         const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-        let filtroData = {};
-        
+        let fattureArr = [];
         if (req.query.dataInizio && req.query.dataFine) {
-            const startDate = (req.query.dataInizio).split('-').reverse().join('/');
-            const endDate = (req.query.dataFine).split('-').reverse().join('/');
-            filtroData = {
-                data: {
-                    $gte: startDate,
-                    $lte: endDate
+            const [startD, startM, startY] = req.query.dataInizio.split('-').reverse();
+            const [endD, endM, endY] = req.query.dataFine.split('-').reverse();
+            const startDate = new Date(startY, startM - 1, startD);
+            const endDate = new Date(endY, endM - 1, endD);  
+            
+            const fatture = await storicoFatture.find();
+            for (let i = 0; i < fatture.length; i++) {
+                const [fatturaD, fatturaM, fatturaY] = fatture[i].data.split('/');
+                const fatturaDate = new Date(fatturaY, fatturaM - 1, fatturaD);
+                if (fatturaDate >= startDate && fatturaDate <= endDate) {
+                    fattureArr.push(fatture[i]);
                 }
-            };
+            }
+        }else{
+            fattureArr = await storicoFatture.find();
         }
-        
-        // Recupera le fatture dal database filtrate per il range di date, se specificato
-        const fatture = await storicoFatture.find(filtroData);
 
-        // Passa le fatture recuperate alla pagina EJS
-        res.render('admin/adminComponents/storicoFatture', { fatture, role, req});
+        res.render('admin/adminComponents/storicoFatture', { fattureArr, role, req});
     } catch (error) {
         console.error('Si è verificato un errore durante il recupero delle fatture:', error);
         res.status(500).send('Si è verificato un errore durante il recupero delle fatture');
