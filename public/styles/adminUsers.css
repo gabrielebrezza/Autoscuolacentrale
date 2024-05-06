@@ -284,6 +284,8 @@ button > a{
     transform: translateX(-50%) translateY(-50%);
     max-width: 500px;
     width: 100%;
+    max-height: 70vh;
+    overflow-y: auto;
 }
 .actionsModal a.close{
     position: relative;
