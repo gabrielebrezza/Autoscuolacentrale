@@ -140,6 +140,7 @@ h2 {
 }
 .ui-datepicker-next, .ui-datepicker-prev{
     padding-top: 5px;
+    cursor: pointer;
 }
 
 .ui-datepicker-next:hover, .ui-datepicker-prev:hover{
