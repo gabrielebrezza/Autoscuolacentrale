@@ -635,7 +635,7 @@ app.post('/create-code-payment', async (req, res) => {
                             {"userName": student},
                             { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
                           );
-                        console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento', req.query);
+                        console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento con codice');
                         res.redirect(`/profile`);
                     } else {
                         console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
