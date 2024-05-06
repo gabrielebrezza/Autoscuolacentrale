@@ -42,12 +42,14 @@
                 <select id="utenti" name="utenti" required>
                     <% const utentiFiltrati = [] %>
                     <% for (let i = 0; i < utenti.length; i++) { %>
-                        <% const utente = {
+                        <%if(!utenti[i].archiviato){
+                         const utente = {
                             email: utenti[i].email,
                             cognome: utenti[i].billingInfo[0].cognome.toLowerCase(),
                             nome: utenti[i].billingInfo[0].nome.toLowerCase()
                         } 
-                        utentiFiltrati.push(utente); %>
+                        utentiFiltrati.push(utente); 
+                        }%>
                     <% } %>
                     <% function ordineAlfabeticoCognome(a, b) { 
                             if (a.cognome < b.cognome) { return -1; } 
@@ -55,7 +57,7 @@
                             return 0;
                     } %>
                     <% utentiFiltrati.sort(ordineAlfabeticoCognome) %>
-                    <% for (let i = 0; i < utenti.length; i++) { %>
+                    <% for (let i = 0; i < utentiFiltrati.length; i++) { %>
                         <option value="<%= utentiFiltrati[i].email %>"><%= utentiFiltrati[i].cognome %> <%= utentiFiltrati[i].nome %></option>
                     <% } %>
                 </select>
