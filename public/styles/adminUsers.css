@@ -174,7 +174,10 @@ button > a{
     color: #1a6dcb;
     margin-left: auto;
 }
-
+.field select{
+    width: min-content;
+    text-transform: capitalize;
+}
 .field input[type="text"]:focus,
 .field input[type="tel"]:focus,
 .field input[type="email"]:focus,

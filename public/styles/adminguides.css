@@ -194,7 +194,7 @@ h2 {
 
 
 .day-card {
-    width: 300px;
+    width: fit-content;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin: 20px;
