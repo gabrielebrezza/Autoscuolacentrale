@@ -180,14 +180,18 @@
                         <% let atLeastOneLesson = false %>
                         <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
                             <% const schedule = lezioni[i].book[j].schedule[k]; %>
-                            <% let reserved = schedule.reservedTo.length == 0 ? true : false %>
+                            <% let stopPrinting = false %>
+                            <% let reservedtoMe = schedule.reservedTo.length == 0 ? true : false %>
+                            <% let reservedtoOthers = schedule.reservedTo.length > 0 ? true : false %>
                             <% for( let n = 0; n < schedule.reservedTo.length; n++ ) { 
                                 if(schedule.reservedTo[n] == userEmail){
-                                    reserved = true;
+                                    reservedtoMe = true;
                                     break;
-                                } 
+                                }else{
+                                    reservedtoOthers == false
+                                }
                             } %>
-                            <% if(!schedule.student && !lessonBookedYet && reserved) { %>
+                            <% if(!schedule.student && !lessonBookedYet && reservedtoMe) { %>
                                 <tr>
                                     <td class="hour"><%= schedule.hour %></td>
                                     <td>
@@ -206,10 +210,15 @@
                                     </td>
                                 </tr>
                                 <% break; %>
+                            <% }else if(reservedtoOthers){ %>
+                                <td class="reservedtoOthers" style="display: none;"></td>
                             <% } %>
-                            <% if(schedule.student && atLeastOneLesson) { 
-                                break;
+                            <% if(schedule.student && atLeastOneLesson && !reservedtoMe) { 
+                                stopPrinting == true
                             }%>
+                            <% if (stopPrinting) { %>
+                                break;
+                            <% } %>
                             <% lessonBookedYet = false; %>
                         <% } %>
                     </tbody>
@@ -275,9 +284,9 @@ $(function() {
 
             var sectionExists = $('.section[data-date="' + dateString + '"]').length > 0;
             var removeBookingExists = $('.section[data-date="' + dateString + '"] .removeBooking').length > 0;
-
+            var hasReservedToOthersButNotBook = $('.section[data-date="' + dateString + '"] .reservedtoOthers').length > 0 && $('.section[data-date="' + dateString + '"] .book').length === 0;
             if (sectionExists) {
-                if (removeBookingExists) {
+                if (removeBookingExists || hasReservedToOthersButNotBook) {
                     return [true, "redDate disabled", "Non ci sono guide libere"];
                 } else {
                     return [true, "greenDate", "Ci sono guide libere"];
@@ -316,19 +325,14 @@ function updateSectionsVisibility(selectedDate) {
     var noGuideElement = document.querySelector('.noGuide');
     var noGuide = true;
     sections.forEach(function (section) {
-        if (section.getAttribute('data-date') === selectedDate) {
+        var bookElement = section.querySelector('.book');
+        if (section.getAttribute('data-date') === selectedDate && bookElement) {
             section.style.display = 'block';
             noGuide = false;
         } else {
             section.style.display = 'none';
         }
     });
-
-    if (noGuide) {
-        noGuideElement.style.display = 'block';
-    } else {
-        noGuideElement.style.display = 'none';
-    }
 }
 
     </script>
