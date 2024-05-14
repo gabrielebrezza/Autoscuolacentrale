@@ -758,6 +758,9 @@ app.get('/success',  async (req, res) =>{
         const payerId = req.query.PayerID;
         const paymentId = req.query.paymentId;
         const price = req.query.price;
+        if(!paymentId || !payerId){
+            return res.status(500).json('Il pagamento non è avvenuto con successo')
+        }
         const execute_payment_json = {
             payer_id: payerId,
             transactions: [
@@ -769,9 +772,7 @@ app.get('/success',  async (req, res) =>{
                 }
             ]
         };
-        if(!paymentId || !payerId){
-            return res.status(500).json('Il pagamento non è avvenuto con successo')
-        }
+
 
         paypal.payment.execute(paymentId, execute_payment_json, async (error, payment) =>{
             if(error){
