@@ -240,6 +240,12 @@ h2 {
     outline: none;
 }
 .si {
+    max-width: 50px;
+    overflow: hidden;
+    white-space: nowrap;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
     color: green;
     font-weight: bold;
 }

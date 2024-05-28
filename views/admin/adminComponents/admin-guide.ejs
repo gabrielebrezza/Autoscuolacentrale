@@ -56,7 +56,7 @@
                                                 <td>
                                                     <% if (schedule.student) { %>
                                                         <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
-                                                            <span class="si"><%= schedule.student %></span>
+                                                            <span class="si" title="<%= schedule.student %>" ><%= schedule.student %></span>
                                                         <% }else{ %>
                                                             <span class="si">Prenotata</span>
                                                         <% } %>    
@@ -240,6 +240,14 @@ function updateSectionsVisibility(selectedDate) {
                     infosContainer.style.display = 'flex';
                 });
             });
+        </script>
+        <script>
+            const nomi = document.querySelectorAll('.si');
+            nomi.forEach((nome) => {
+                if(nome.textContent.length > 21){
+                    nome.textContent = nome.textContent.slice(0, 21 - 2) + '..';
+                }
+            })
         </script>
 </main>
 </body>
