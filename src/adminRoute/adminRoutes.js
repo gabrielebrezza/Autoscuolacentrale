@@ -235,7 +235,7 @@ router.get('/admin/guides', authenticateJWT, async (req, res) => {
         const [nome, cognome] = istruttore.split(" ");
         const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
         const guides = await guide.find();
-        const infos = await credentials.find({}, { email: 1, userName: 1, cell: 1 });
+        const infos = await credentials.find({}, { email: 1, userName: 1, cell: 1, billingInfo : 1});
         res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides , istruttore, infos, role});
     } catch (error) {
         console.error('Errore durante il recupero delle guide:', error);
@@ -587,7 +587,7 @@ router.post('/approveUser', async (req, res) =>{
     });
 });
 
-router.post('/approveAdmin', async (req, res) =>{
+router.post('/approveAdmin', authenticateJWT, async (req, res) =>{
     const email = req.body.email;
     const approve = await Admin.findOneAndUpdate({
         "email": email

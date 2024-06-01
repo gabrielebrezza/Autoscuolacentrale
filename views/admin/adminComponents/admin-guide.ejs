@@ -56,7 +56,12 @@
                                                 <td>
                                                     <% if (schedule.student) { %>
                                                         <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
-                                                            <span class="si" title="<%= schedule.student %>" ><%= schedule.student %></span>
+                                                            <% for (let n = 0; n < infos.length; n++) { %>
+                                                                <% if (infos[n].userName === schedule.student) { %>
+                                                                    <% const utente = infos[n].billingInfo[0].cognome + ' ' + infos[n].billingInfo[0].nome %>
+                                                                    <span class="si" title="<%= utente %>" ><%= utente %></span>
+                                                                <% } %>
+                                                            <% } %>
                                                         <% }else{ %>
                                                             <span class="si">Prenotata</span>
                                                         <% } %>    
