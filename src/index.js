@@ -392,8 +392,7 @@ app.post('/verifica_otp', async (req, res) =>{
     }
 });
 app.get('/waitingApprovation/:userName', async (req, res) =>{
-    const user = req.params.userName.replace(':',''); 
-    const isApproved = await credentials.findOne({userName: user});
+    const user = req.params.userName.replace(':','');
     res.render('waitingApprovation', { user: user });
 });
 app.get('/profile', isAuthenticated, async (req, res) => {
