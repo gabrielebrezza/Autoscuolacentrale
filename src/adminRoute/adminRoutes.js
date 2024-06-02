@@ -671,7 +671,11 @@ router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT ,
     res.render('admin/adminComponents/creaFattura', {dati: dati, userName, tipo, data, importo, nFattura, role});
 });
 router.post('/createFattura', authenticateJWT, async (req, res) =>{
-    const dati = req.body;
+    let dati = req.body;
+    const {nFattura} = await numeroFattura.findOne();
+    dati.progressivoInvio = `g00${nFattura}`;
+    dati.numeroDocumento = `g00${nFattura}`;
+    
     const data = (((dati.data).split('/')).reverse()).join('-'); 
     // Costruisci il documento XML della fattura elettronica
     const xml = create({ version: '1.0', encoding: 'UTF-8' })
@@ -900,7 +904,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                     console.error('Si è verificato un errore durante l\'aggiunta della fattura:', errore);
                 });
             
-                const nFattura = await numeroFattura.updateOne({$inc: {"numero": 1}});
+                await numeroFattura.updateOne({$inc: {"numero": 1}});
                 res.redirect(`/admin/fatture/:${dati.userName}`);
             }
         });
