@@ -883,10 +883,15 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             } else {
                 console.log('Email per la fattura di cortesia inviata con successo a: ' + dati.cognomeCliente + ' ' + dati.nomeCliente); 
                 const numero = parseInt(dati.progressivoInvio.replace(/\D/g, ''), 10);
+                const today = new Date();
+                const DD = String(today.getDate()).padStart(2, '0'); 
+                const MM = String(today.getMonth() + 1).padStart(2, '0'); 
+                const YYYY = today.getFullYear(); 
+                const dataFatturazione = `${DD}/${MM}/${YYYY}`;
                 const nuovaFattura = new storicoFatture({
                     numero: numero,
                     importo: dati.importoPagamento,
-                    data: dati.data,
+                    data: dataFatturazione,
                     nomeFile: nomeFile,
                 });
             
