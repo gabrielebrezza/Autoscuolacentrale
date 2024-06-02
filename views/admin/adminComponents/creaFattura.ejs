@@ -262,8 +262,16 @@
             </fieldset>
         </fieldset>
 
-        <input type="submit" value="Genera Fattura">
+        <input type="submit" id="submitBtn" value="Genera Fattura">
     </form>
 </main>
+<script>
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.addEventListener('click', () => {
+        setTimeout(()=> {
+            submitBtn.disabled = true;
+        }, 5);
+    });
+</script>
 </body>
 </html>
