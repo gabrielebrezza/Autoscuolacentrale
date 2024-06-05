@@ -373,7 +373,7 @@ function updateSectionsVisibility(selectedDate) {
                 <label for="nuovaOra">Fascia Oraria:</label>
                 <select name="nuovaOra" id="nuovaOra"></select>
             </div>
-            <button type="submit"><i class="fa fa-paypal"></i> Paga con PayPal</button>
+            <button id="SubmitSpostaGuida" type="submit"><i class="fa fa-paypal"></i> Paga con PayPal</button>
         </form>
     </div>
     <script>
@@ -480,6 +480,11 @@ function updateSectionsVisibility(selectedDate) {
                         });
                     }
                 });
+                if(fasceOrarieSelect.hasChildNodes()){
+                    document.getElementById('SubmitSpostaGuida').disabled = false;
+                }else{
+                    document.getElementById('SubmitSpostaGuida').disabled = true;
+                }
             }
     
             // Popola inizialmente le fasce orarie
@@ -491,7 +496,12 @@ function updateSectionsVisibility(selectedDate) {
             // Aggiorna le fasce orarie quando l'istruttore viene cambiato o la data viene cambiata
             istruttoreSelect.addEventListener('change', popolaFasceOrarie);
             dateSelect.addEventListener('change', popolaFasceOrarie);
-    
+            if(fasceOrarieSelect.options.length == 0|| dateSelect.options.length == 0){
+                document.getElementById('SubmitSpostaGuida').disabled = true;
+            }else{
+                document.getElementById('SubmitSpostaGuida').disabled = false;
+            }
+            
 
     </script>
         <script>
