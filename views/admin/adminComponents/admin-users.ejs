@@ -136,6 +136,7 @@
                 <th>Guide</th>
                 <th>Limitazioni</th>
                 <th>Boccia</th>
+                <th>Perfezionamento</th>
                 <th>Fatture</th>
             </tr>
         </thead>
@@ -164,6 +165,12 @@
                             <td data-label="Guide"> <button class="tableBtn"><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
                             <td data-label="Limitazioni"> <button class="limitation tableBtn" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
                             <td data-label="Boccia"> <button class="boccia tableBtn" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
+                            <td data-label="Perfezionamento">
+                                <form action="/perfezionamento" method="POST">
+                                    <input type="hidden" name="studente" value="<%= utenti[i].userName %>">
+                                    <button class="tableBtn" type="submit">Perfezionamento</button>
+                                </form>
+                            </td>
                             <% let noFatture = true %>
                             <% for( let j = 0; j < utenti[i].fatturaDaFare.length; j++ ) { %>
                                 <% if (!utenti[i].fatturaDaFare[j].emessa) { %>

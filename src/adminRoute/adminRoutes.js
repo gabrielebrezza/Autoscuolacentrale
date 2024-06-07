@@ -353,7 +353,24 @@ router.post('/boccia', authenticateJWT, async (req, res) =>{
     );
     res.json('Utente Bocciato con successo');
 });
-
+router.post('/perfezionamento', authenticateJWT, async (req, res) =>{
+    const {studente} = req.body;
+    try{
+        await credentials.findOneAndUpdate(
+            { "userName": studente, "exams.paid": false },
+            { $set: { "exams.$.paid": true } }
+          );
+          
+          await credentials.findOneAndUpdate(
+            { "userName": studente },
+            { $push: { "exams": { paid: false, bocciato: false } } }
+          );
+    res.redirect('/admin/users');
+}catch(err){
+    console.log(err);
+    res.status(500)
+}
+});
 router.get('/admin/guideSvolte/:username',authenticateJWT , async (req, res) => {
     try {
         const istruttore = req.user.username;
