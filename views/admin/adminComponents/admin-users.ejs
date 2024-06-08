@@ -74,6 +74,7 @@
                         <option value="60">1 ora</option>
                         <option value="120">2 ore</option>
                         <option value="esame">esame</option>
+                        <option value="trascinamento">trascinamento</option>
                 </select>
             </div>
             <div class="field">
@@ -110,6 +111,8 @@
             const durata = document.getElementById('durata').value;
             if(durata == 'esame'){
                 prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * 100 + "€";
+            }else if(durata == 'trascinamento'){
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * 150 + "€";
             }else{
                 const prezzoOra =Number(prezzoTotLabel.dataset.prezzo);
                 prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * (prezzoOra * (Number(durata)/60)) + "€";
@@ -136,7 +139,6 @@
                 <th>Guide</th>
                 <th>Limitazioni</th>
                 <th>Boccia</th>
-                <th>Perfezionamento</th>
                 <th>Fatture</th>
             </tr>
         </thead>
@@ -148,7 +150,24 @@
                         <% let nomeAllievo = utenti[i].billingInfo[0].cognome + ' ' + utenti[i].billingInfo[0].nome %>
                         <% let codice = utenti[i].codicePagamento.length + '/' + (!utenti[i].totalCodes ? 0 : utenti[i].totalCodes)  %>
                         <td data-label="N"><span><%= i+1 %></span></td>
-                        <td data-label="Allievo"><a class="nameModal" data-nomeallievo="<%= nomeAllievo %>" data-email="<%= utenti[i].email %>" data-codici="<%= JSON.stringify(utenti[i].codicePagamento) %>" data-codes="<%= codice %>" href=""><span><%= nomeAllievo %></span></a></td>
+                        <td data-label="Allievo" >
+                            <div class="nameCell">
+                                <% if (utenti[i].trascinamento.attivo) { %>
+                                    <span class="material-symbols-outlined <%= utenti[i].trascinamento.pagato ? 'trascPagato' : 'trascNonPagato' %>">
+                                        drag_click
+                                    </span>
+                                <% } %>
+                                <% if (utenti[i].perfezionamento) { %>
+                                    <span class="material-symbols-outlined perfezionamento">
+                                        upgrade
+                                    </span>
+                                <% } %>
+
+                                <a class="nameModal" data-nomeallievo="<%= nomeAllievo %>" data-email="<%= utenti[i].email %>" data-codici="<%= JSON.stringify(utenti[i].codicePagamento) %>" data-codes="<%= codice %>" href="">
+                                    <span><%= nomeAllievo %></span>
+                                </a>
+                            </div>
+                        </td>
                         <td data-label="Email" data-email="<%= utenti[i].email %>"><span><%= utenti[i].email %></span></td>
                         <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
                             <td data-label="Esami pagati"> 
@@ -165,12 +184,6 @@
                             <td data-label="Guide"> <button class="tableBtn"><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
                             <td data-label="Limitazioni"> <button class="limitation tableBtn" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
                             <td data-label="Boccia"> <button class="boccia tableBtn" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
-                            <td data-label="Perfezionamento">
-                                <form action="/perfezionamento" method="POST">
-                                    <input type="hidden" name="studente" value="<%= utenti[i].userName %>">
-                                    <button class="tableBtn" type="submit">Perfezionamento</button>
-                                </form>
-                            </td>
                             <% let noFatture = true %>
                             <% for( let j = 0; j < utenti[i].fatturaDaFare.length; j++ ) { %>
                                 <% if (!utenti[i].fatturaDaFare[j].emessa) { %>
@@ -288,6 +301,8 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
             <thead>
                 <tr>
                     <th>Archivia</th>
+                    <th>Perfezionamento</th>
+                    <th>Trascinamento</th>
                 </tr>
             </thead>
             <tbody>
@@ -299,17 +314,46 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
                             </span>
                         </a>
                     </td>
+                    <td>
+                        <form action="/perfezionamento" id="perfezionamentoForm" method="POST">
+                            <input type="hidden" name="email" id="emailPerfezionamento" value="">
+                            <button class="tableBtn" id="perfezionamentoSubmit" type="submit">Perfezionamento</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/trascinamento" id="trascinamentoForm" method="POST">
+                            <input type="hidden" name="email" id="emailTrascinamento" value="">
+                            <button class="tableBtn" type="submit">Trascinamento</button>
+                        </form>
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
+<script>
+    document.getElementById('perfezionamentoForm').addEventListener('submit', function(event) {
+        const confirmSubmission = confirm("Sei sicuro di voler procedere con il perfezionamento?");
+        if (!confirmSubmission) {
+            event.preventDefault();
+        }
+    });
+    document.getElementById('trascinamentoForm').addEventListener('submit', function(event) {
+        const confirmSubmission = confirm("Sei sicuro di voler procedere con il trascinamento?");
+        if (!confirmSubmission) {
+            event.preventDefault();
+        }
+    });
+</script>
+
     <script>
         const nameModal = document.querySelectorAll('.nameModal');
         const codiciRimanentiLabel = document.getElementById('codiciRimanenti');
         const codiciTh = document.getElementById('codiciTh');
         const containerModal = document.querySelector('.containerModal');
         const archivia = document.getElementById('archivia');
+        const emailPerfezionamento = document.getElementById('emailPerfezionamento');
+        const emailTrascinamento = document.getElementById('emailTrascinamento');
         const codiciBody = document.querySelector('.codiciBody');
         nameModal.forEach((name)=>{
             name.addEventListener('click', (event) =>{
@@ -344,6 +388,8 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
                 codiciTh.innerText = 'Codici di ' + nome;
                 codiciRimanentiLabel.innerText = (codes == '0/0' ? 'Nessun Codice Attivo' : codes);
                 archivia.dataset.email = email;
+                emailPerfezionamento.value = email;
+                emailTrascinamento.value = email;
                 
             });
         });

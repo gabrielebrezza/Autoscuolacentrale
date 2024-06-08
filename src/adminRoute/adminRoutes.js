@@ -267,10 +267,12 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
     let importo;
     if(durata == 'esame'){
         importo = 100;
+    }else if(durata == 'trascinamento'){
+        importo = 150;
     }else{
         importo = (pricePerHour.prezzo * (durata/60));
     }
-    const totalCodes = await credentials.findOneAndUpdate(
+    await credentials.findOneAndUpdate(
         {"email": email},
         {$inc: {"totalCodes": nCodes}}
     );
@@ -289,7 +291,7 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
     var date = day + '/' + month + '/' + year;
 
     for(var i = 0; i< nCodes; i++){
-        const insertCode = await credentials.findOneAndUpdate(
+        await credentials.findOneAndUpdate(
             {"email": email},
             {$push: {"codicePagamento": { "codice": code[i], "data": date, "importo": importo}}},
             { new: true }
@@ -354,22 +356,54 @@ router.post('/boccia', authenticateJWT, async (req, res) =>{
     res.json('Utente Bocciato con successo');
 });
 router.post('/perfezionamento', authenticateJWT, async (req, res) =>{
-    const {studente} = req.body;
+    const {email} = req.body;
     try{
         await credentials.findOneAndUpdate(
-            { "userName": studente, "exams.paid": false },
+            { "email": email, "exams.paid": false },
             { $set: { "exams.$.paid": true } }
           );
           
           await credentials.findOneAndUpdate(
-            { "userName": studente },
-            { $push: { "exams": { paid: false, bocciato: false } } }
+            { "email": email },
+            { $push: { "exams": { paid: false, bocciato: false } }, "perfezionamento": true }
           );
-    res.redirect('/admin/users');
-}catch(err){
-    console.log(err);
-    res.status(500)
-}
+        res.redirect('/admin/users');
+    }catch(err){
+        console.log(`errore durante il perfezionamento: ${err}`);
+        res.status(500)
+    }
+});
+router.post('/trascinamento', authenticateJWT, async (req, res) =>{
+    const {email} = req.body;
+    try{
+        await credentials.findOneAndUpdate(
+            { "email": email },
+            {
+              $unset: { "exams": "" },
+              $set: {
+                "trascinamento.attivo": true,
+                "trascinamento.pagato": false,
+                "archiviato": false
+              }
+            }
+          );
+          
+          await credentials.findOneAndUpdate(
+            { "email": email },
+            {
+              $push: {
+                "exams": {
+                  "paid": false,
+                  "bocciato": false
+                }
+              }
+            }
+          );
+        res.redirect('/admin/users');
+    }catch(err){
+        console.log(`errore durante il trascinamento: ${err}`);
+        res.status(500)
+    }
 });
 router.get('/admin/guideSvolte/:username',authenticateJWT , async (req, res) => {
     try {
@@ -689,9 +723,9 @@ router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT ,
 });
 router.post('/createFattura', authenticateJWT, async (req, res) =>{
     let dati = req.body;
-    const {nFattura} = await numeroFattura.findOne();
-    dati.progressivoInvio = `g00${nFattura}`;
-    dati.numeroDocumento = `g00${nFattura}`;
+    const {numero} = await numeroFattura.findOne();
+    dati.progressivoInvio = `g00${numero}`;
+    dati.numeroDocumento = `g00${numero}`;
     
     const data = (((dati.data).split('/')).reverse()).join('-'); 
     // Costruisci il documento XML della fattura elettronica

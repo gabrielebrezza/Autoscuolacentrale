@@ -157,6 +157,20 @@ const LoginSchema = new mongoose.Schema({
             }
         }
     ],
+    perfezionamento: {
+        type: Boolean,
+        default: false
+    },
+    trascinamento: {
+        attivo:{
+            type: Boolean,
+            default: false
+        },
+        pagato: {
+            type: Boolean,
+            default: false
+        }
+    },
     archiviato: {
         type: Boolean,
         default: false

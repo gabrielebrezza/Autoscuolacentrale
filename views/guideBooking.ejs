@@ -38,6 +38,7 @@
         </script> 
 
     </header>
+    <% if ((trascinamento.attivo && trascinamento.pagato) || !trascinamento.attivo) { %>
     <% if(!esami.exams[0].paid){ %>
         <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>
     <% } %>
@@ -556,5 +557,29 @@ function updateSectionsVisibility(selectedDate) {
         }
         const noGuideText = document.querySelector('.noGuide');
     </script>
+    <% }else{ %>
+        <form id="paymentForm" class="paymentModal" style="display: block; opacity: 1;" method="POST">
+            <p style="color: #fff;">È stato attivato il trascinamento per poter continuare a prenotare dovrai pagare 150€</p>
+            <div class="form-group">
+                <input type="hidden" id="causeInput" name="cause" value="trascinamento">
+                <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
+            </div>
+            <button id="payPalButton" type="button" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
+            <label for="codicePagamento">O paga con codice</label>
+            <input type="text" id="codicePagamento" name="codicePagamento"> 
+            <button id="codiceButton" type="button" class="btn btn-primary">Paga con codice</button>
+        </form>
+        <script>
+            document.getElementById("payPalButton").addEventListener("click", function() {
+                document.getElementById("paymentForm").action = "/create-payment";
+                document.getElementById("paymentForm").submit();
+            });
+            
+            document.getElementById("codiceButton").addEventListener("click", function() {
+                document.getElementById("paymentForm").action = "/create-code-payment";
+                document.getElementById("paymentForm").submit();
+            });
+        </script>
+    <% } %>
 </body>
 </html>

@@ -398,6 +398,7 @@ app.get('/waitingApprovation/:userName', async (req, res) =>{
 app.get('/profile', isAuthenticated, async (req, res) => {
     const lezioni = await guide.find();
     const nome = req.user.username;
+    const {trascinamento} = await credentials.findOne({ "userName": nome }, { "trascinamento": 1 });
     const esami = await credentials.findOne({ "userName": nome }, { "exams": 1 });
     const personalData = await credentials.findOne({ "userName": nome }, { "billingInfo": 1});
     const bachecaContent = await bacheca.findOne();
@@ -406,7 +407,7 @@ app.get('/profile', isAuthenticated, async (req, res) => {
     const excludeInstructor = exclude.exclude;
     const email = await credentials.findOne({"userName": nome}, {"email": 1});
     const userEmail = email.email;
-    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide, userEmail});
+    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide, userEmail, trascinamento});
 });
 
 
@@ -564,7 +565,7 @@ app.post('/create-code-payment', async (req, res) => {
             }
         }
         const pricePerHour = await prezzoGuida.findOne();
-        price = cause == 'exam' ? 100 : (pricePerHour.prezzo * (duration/60));
+        price = cause == 'exam' ? 100 : cause == 'trascinamento' ? 150 : (pricePerHour.prezzo * (duration/60));
         const code = req.body.codicePagamento;
         const exists = !!(await credentials.findOne({
             "userName": student,
@@ -630,10 +631,10 @@ app.post('/create-code-payment', async (req, res) => {
                     body: JSON.stringify({ student, numEsame, price})
                     });
                     if (response.ok) {
-                        const deletePaymentCode = await credentials.updateOne(
+                        await credentials.updateOne(
                             {"userName": student},
                             { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
-                          );
+                        );
                         console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento con codice');
                         res.redirect(`/profile`);
                     } else {
@@ -641,7 +642,17 @@ app.post('/create-code-payment', async (req, res) => {
                         
                         res.redirect(`/profile`);
                     }
+            }else if(cause == 'trascinamento'){
+                await credentials.findOneAndUpdate(
+                    {"userName": student},
+                    {"trascinamento.pagato": true}
+                );
+                await credentials.updateOne(
+                    {"userName": student},
+                    { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
+                );
             }
+            res.redirect(`/profile`);
         }else{
             res.send('codice non esistente o importo diverso da quello del codice');
         }
@@ -704,6 +715,12 @@ app.post('/create-payment',  async (req, res) =>{
             name = "Spostamento lezione di Guida";
             sku = 3;
             returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&oldInstructor=${encodeURIComponent(istruttoreLezioneDaSpostare)}&oldDate=${encodeURIComponent(dataLezioneDaSpostare)}&oldHour=${encodeURIComponent(oraLezioneDaSpostare)}&newInstructor=${encodeURIComponent(nuovoIstruttore)}&newDate=${encodeURIComponent(nuovaData)}&newHour=${encodeURIComponent(nuovaOra)}&durata=${encodeURIComponent(durata)}`;
+        }else if(cause == 'trascinamento'){
+            price = 150;
+            description: "Pagamento per il trascinamento in AutoScuolaCentrale"; 
+            name = "Trascinamento";
+            sku = 4;
+            returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}`;
         }
         const create_payment_json = {
             intent: "sale",
@@ -957,7 +974,7 @@ app.get('/success',  async (req, res) =>{
                     const month = String(today.getMonth() + 1).padStart(2, '0'); 
                     const year = today.getFullYear(); 
                     const dataFatturazione = `${d}/${month}/${year}`;
-                    const rimuoviGuidaDaLessons = await credentials.findOneAndUpdate(
+                    await credentials.findOneAndUpdate(
                         {
                             "userName": student
                         },
@@ -972,7 +989,7 @@ app.get('/success',  async (req, res) =>{
                             }
                         }
                     );            
-                    const updateDataFatturazione = await credentials.findOneAndUpdate(
+                    await credentials.findOneAndUpdate(
                         {"userName": student},
                         {
                             $addToSet: {
@@ -983,6 +1000,26 @@ app.get('/success',  async (req, res) =>{
                         {new: true}
                     );   
                     res.redirect('/profile');                 
+                }else if(cause == "trascinamento"){
+                    await credentials.findOneAndUpdate(
+                        {"userName": student},
+                        {"trascinamento.pagato": true}
+                    );
+                    const today = new Date();
+                    const d = String(today.getDate()).padStart(2, '0'); 
+                    const month = String(today.getMonth() + 1).padStart(2, '0'); 
+                    const year = today.getFullYear(); 
+                    const dataFatturazione = `${d}/${month}/${year}`;
+                    await credentials.findOneAndUpdate(
+                        {"userName": student},
+                        {
+                            $addToSet: {
+                                "fatturaDaFare": {"tipo": 'trascinamento', "data": dataFatturazione, "importo": price, "emessa": false},
+                            }
+                        },
+                        {new: true}
+                    ); 
+                    res.redirect('/profile'); 
                 }
             }
         });
