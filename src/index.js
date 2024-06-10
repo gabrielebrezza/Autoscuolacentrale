@@ -603,7 +603,7 @@ app.post('/create-code-payment', async (req, res) => {
                 })
                 .then(async  response => {
                     if (response.ok) {
-                        const deletePaymentCode = await credentials.updateOne(
+                        await credentials.updateOne(
                             {"userName": student},
                             { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
                           );
