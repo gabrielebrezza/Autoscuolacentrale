@@ -608,11 +608,11 @@ app.post('/create-code-payment', async (req, res) => {
                             { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
                           );
                         console.log('Prenotazione effettuata con successo dopo il pagamento con codice');
-                        res.redirect(`/profile`);
+                        return res.redirect('/profile');
                     } else {
                         console.error('Errore durante la prenotazione dopo il pagamento');
 
-                        res.redirect(`/profile`);
+                        return res.redirect('/profile');
                     }
                 })
                 .catch(error => {
