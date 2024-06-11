@@ -153,13 +153,15 @@ app.post('/verification', async (req, res) => {
                 "cell": userCell
             });
             if (check) {
-                const otpCodePromise = generateOTP(6);
-                const otpCode = await otpCodePromise;
-                console.log(`Codice OTP per ${userName}: ${otpCode}`);
+                
                 const isPasswordMatch = await bcrypt.compare(password, check.password);
-                saltRounds = await bcrypt.genSalt(10);
-                hashedOTP = await bcrypt.hash(String(otpCode), 10);
+                
+                
                 if (isPasswordMatch) {
+                    const otpCode = await generateOTP(6);
+                    console.log(`Codice OTP per ${userName}: ${otpCode}`);
+                    saltRounds = await bcrypt.genSalt(10);
+                    hashedOTP = await bcrypt.hash(String(otpCode), saltRounds);
                     await credentials.findOneAndUpdate({
                             "cell": userCell,
                             "email": userEmail,
@@ -172,10 +174,10 @@ app.post('/verification', async (req, res) => {
                         res.sendStatus(200);
                     }, req);
                 } else {
-                    res.send('<h1>Password errata</h1>');
+                    return res.render('errorPage', {error: 'Password errata'});
                 }
             } else {
-                res.send('<h1>Credenziali errate</h1>');
+                return res.render('errorPage', {error: 'Credenziali errate'});
             }
         } else if (intent == 'signup') {
             const { nome, cognome, codiceFiscale, via, nCivico, CAP, citta, provincia, stato} = req.body;
@@ -183,7 +185,7 @@ app.post('/verification', async (req, res) => {
             const otpCode = await otpCodePromise;
             console.log(`Codice OTP per ${userName}: ${otpCode}`);
             saltRounds = await bcrypt.genSalt(10);
-            hashedOTP = await bcrypt.hash(String(otpCode), 10);
+            hashedOTP = await bcrypt.hash(String(otpCode), saltRounds);
             const data = {
                 email: userEmail.replace(/\s/g, ""),
                 cell: userCell.replace(/\s/g, ""),
@@ -215,11 +217,11 @@ app.post('/verification', async (req, res) => {
             const existingEmail = await credentials.findOne({email: data.email});
             const existingPhoneNumber = await credentials.findOne({cell: data.cell});
             if (existingUser) {
-                return res.send('<h1>Esiste già un account con questo username</h1>');
+                return res.render('errorPage', {error: 'Esiste già un account con questo username'});
             } else if (existingEmail) {
-                return res.send('<h1>Esiste già un account con questa email</h1>');
+                return res.render('errorPage', {error: 'Esiste già un account con questa email'});
             } else if (existingPhoneNumber) {
-                return res.send('<h1>Esiste già un account con questo numero di cellulare</h1>');
+                return res.render('errorPage', {error: 'Esiste già un account con questo numero di cellulare'});
             } else {
                 const hashedPassword = await bcrypt.hash(data.password, saltRounds);
                 data.password = hashedPassword;
@@ -261,7 +263,7 @@ app.post('/verification', async (req, res) => {
         }
     } catch (error) {
         console.error('Si è verificato un errore:', error);
-        res.status(500).send('<h1>Errore interno del server</h1>');
+        return res.render('errorPage', {error: 'Errore interno del server'});
     }
 });
 
@@ -277,7 +279,7 @@ app.post('/resetPassword', async (req, res) => {
         const foundCredentials = await credentials.findOneAndUpdate({ "email": email },{"resetPasswordCode": resetPasswordCode});
   
         if (!foundCredentials) {
-            return res.status(404).send('Email non trovata');
+            return res.render('errorPage', {error: 'Email non trovata'});
         }
         const subject = 'Codice di reset password scuolaguida';
         const text = `Gentile ${foundCredentials.billingInfo[0].nome} ${foundCredentials.billingInfo[0].cognome}, ci è arrivata una richiesta per cambiare password. Ti inviamo il codice di verifica per il tuo account ${resetPasswordCode}, clicca sul link per cambiarla agenda-autoscuolacentrale.com/newPassword`;
@@ -310,7 +312,7 @@ app.post('/resetPassword', async (req, res) => {
         });
     } catch (error) {
       console.error(error);
-      return res.status(500).send('Si è verificato un errore durante il reset della password.');
+      return res.render('errorPage', {error: 'Si è verificato un errore durante il reset della password.'});
     }
   });
 app.get('/newPassword', async (req, res)=> {
@@ -324,15 +326,15 @@ app.post('/newPasswordVerification', async (req, res)=> {
         if(newPassword == confirmNewPassword){
             const saltRounds = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-            const updatePsw = await credentials.findOneAndUpdate({ "email": email, "resetPasswordCode": code }, {"password": hashedPassword});
-            const deleteCode = await credentials.updateOne(
+            await credentials.findOneAndUpdate({ "email": email, "resetPasswordCode": code }, {"password": hashedPassword});
+            await credentials.updateOne(
                 { "email": email, "resetPasswordCode": code },
                 { $unset: { "resetPasswordCode": 1 } }
               );
         }
         res.redirect('/');
     }else{
-        return res.status(404).send('Email non trovata o codice errato');
+        return res.render('errorPage', {error: 'Email non trovata o codice errato'});
     }
 });
 // Middleware per controllare l'autenticazione
@@ -357,11 +359,11 @@ async function isAuthenticated(req, res, next) {
                 return res.redirect(`/waitingApprovation/:${username}`);
             }
             if(archiviato){
-                return res.send('Il tuo account è stato Archiviato, se ritieni ci sia stato un errore contatta l\'autoscuola');
+                return res.render('errorPage', {error: 'Il tuo account è stato Archiviato, se ritieni ci sia stato un errore contatta l\'autoscuola'});
             }
         } catch (error) {
             console.error('Errore durante il recupero dello stato di approvazione dell\'utente:', error);
-            return res.status(500).json({ message: 'Errore del server' });
+            return res.render('errorPage', {error: 'Errore del server'});
         }
         
         req.user = user;
@@ -391,7 +393,7 @@ app.post('/verifica_otp', async (req, res) =>{
         res.cookie('userName', token, { httpOnly: true, maxAge: durataInMillisecondi });
         res.redirect(`/profile`);
     }else{
-        res.json('Il codice OTP inserito è errato');
+        return res.render('errorPage', {error: 'Il codice OTP inserito è errato'});
     }
 });
 app.get('/waitingApprovation/:userName', async (req, res) =>{
@@ -457,13 +459,13 @@ app.post('/book', async (req, res) => {
         const existingOrario = await admin.findOne({"nome": nome, "cognome": cognome, "ore.data": day});
 
         if (existingOrario) {
-            const updatedOrari = await admin.findOneAndUpdate(
+            await admin.findOneAndUpdate(
                 {"nome": nome, "cognome": cognome, "ore.data": day},
                 {$inc: {"ore.$.totOreGiorno": durationInHour}},
                 {new: true}
             );
         } else {
-            const updatedOrari = await admin.findOneAndUpdate(
+            await admin.findOneAndUpdate(
                 {"nome": nome, "cognome": cognome},
                 {$addToSet: {"ore": {"data": day, "totOreGiorno": durationInHour}}},
                 {new: true}
@@ -474,7 +476,7 @@ app.post('/book', async (req, res) => {
         const month = String(today.getMonth() + 1).padStart(2, '0'); 
         const year = today.getFullYear(); 
         const dataFatturazione = `${d}/${month}/${year}`;
-        const updateDataFatturazione = await credentials.findOneAndUpdate(
+        await credentials.findOneAndUpdate(
             {"userName": student},
             {
                 $addToSet: {
@@ -487,7 +489,7 @@ app.post('/book', async (req, res) => {
         res.sendStatus(200);
     } catch (error) {
         console.error('Errore durante la prenotazione:', error);
-        res.status(500).send('Errore durante la prenotazione');
+        return res.render('errorPage', {error: 'Errore durante la prenotazione'});
     }
 });
 
@@ -511,7 +513,7 @@ app.post('/bookExam', async (req, res) => {
         const month = String(today.getMonth() + 1).padStart(2, '0'); 
         const year = today.getFullYear(); 
         const dataFatturazione = `${d}/${month}/${year}`;
-        const updateDataFatturazione = await credentials.findOneAndUpdate(
+        await credentials.findOneAndUpdate(
             {"userName": userName},
             {$addToSet: {"fatturaDaFare": {"tipo": 'Esame di guida', "data": dataFatturazione, "importo": price, "emessa": false}}},
             {new: true}
@@ -519,7 +521,7 @@ app.post('/bookExam', async (req, res) => {
         res.sendStatus(200); 
     } catch (error) {
         console.error('Errore durante la prenotazione dell\'Esame :', error);
-        res.status(500).send('Errore durante la prenotazione dell\'Esame ');
+        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'Esame'});
     }
 });
 
@@ -530,7 +532,7 @@ app.post('/removebooking', async (req, res) => {
     try {
         const { instructor, time } = req.body;
 
-        const updatedGuide = await guide.findOneAndUpdate(
+        await guide.findOneAndUpdate(
             { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
             { $unset: { "book.$.schedule.$[elem].student": "" } },
             { arrayFilters: [{ "elem.hour": time.split(' - ')[1] }] }
@@ -539,7 +541,7 @@ app.post('/removebooking', async (req, res) => {
         res.sendStatus(200);
     } catch (error) {
         console.error('Errore durante la rimozione della prenotazione:', error);
-        res.status(500).send('Errore durante la rimozione della prenotazione');
+        return res.render('errorPage', {error: 'Errore durante la rimozione della prenotazione'});
     }
 });
 
@@ -586,15 +588,15 @@ app.post('/create-code-payment', async (req, res) => {
                 
                 const guides = await guide.findOne({ instructor: instructor });
                 if (!guides) {
-                    return res.status(404).json({ error: "Instructor not found" });
+                    return res.render('errorPage', {error: 'Instructor not found'});
                 }
                 const schedule = guides.book.find(item => item.day === day);
                 if (!schedule) {
-                    return res.status(404).json({ error: "Schedule not found" });
+                    return res.render('errorPage', {error: 'Schedule not found'});
                 }
                 const lesson = schedule.schedule.find(item => item.hour === hour);
                 if (!lesson) {
-                    return res.status(404).json({ error: "Lesson not found" });
+                    return res.render('errorPage', {error: 'Lesson not found'});
                 }
                 price = lesson.price;
                 fetch('https://agenda-autoscuolacentrale.com/book', {
@@ -615,13 +617,12 @@ app.post('/create-code-payment', async (req, res) => {
                     } else {
                         console.error('Errore durante la prenotazione dopo il pagamento');
 
-                        return res.redirect('/profile');
+                        return res.render('errorPage', {error: 'Errore durante la prenotazione dopo il pagamento'});
                     }
                 })
                 .catch(error => {
                     console.error('Errore durante la prenotazione dopo il pagamento:', error);
-
-                    res.redirect(`/profile`);
+                    return res.render('errorPage', {error: 'Errore durante la prenotazione dopo il pagamento'});
                 });
             }else if(cause == 'exam'){
                 price = 100;
@@ -643,7 +644,7 @@ app.post('/create-code-payment', async (req, res) => {
                     } else {
                         console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
                         
-                        res.redirect(`/profile`);
+                        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'esame dopo il pagamento'});
                     }
             }else if(cause == 'trascinamento'){
                 await credentials.findOneAndUpdate(
@@ -657,11 +658,11 @@ app.post('/create-code-payment', async (req, res) => {
             }
             res.redirect(`/profile`);
         }else{
-            res.send('codice non esistente o importo diverso da quello del codice');
+            return res.render('errorPage', {error: 'codice non esistente o importo diverso da quello del codice'});
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Internal server error" });
+        return res.render('errorPage', {error: 'Internal server error'});
     }
 });
 
@@ -681,16 +682,16 @@ app.post('/create-payment',  async (req, res) =>{
             hour = timeParts[1];
             const guides = await guide.findOne({ instructor: instructor });
             if (!guides) {
-                return res.status(404).json({ error: "Instructor not found" });
+                return res.render('errorPage', {error: 'Instructor not found'});
             }
 
         const schedule = guides.book.find(item => item.day === day);
         if (!schedule) {
-            return res.status(404).json({ error: "Schedule not found" });
+            return res.render('errorPage', {error: 'Schedule not found'});
         }
         const lesson = schedule.schedule.find(item => item.hour === hour);
         if (!lesson) {
-            return res.status(404).json({ error: "Lesson not found" });
+            return res.render('errorPage', {error: 'Lesson not found'});
         }
         price = lesson.price;
         description: "Pagamento per la lezione di guida in AutoScuolaCentrale"; 
@@ -768,7 +769,7 @@ app.post('/create-payment',  async (req, res) =>{
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Internal server error" });
+        return res.render('errorPage', {error: 'Internal server error'});
     }
 });
 
@@ -778,7 +779,7 @@ app.get('/success',  async (req, res) =>{
         const paymentId = req.query.paymentId;
         const price = req.query.price;
         if(!paymentId || !payerId){
-            return res.status(500).json('Il pagamento non è avvenuto con successo')
+            return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
         }
         const execute_payment_json = {
             payer_id: payerId,
@@ -832,13 +833,13 @@ app.get('/success',  async (req, res) =>{
                         } else {
                             console.error('Errore durante la prenotazione dopo il pagamento');
 
-                            res.redirect(`/profile`);
+                            return res.render('errorPage', {error: 'Errore durante la prenotazione dopo il pagamento'});
                         }
                     })
                     .catch(error => {
                         console.error('Errore durante la prenotazione dopo il pagamento:', error);
 
-                        res.redirect(`/profile`);
+                        return res.render('errorPage', {error: 'Errore durante la prenotazione dopo il pagamento'});
                     });
                 }else if(cause == 'exam'){
                     const numEsame = req.query.numEsame;
@@ -856,7 +857,7 @@ app.get('/success',  async (req, res) =>{
                     } else {
                         console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
                         
-                        res.redirect(`/profile`);
+                        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'esame dopo il pagamento'});
                     }
                 }else if(cause == 'spostaGuida'){
                     const oldInstructor = req.query.oldInstructor;
@@ -867,7 +868,7 @@ app.get('/success',  async (req, res) =>{
                     const newHour = req.query.newHour;
                     const durata = Number(req.query.durata);
                         const [oldName, oldSurName] = oldInstructor.split(" ");
-                        const updateOldInstructorHour = await admin.findOneAndUpdate(
+                        await admin.findOneAndUpdate(
                             {
                                 "nome": oldName,
                                 "cognome": oldSurName,
@@ -882,7 +883,7 @@ app.get('/success',  async (req, res) =>{
                         const [newName, newSurName] = newInstructor.split(" ");
                         const existingOrario = await admin.findOne({"nome": newName, "cognome": newSurName, "ore.data": newDate});
                         if (existingOrario) {
-                            const updateNewInstructorHour = await admin.findOneAndUpdate(
+                            await admin.findOneAndUpdate(
                                 {
                                     "nome": newName,
                                     "cognome": newSurName,
@@ -898,7 +899,7 @@ app.get('/success',  async (req, res) =>{
                                 }
                             );
                         } else {
-                            const updateNewInstructorHour = await admin.findOneAndUpdate(
+                            await admin.findOneAndUpdate(
                                 {
                                     "nome": newName,
                                     "cognome": newSurName
@@ -916,7 +917,7 @@ app.get('/success',  async (req, res) =>{
                                 }
                             );
                         }
-                    const removeGuide = await guide.findOneAndUpdate(
+                    await guide.findOneAndUpdate(
                         {
                             "instructor": oldInstructor,
                             "book": {
@@ -944,7 +945,7 @@ app.get('/success',  async (req, res) =>{
                         }
                     );
                     
-                    const addGuide = await guide.findOneAndUpdate(
+                    await guide.findOneAndUpdate(
                         {
                             "instructor": newInstructor,
                             "book": {
@@ -1029,7 +1030,7 @@ app.get('/success',  async (req, res) =>{
     } catch (error) {
         console.error('Errore generale:', error);
 
-        res.redirect(`/profile`);
+        return res.render('errorPage', {error: 'Errore del server'});
     }
 });
 

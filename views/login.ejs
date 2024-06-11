@@ -20,7 +20,7 @@
                 <input type="tel" id="phone" name="phone" placeholder="Cellulare" pattern="(\+\d{1,3})?\d{9,15}">
                 <input type="text" name="username" placeholder="Username" required>
                 <input type="password" name="password" placeholder="Password" required>
-                <button type="submit"><span>Log In</span></button>
+                <button class="submitBtn" type="submit"><span>Log In</span></button>
                 <a href="/resetPassword">Ho dimenticato la Password</a>
             </form>
             <p id="signupBtn">Non hai un'account?<a onclick="toggleForm('signup')">Registrati</a></p>
@@ -105,7 +105,7 @@
                     <label for="policy">Ho letto e accetto la <a href="/privacy-policy.pdf">Privacy e Cookie policy</a>  e le <a href="/condizioni-uso.pdf">Condizioni di utilizzo</a>.</label>
                     <input type="checkbox" id="policy" name="policy" required>
                 </div>
-                <button type="submit">Registrati</button>
+                <button class="submitBtn" type="submit">Registrati</button>
             </div>
         </form>
     </div>
@@ -198,5 +198,17 @@
                 }
             }
     </script>
+     
+     <script>
+         const submitBtns = document.querySelectorAll('.submitBtn');
+         submitBtns.forEach(submitBtn => {
+            submitBtn.addEventListener('click', () => {
+                setTimeout(()=> {
+                    submitBtn.disabled = true;
+                }, 5);
+            });
+         });
+         
+     </script>
 </body>
 </html>

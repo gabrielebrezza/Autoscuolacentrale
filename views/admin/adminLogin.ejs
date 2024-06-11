@@ -100,8 +100,16 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
 
-        <button type="submit">Login</button>
+        <button id="submitBtn" type="submit">Login</button>
         <p>Non hai un'account? <a href="/admin/register">Registrati</a></p>
     </form>
+    <script>
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.addEventListener('click', () => {
+            setTimeout(()=> {
+                submitBtn.disabled = true;
+            }, 5);
+        });
+    </script>
 </body>
 </html>
