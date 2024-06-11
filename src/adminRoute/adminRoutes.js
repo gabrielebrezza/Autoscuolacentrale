@@ -143,8 +143,10 @@ router.get('/admin/login', (req, res) => {
 });
 // Admin panel route
 router.post('/admin/login', async (req, res) => {
-
-    const email = (req.body.email).replace(/\s/g, "");
+    if(!req.body.email || !req.body.password){
+        return res.render('errorPage', {error: 'Credenziali non valide'});
+    }
+    const email = req.body.email.replace(/\s/g, "");
     const password = req.body.password;
     try {
         // Cerca l'amministratore nel database utilizzando lo schema degli amministratori
@@ -152,13 +154,13 @@ router.post('/admin/login', async (req, res) => {
 
         // Verifica se l'amministratore esiste e se la password è corretta
         if (!admin || !(await bcrypt.compare(password, admin.password))) {
-            return res.status(401).json({ message: 'Credenziali non valide' });
+            return res.render('errorPage', {error: 'Credenziali non valide'});
         }
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         console.log(`Codice di verifica per ${email}: ${otpCode}`);
         saltRounds = await bcrypt.genSalt(10);
         hashedOTP = await bcrypt.hash(String(otpCode), 10);
-        const implementOTP = await Admin.findOneAndUpdate({ "email": email }, {"otp": hashedOTP});
+        await Admin.findOneAndUpdate({ "email": email }, {"otp": hashedOTP});
         const username = admin.nome+' '+admin.cognome;
         const subject = 'Login Istruttore Autoscuola';
         const text = `Gentile ${admin.nome} ${admin.cognome}, questo è il codice per accedere: ${otpCode}`;
@@ -183,7 +185,7 @@ router.post('/admin/login', async (req, res) => {
         transporter.sendMail(mailOptions, async function(error, info) {
             if (error) {
                 console.error('Errore nell\'invio dell\'email:', error);
-                res.sendStatus(500);
+                return res.render('errorPage', {error: 'Errore nell\'invio dell\'email con il codice OTP'});
             } else {
                 console.log('Email per il login ad istruttore inviata con successo a: ', username);
                     res.redirect(`/admin/otpcode/:${username}`);
@@ -191,7 +193,7 @@ router.post('/admin/login', async (req, res) => {
         });
     } catch (error) {
         console.error('Errore durante il login:', error);
-        res.status(500).json({ message: 'Errore durante il login' });
+        return res.render('errorPage', {error: 'Errore durante il login' });
     }
 });
 
@@ -216,7 +218,7 @@ router.post('/admin/verifica_otp', async (req, res) =>{
         res.cookie('token', token, { httpOnly: true, maxAge: 604800000 });
         res.redirect(`/admin`);
     }else{
-        res.json('Il codice OTP inserito è errato');
+        return res.render('errorPage', {error:'Il codice OTP inserito è errato'});
     }
 });
 
@@ -239,7 +241,7 @@ router.get('/admin/guides', authenticateJWT, async (req, res) => {
         res.render('admin/adminComponents/admin-guide', { title: 'Admin - Visualizza Guide', guides: guides , istruttore, infos, role});
     } catch (error) {
         console.error('Errore durante il recupero delle guide:', error);
-        res.status(500).json({ message: 'Errore durante il recupero delle guide' });
+        return res.render('errorPage', {error: 'Errore durante il recupero delle guide' });
     }
 });
 
@@ -255,7 +257,7 @@ router.get('/admin/users',authenticateJWT , async (req, res) => {
         res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', istruttore, utenti, istruttori, role, pricePerHour});
     } catch (error) {
         console.error('Errore durante il recupero degli utenti:', error);
-        res.status(500).json({ message: 'Errore durante il recupero degli utenti' });
+        return res.render('errorPage', {error: 'Errore durante il recupero degli utenti' });
     }
 });
 router.post('/createCode', authenticateJWT, async (req, res)=>{

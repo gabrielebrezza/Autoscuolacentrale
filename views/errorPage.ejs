@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento effetuato con successo</title>
+    <style>
+        *{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    font-family: "Montserrat", sans-serif;
+}
+body{
+    background: #71a1cb;
+    height: 100dvh;
+}
+header{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+}
+header img{
+    max-width: 350px;
+    width: 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.8;
+}
+section{
+    margin-top: 150px;
+    /* height: 100%; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+h1{
+    text-align: center;
+    color: #f1f1f1;
+    font-size: clamp(1rem, 4vw, 2rem);
+}
+button{
+    margin-top: 30px;
+    padding: 15px;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    color: #f1f1f1;
+    background: #5681a9;
+    border: none; 
+    border-radius: 2px;
+    cursor: pointer;
+    transition: .75s;
+}
+button:hover{
+    color: #71a1cb;
+    background: #f1f1f1;
+    transform: scale(1.2);
+}
+
+.field{
+    margin-block: 25px;
+}
+
+h2, p{
+    width: 50%;
+    color: #fff;
+    text-align: center;
+    line-height: 25px;
+}
+h1{
+    text-transform: capitalize;
+}
+    </style>
+    
+    <script>
+        setTimeout(function() {
+            window.history.back();
+        }, 30000);
+        const goBack = () => {
+            window.history.back();
+        };
+    </script>
+</head>
+<body>
+    <header>
+        <img src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
+    </header>
+    <section>
+        <h1><%= error %></h1>
+        <a onclick="goBack()"><button>Torna indietro</button></a>
+    </section>
+</body>
+</html>

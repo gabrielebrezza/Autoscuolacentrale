@@ -139,15 +139,12 @@ const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome,
 
 app.post('/verification', async (req, res) => {
     try {
-        const otpCodePromise = generateOTP(6);
-        const otpCode = await otpCodePromise;
         const userEmail = req.body.email.replace(/\s/g, "");
         const userCell = req.body.phone.replace(/\s/g, "");
         const userName = (req.body.username).replace(/\s/g, "");
         const password = req.body.password;
         const intent = req.body.intent;
 
-        console.log(`Codice OTP per ${userName}: ${otpCode}`);
         let saltRounds, hashedOTP;
         if (intent == 'login') { 
             const check = await credentials.findOne({
@@ -156,11 +153,14 @@ app.post('/verification', async (req, res) => {
                 "cell": userCell
             });
             if (check) {
+                const otpCodePromise = generateOTP(6);
+                const otpCode = await otpCodePromise;
+                console.log(`Codice OTP per ${userName}: ${otpCode}`);
                 const isPasswordMatch = await bcrypt.compare(password, check.password);
                 saltRounds = await bcrypt.genSalt(10);
                 hashedOTP = await bcrypt.hash(String(otpCode), 10);
                 if (isPasswordMatch) {
-                    const implementingOtp = await credentials.findOneAndUpdate({
+                    await credentials.findOneAndUpdate({
                             "cell": userCell,
                             "email": userEmail,
                             "userName": userName
@@ -179,6 +179,9 @@ app.post('/verification', async (req, res) => {
             }
         } else if (intent == 'signup') {
             const { nome, cognome, codiceFiscale, via, nCivico, CAP, citta, provincia, stato} = req.body;
+            const otpCodePromise = generateOTP(6);
+            const otpCode = await otpCodePromise;
+            console.log(`Codice OTP per ${userName}: ${otpCode}`);
             saltRounds = await bcrypt.genSalt(10);
             hashedOTP = await bcrypt.hash(String(otpCode), 10);
             const data = {
@@ -212,11 +215,11 @@ app.post('/verification', async (req, res) => {
             const existingEmail = await credentials.findOne({email: data.email});
             const existingPhoneNumber = await credentials.findOne({cell: data.cell});
             if (existingUser) {
-                res.send('<h1>Esiste già un account con questo username</h1>');
+                return res.send('<h1>Esiste già un account con questo username</h1>');
             } else if (existingEmail) {
-                res.send('<h1>Esiste già un account con questa email</h1>');
+                return res.send('<h1>Esiste già un account con questa email</h1>');
             } else if (existingPhoneNumber) {
-                res.send('<h1>Esiste già un account con questo numero di cellulare</h1>');
+                return res.send('<h1>Esiste già un account con questo numero di cellulare</h1>');
             } else {
                 const hashedPassword = await bcrypt.hash(data.password, saltRounds);
                 data.password = hashedPassword;
@@ -246,7 +249,7 @@ app.post('/verification', async (req, res) => {
                 transporter.sendMail(mailOptions, async function(error, info) {
                     if (error) {
                         console.error('Errore nell\'invio dell\'email all\'autoscuola:', error);
-                        res.sendStatus(500);
+                        return res.sendStatus(500);
                     } else {
                         console.log('Email di richiesta approvazione inviata con successo all\'autoscuola');
                     }
