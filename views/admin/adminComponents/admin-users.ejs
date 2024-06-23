@@ -142,14 +142,14 @@
                 <th>Fatture</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="usersTableBody">
 
-            
+                <% let enumeration = 1; %>
                 <% for (let i = 0; i < utenti.length; i++) { %>
-                    <tr class="allievi" data-archiviato="<%= utenti[i].archiviato %>">
+                    <tr class="allievi <%= utenti[i].archiviato ? 'archiviato' : '' %>" data-archiviato="<%= utenti[i].archiviato %>">
                         <% let nomeAllievo = utenti[i].billingInfo[0].cognome + ' ' + utenti[i].billingInfo[0].nome %>
                         <% let codice = utenti[i].codicePagamento.length + '/' + (!utenti[i].totalCodes ? 0 : utenti[i].totalCodes)  %>
-                        <td data-label="N"><span><%= i+1 %></span></td>
+                        <td data-label="N"><span><%= !utenti[i].archiviato ? enumeration++ : ''  %></span></td>
                         <td data-label="Allievo" >
                             <div class="nameCell">
                                 <% if (utenti[i].trascinamento.attivo) { %>
@@ -201,43 +201,55 @@
     </table>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
 <script>
-$(document).ready(function() {
-    $('tbody tr.allievi').each(function() {
-        var archived = $(this).data('archiviato');
-        if (archived) {
-            $(this).hide();
-        }
-    });
-    $('#searchName, #searchPhone, #searchEmail, #searchExams, #searchArchived').on('input', function() {
-        var nameFilter = $('#searchName').val().toLowerCase();
-        var phoneFilter = $('#searchPhone').val().toLowerCase();
-        var emailFilter = $('#searchEmail').val().toLowerCase();
-        var examsFilter = parseInt($('#searchExams').val());
-        var archivedFilter = $('#searchArchived').is(':checked');
+    document.addEventListener('DOMContentLoaded', () => {
+    const nameFilter = document.getElementById('searchName');
+    const phoneFilter = document.getElementById('searchPhone');
+    const emailFilter = document.getElementById('searchEmail');
+    const examsFilter = document.getElementById('searchExams');
+    const archivedFilter = document.getElementById('searchArchived');
+    const tableBody = document.getElementById('usersTableBody');
+    const rows = tableBody.getElementsByTagName('tr');
 
-        $('tbody tr.allievi').each(function() {
-            var name = $(this).find('td:nth-child(2)').text().toLowerCase();
-            var phone = $(this).find('td:nth-child(4)').text().toLowerCase();
-            var email = $(this).find('td:nth-child(3)').text().toLowerCase();
-            var exams = parseInt($(this).find('td:nth-child(5)').text());
-            var archived = $(this).data('archiviato');
 
-            var nameMatch = name.includes(nameFilter);
-            var phoneMatch = phone.includes(phoneFilter);
-            var emailMatch = email.includes(emailFilter);
-            var examsMatch = isNaN(examsFilter) || exams === examsFilter;
-
-            if (nameMatch && phoneMatch && emailMatch && examsMatch && (archivedFilter == archived)) {
-                $(this).show();
+    const filterTable = () => {
+        const name = nameFilter.value.toLowerCase();
+        const email = emailFilter.value.toLowerCase();
+        const phone = phoneFilter.value.toLowerCase();
+        const exams = examsFilter.value;
+        const archived = archivedFilter.checked;
+        let enumeration = 1;
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const numTd = row.getElementsByTagName('td')[0].textContent.toLowerCase();
+            const nomeTd = row.getElementsByTagName('td')[1].textContent.toLowerCase().trim();
+            const emailTd = row.getElementsByTagName('td')[2].textContent.toLowerCase();
+            const phoneTd = row.getElementsByTagName('td')[3].textContent.toLowerCase();
+            const examsTd = row.getElementsByTagName('td')[4].textContent.toLowerCase().trim();
+            const isArchived = row.dataset.archiviato == 'true';
+            if (
+                (name === '' || nomeTd.includes(name)) &&
+                (email === '' || emailTd.includes(email)) &&
+                (phone === '' || phoneTd.includes(phone)) &&
+                (exams === '' || examsTd == exams) &&
+                ((archived && isArchived) || (!archived && !isArchived))
+            ) {
+                row.getElementsByTagName('td')[0].innerText = enumeration++;
+                row.style.display = 'table-row';
             } else {
-                $(this).hide();
+                row.style.display = 'none';
             }
-        });
-    });
+        }
+    }
+
+    nameFilter.addEventListener('input', filterTable);
+    phoneFilter.addEventListener('input', filterTable);
+    emailFilter.addEventListener('input', filterTable);
+    examsFilter.addEventListener('input', filterTable);
+    archivedFilter.addEventListener('input', filterTable); 
 });
-
-
 </script>
 
 <script>
@@ -556,12 +568,6 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
         
     });
 });
-
-
         </script>
-
-
-
-
 </body>
 </html>

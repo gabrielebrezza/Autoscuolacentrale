@@ -19,9 +19,7 @@ table {
     margin-bottom: 20px;
 }
 
-th:not(:first-of-type), td:not(:first-of-type) {
-    text-align: center;
-}
+
 th, td{
     text-align: left;
     padding: 12px;
@@ -39,7 +37,9 @@ tr a{
     text-decoration: none;
     color: #000;
 }
-
+.archiviato{
+    display: none;
+}
 .limitation{
     cursor: pointer;
 }
