@@ -613,16 +613,22 @@ app.post('/create-code-payment', async (req, res) => {
                             { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
                           );
                         console.log('Prenotazione effettuata con successo dopo il pagamento con codice');
-                        return res.redirect('/profile');
+                        return { success: true };
                     } else {
                         console.error('Errore durante la prenotazione dopo il pagamento');
-
-                        return res.render('errorPage', {error: 'Errore durante la prenotazione dopo il pagamento'});
+                        return { success: false, error: 'Errore durante la prenotazione dopo il pagamento' };
                     }
                 })
                 .catch(error => {
                     console.error('Errore durante la prenotazione dopo il pagamento:', error);
-                    return res.render('errorPage', {error: 'Errore durante la prenotazione dopo il pagamento'});
+                    return { success: false, error: 'Errore durante la prenotazione dopo il pagamento' };
+                })
+                .then(result => {
+                    if (result.success) {
+                        return res.redirect('/profile');
+                    } else {
+                        return res.render('errorPage', { error: result.error });
+                    }
                 });
             }else if(cause == 'exam'){
                 price = 100;
