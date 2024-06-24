@@ -639,19 +639,18 @@ app.post('/create-code-payment', async (req, res) => {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ student, numEsame, price})
-                    });
-                    if (response.ok) {
-                        await credentials.updateOne(
-                            {"userName": student},
-                            { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
-                        );
-                        console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento con codice');
-                        res.redirect(`/profile`);
-                    } else {
-                        console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
-                        
-                        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'esame dopo il pagamento'});
-                    }
+                });
+                if (response.ok) {
+                    await credentials.updateOne(
+                        {"userName": student},
+                        { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
+                    );
+                    console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento con codice');
+                    return res.redirect(`/profile`);
+                } else {
+                    console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
+                    return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'esame dopo il pagamento'});
+                }
             }else if(cause == 'trascinamento'){
                 await credentials.findOneAndUpdate(
                     {"userName": student},
@@ -661,8 +660,8 @@ app.post('/create-code-payment', async (req, res) => {
                     {"userName": student},
                     { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
                 );
+                return res.redirect(`/profile`);
             }
-            res.redirect(`/profile`);
         }else{
             return res.render('errorPage', {error: 'codice non esistente o importo diverso da quello del codice'});
         }
