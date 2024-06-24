@@ -25,7 +25,6 @@ const prezzoGuida = require('../Db/CostoGuide');
 const sendEmail = require('../utils/emailsUtils');
 
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
-// Funzione per la generazione di token JWT
 function generateToken(username) {
     return jwt.sign({ username }, JWT_SECRET, { expiresIn: '3d' });
 }
