@@ -167,7 +167,7 @@
                     <% const schedule = lezioni[i].book[j].schedule[k]; %>
                     <% if(schedule.student === null) { %>
                         <% hasAvailableTime = true; %>
-                    <% } else if (schedule.student == nome) { %>
+                    <% } else if (schedule.student && schedule.student != nome) { %>
                         <% hasStudentBooking = true; %>
                     <% } %>
             <% } %>
@@ -181,7 +181,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% let lessonBookedYet = 0; %>
+                        <% let lessonBookedYet = false; %>
                         <% let atLeastOneLesson = false %>
                         <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
                             <% const schedule = lezioni[i].book[j].schedule[k]; %>
@@ -196,7 +196,7 @@
                                     reservedtoOthers == false
                                 }
                             } %>
-                            <% if(!schedule.student && !lessonBookedYet && reservedtoMe) { %>
+                            <% if(!schedule.student && reservedtoMe) { %>
                                 <tr>
                                     <td class="hour"><%= schedule.hour %></td>
                                     <td>
@@ -208,23 +208,19 @@
                                 <% atLeastOneLesson = true %>
                             <% } else if (schedule.student == nome) { %>
                                 <tr>
-                                    <td class="hour"><%= schedule.hour %></td>
-                                    <td>
-                                        <button class="removeBooking" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
-                                            data-instructor="<%= lezioni[i].instructor %>">Prenotato</button>
-                                    </td>
+                                    <td class="removeBooking"></td>
                                 </tr>
                                 <% break; %>
                             <% }else if(reservedtoOthers){ %>
                                 <td class="reservedtoOthers" style="display: none;"></td>
-                            <% } %>
-                            <% if(schedule.student && atLeastOneLesson && !reservedtoMe) { 
-                                stopPrinting == true
-                            }%>
-                            <% if (stopPrinting) { %>
+                            <% }else if(schedule.student){
+                                lessonBookedYet = true;
+                            } %>
+        
+                            <% if((lessonBookedYet && atLeastOneLesson) || !reservedtoMe) { 
+                                stopPrinting == true;
                                 break;
-                            <% } %>
-                            <% lessonBookedYet = false; %>
+                            }%>
                         <% } %>
                     </tbody>
                 </table>
