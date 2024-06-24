@@ -8,8 +8,8 @@ const sendEmail = async (email, subject, text, attachment = null) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'autoscuolacentraletorino@gmail.com',
-                pass: 'me k r o n e s s p c c w x j q'
+                user: process.env.EMAIL,
+                pass: process.env.GMAIL_SECRET
             },
             tls: {
                 rejectUnauthorized: false
@@ -17,7 +17,7 @@ const sendEmail = async (email, subject, text, attachment = null) => {
         });
         
         let mailOptions = {
-            from: 'autoscuolacentraletorino@gmail.com',
+            from: process.env.EMAIL,
             to: email,
             subject: subject,
             text: text
