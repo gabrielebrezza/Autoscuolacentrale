@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const bcrypt = require('bcrypt');
@@ -21,6 +23,8 @@ const prezzoGuida = require('./Db/CostoGuide');
 const adminRoutes = require('./adminRoute/adminRoutes');
 const { Admin } = require('mongodb');
 
+//utils 
+const sendEmail = require('./utils/emailsUtils');
 
 paypal.configure({
     mode: "live",
@@ -81,62 +85,6 @@ app.get('/condizioni-uso.pdf', (req, res) => {
     res.sendFile(path.join(__dirname, 'condizioni-uso.pdf'));
 });
 
-
-// Middleware per l'invio dell'email
-const sendEmailMiddleware = async (otpCode, email, username, intent, res , nome, cognome, day, hour, locationlink) => {
-    let subject, text;
-
-    if (intent == 'login') {
-        subject = 'Codice di accesso per il tuo account di scuola guida';
-        text = 'È appena stato effettuato l\'accesso al tuo account, questo è il codice di verifica: ' + otpCode;
-    } else if(intent == 'signup'){
-        subject = 'Iscrizione effettuata a scuola guida';
-        text = `Abbiamo inviato i tuoi dati all\'autoscuola. A breve riceverai un\'email di conferma che ti autorizzerà ad accedere all\'agenda. Intanto per confermare la tua identità inserisci il codice richiesto sul sito ${otpCode}. Cordiali saluti.`;
-    }else if(intent == 'bookGuide'){
-        subject = 'Prenotazione effettuata per lezione di guida';
-        const content = await formatoEmail.find({})
-        text = content[0].content
-            .replace('(NOME)', nome)
-            .replace('(COGNOME)', cognome)
-            .replace('(DATA)', day)
-            .replace('(DAORA)', hour.split('-')[0]) 
-            .replace('(AORA)', hour.split('-')[1]) 
-            .replace('(LINKPOSIZIONE)', locationlink)
-    }
-
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'autoscuolacentraletorino@gmail.com',
-            pass: 'me k r o n e s s p c c w x j q'
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
-
-    const mailOptions = {
-        from: 'autoscuolacentraletorino@gmail.com',
-        to: email,
-        subject: subject,
-        text: text
-    };
-
-    transporter.sendMail(mailOptions, async function(error, info) {
-        if (error) {
-            console.error('Errore nell\'invio dell\'email:', error);
-            res.sendStatus(500);
-        } else {
-            console.log('Email inviata con successo a:', username);
-            if(intent == 'login' || intent == 'signup'){
-                res.redirect(`/verificationCode/:${username}`);
-            }else if(intent == 'bookGuide'){
-                
-            }
-        }
-    });
-};
-
 app.post('/verification', async (req, res) => {
     try {
         const userEmail = req.body.email.replace(/\s/g, "");
@@ -153,9 +101,7 @@ app.post('/verification', async (req, res) => {
                 "cell": userCell
             });
             if (check) {
-                
                 const isPasswordMatch = await bcrypt.compare(password, check.password);
-                
                 
                 if (isPasswordMatch) {
                     const otpCode = await generateOTP(6);
@@ -170,9 +116,17 @@ app.post('/verification', async (req, res) => {
                             "OTP": hashedOTP
                         }
                     );
-                    sendEmailMiddleware(otpCode, userEmail, userName, intent, res, '', '', '', '', '', () => {
-                        res.sendStatus(200);
-                    }, req);
+
+                let subject = 'Codice di accesso per il tuo account di scuola guida';
+                let text = `È appena stato effettuato l'accesso al tuo account, questo è il codice di verifica: ${otpCode}`;
+                try{
+                    const result = await sendEmail(userEmail, subject, text);
+                    console.log(result);
+                }catch(error){
+                    console.log('errore: ', error);
+                }
+
+                res.redirect(`/verificationCode/:${userName.trim()}`);
                 } else {
                     return res.render('errorPage', {error: 'Password errata'});
                 }
@@ -230,35 +184,24 @@ app.post('/verification', async (req, res) => {
                 await newUser.save();
                 console.log('nuovo utente registrato in attesa di approvazione: ', data.userName);
                 
-                const transporter = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: 'autoscuolacentraletorino@gmail.com',
-                        pass: 'me k r o n e s s p c c w x j q'
-                    },
-                    tls: {
-                        rejectUnauthorized: false
-                    }
-                });
-            
-                const mailOptions = {
-                    from: 'autoscuolacentraletorino@gmail.com',
-                    to: 'autoscuolacentraletorino@gmail.com',
-                    subject: 'Nuovo Allievo',
-                    text: 'Un nuovo allievo è in attesa di essere approvato.'
-                };
-            
-                transporter.sendMail(mailOptions, async function(error, info) {
-                    if (error) {
-                        console.error('Errore nell\'invio dell\'email all\'autoscuola:', error);
-                        return res.sendStatus(500);
-                    } else {
-                        console.log('Email di richiesta approvazione inviata con successo all\'autoscuola');
-                    }
-                });
-                sendEmailMiddleware(otpCode, userEmail, userName, intent, res, () => {
-                    res.sendStatus(200);
-                }, req);
+                let subject = 'Nuovo Allievo';
+                let text = 'Un nuovo allievo è in attesa di essere approvato.';
+                let email = 'autoscuolacentraletorino@gmail.com';
+                try{
+                    const result = await sendEmail(email, subject, text);
+                    console.log(result);
+                }catch(error){
+                    console.log('errore: ', error);
+                }
+                subject = 'Iscrizione effettuata a scuola guida';
+                text = `Abbiamo inviato i tuoi dati all'autoscuola. A breve riceverai un'email di conferma che ti autorizzerà ad accedere all'agenda. Intanto per confermare la tua identità inserisci il codice richiesto sul sito ${otpCode}. Cordiali saluti.`;
+                try{
+                    const result = await sendEmail(userEmail.replace(/\s/g, ""), subject, text);
+                    console.log(result);
+                }catch(error){
+                    console.log('errore: ', error);
+                }
+                res.redirect(`/verificationCode/:${userName.trim()}`);
             }
         }
     } catch (error) {
@@ -281,35 +224,18 @@ app.post('/resetPassword', async (req, res) => {
         if (!foundCredentials) {
             return res.render('errorPage', {error: 'Email non trovata'});
         }
+
         const subject = 'Codice di reset password scuolaguida';
         const text = `Gentile ${foundCredentials.billingInfo[0].nome} ${foundCredentials.billingInfo[0].cognome}, ci è arrivata una richiesta per cambiare password. Ti inviamo il codice di verifica per il tuo account ${resetPasswordCode}, clicca sul link per cambiarla agenda-autoscuolacentrale.com/newPassword`;
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'autoscuolacentraletorino@gmail.com',
-                pass: 'me k r o n e s s p c c w x j q'
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
-
-        const mailOptions = {
-            from: 'autoscuolacentraletorino@gmail.com',
-            to: email,
-            subject: subject,
-            text: text
-        };
-
-        transporter.sendMail(mailOptions, async function(error, info) {
-            if (error) {
-                console.error('Errore nell\'invio dell\'email:', error);
-                res.sendStatus(500);
-            } else {
-                console.log('Email per il reset della password inviata con successo a:', email);
-                    res.redirect('/');
-            }
-        });
+        try{
+            const result = await sendEmail(email, subject, text);
+            console.log('reset password:');
+            console.log(result);
+            return res.redirect('/');
+        }catch(error){
+            console.log('errore: ', error);
+            return res.render('errorPage', { error: `errore nell'invio dell'email di reset`});
+        }
     } catch (error) {
       console.error(error);
       return res.render('errorPage', {error: 'Si è verificato un errore durante il reset della password.'});
@@ -423,7 +349,7 @@ app.post('/book', async (req, res) => {
         const durationInHour = duration/60;
         const giorno = time.split(' - ')[0];
         const hour = time.split(' - ')[1];
-        const updatedGuide = await guide.findOneAndUpdate(
+        await guide.findOneAndUpdate(
             { 
                 "instructor": instructor, 
                 "book.day": giorno, 
@@ -450,11 +376,22 @@ app.post('/book', async (req, res) => {
             }
         );
 
-        if(updatedGuide){
-            sendEmailMiddleware('', user.email, student, 'bookGuide', res, user.billingInfo[0].nome, user.billingInfo[0].cognome, giorno, hour, location, () => {
-                res.sendStatus(200);
-            }, req);
+        let subject = 'Prenotazione effettuata per lezione di guida';
+        const {content} = await formatoEmail.find({})
+        let text = content
+            .replace('(NOME)', nome)
+            .replace('(COGNOME)', cognome)
+            .replace('(DATA)', day)
+            .replace('(DAORA)', hour.split('-')[0]) 
+            .replace('(AORA)', hour.split('-')[1]) 
+            .replace('(LINKPOSIZIONE)', location)
+        try{
+            const result = await sendEmail(user.email, subject, text);
+            console.log(result);
+        }catch(error){
+            console.log('errore: ', error);
         }
+
         const [nome, cognome] = instructor.split(" ");
         const existingOrario = await admin.findOne({"nome": nome, "cognome": cognome, "ore.data": day});
 
@@ -497,8 +434,7 @@ app.post('/bookExam', async (req, res) => {
     try {
         const price = req.body.price;
         const userName = req.body.student;
-        let numEsame = req.body.numEsame;
-        numEsame = parseInt(numEsame);
+        let numEsame = parseInt(req.body.numEsame);
         await credentials.findOneAndUpdate(
             { "userName": userName },
             { $set: { ["exams." + numEsame + ".paid"]: true } }
@@ -524,27 +460,6 @@ app.post('/bookExam', async (req, res) => {
         return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'Esame'});
     }
 });
-
-
-
-
-app.post('/removebooking', async (req, res) => {
-    try {
-        const { instructor, time } = req.body;
-
-        await guide.findOneAndUpdate(
-            { "instructor": instructor, "book.day": time.split(' - ')[0], "book.schedule.hour": time.split(' - ')[1] },
-            { $unset: { "book.$.schedule.$[elem].student": "" } },
-            { arrayFilters: [{ "elem.hour": time.split(' - ')[1] }] }
-        );
-
-        res.sendStatus(200);
-    } catch (error) {
-        console.error('Errore durante la rimozione della prenotazione:', error);
-        return res.render('errorPage', {error: 'Errore durante la rimozione della prenotazione'});
-    }
-});
-
 
 app.post('/create-code-payment', async (req, res) => {
     try {
