@@ -21,6 +21,9 @@ const storicoFatture = require('../Db/StoricoFatture');
 const formatoEmail = require('../Db/formatoEmail');
 const prezzoGuida = require('../Db/CostoGuide');
 
+//utils 
+const sendEmail = require('../utils/emailsUtils');
+
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 // Funzione per la generazione di token JWT
 function generateToken(username) {
@@ -102,36 +105,18 @@ router.post('/admin/register', async (req, res) => {
         });
 
         await newAdmin.save();
-        const username = nome+' '+cognome;
+        const username = `${nome} ${cognome}`;
         const subject = 'Registrazione Istruttore Autoscuola';
-        const text = `Gentile ${nome} ${cognome}, questo è il codice per verificare l'account da istruttore: ${otpCode}`;
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'autoscuolacentraletorino@gmail.com',
-                pass: 'me k r o n e s s p c c w x j q'
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
-
-        const mailOptions = {
-            from: 'autoscuolacentraletorino@gmail.com',
-            to: email,
-            subject: subject,
-            text: text
-        };
-
-        transporter.sendMail(mailOptions, async function(error, info) {
-            if (error) {
-                console.error('Errore nell\'invio dell\'email:', error);
-                res.sendStatus(500);
-            } else {
-                console.log('Email per registrazione ad istruttore inviata con successo a: ', nome, cognome);
-                    res.redirect(`/admin/otpcode/:${username}`);
-            }
-        });
+        const text = `Gentile ${username}, questo è il codice per verificare l'account da istruttore: ${otpCode}`;
+        try{
+            const result = await sendEmail(email, subject, text);
+            console.log('registrazione istruttore');
+            console.log(result);
+            return res.redirect(`/admin/otpcode/:${username}`);
+        }catch(error){
+            console.log('errore: ', error);
+            return res.render('errorPage', {error: `errore nell'invio dell'email con il codice OTP per la registrazione istruttore`})
+        }
     } catch (error) {
         console.error('Errore durante la registrazione:', error);
         res.status(500).json({ message: 'Errore durante la registrazione' });
@@ -161,36 +146,19 @@ router.post('/admin/login', async (req, res) => {
         saltRounds = await bcrypt.genSalt(10);
         hashedOTP = await bcrypt.hash(String(otpCode), 10);
         await Admin.findOneAndUpdate({ "email": email }, {"otp": hashedOTP});
-        const username = admin.nome+' '+admin.cognome;
+        
+        const username = `${admin.nome} ${admin.cognome}`;
         const subject = 'Login Istruttore Autoscuola';
-        const text = `Gentile ${admin.nome} ${admin.cognome}, questo è il codice per accedere: ${otpCode}`;
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'autoscuolacentraletorino@gmail.com',
-                pass: 'me k r o n e s s p c c w x j q'
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
-
-        const mailOptions = {
-            from: 'autoscuolacentraletorino@gmail.com',
-            to: email,
-            subject: subject,
-            text: text
-        };
-
-        transporter.sendMail(mailOptions, async function(error, info) {
-            if (error) {
-                console.error('Errore nell\'invio dell\'email:', error);
-                return res.render('errorPage', {error: 'Errore nell\'invio dell\'email con il codice OTP'});
-            } else {
-                console.log('Email per il login ad istruttore inviata con successo a: ', username);
-                    res.redirect(`/admin/otpcode/:${username}`);
-            }
-        });
+        const text = `Gentile ${username}, questo è il codice per accedere: ${otpCode}`;
+        try{
+            const result = await sendEmail(email, subject, text);
+            console.log('login istruttore');
+            console.log(result);
+            return res.redirect(`/admin/otpcode/:${username}`);
+        }catch(error){
+            console.log('errore: ', error);
+            return res.render('errorPage', {error: `Errore nell\'invio dell\'email con il codice OTP per il login istruttore`});
+        }
     } catch (error) {
         console.error('Errore durante il login:', error);
         return res.render('errorPage', {error: 'Errore durante il login' });
@@ -596,7 +564,7 @@ router.post('/approveUser', async (req, res) =>{
     const userName = req.body.userName;
     const email = req.body.email;
     const cell = req.body.cell;
-    const approve = await credentials.findOneAndUpdate({
+    await credentials.findOneAndUpdate({
         "userName": userName,
         "email": email,
         "cell": cell
@@ -609,40 +577,23 @@ router.post('/approveUser', async (req, res) =>{
         {"userName": userName,"email": email,"cell": cell},
         {"billingInfo.nome": 1,"billingInfo.cognome": 1}
     );
-    const subject = 'Approvazione Scuola Guida';
+
+    const subject = 'Approvazione Auto Scuola';
     const text = `Gentile ${info.billingInfo[0].nome} ${info.billingInfo[0].cognome}, ti informiamo che il tuo account è stato attivato. Accedi per prenotare le tue lezioni di guida: agenda-autoscuolacentrale.com`;
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'autoscuolacentraletorino@gmail.com',
-            pass: 'me k r o n e s s p c c w x j q'
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
-
-    const mailOptions = {
-        from: 'autoscuolacentraletorino@gmail.com',
-        to: email,
-        subject: subject,
-        text: text
-    };
-
-    transporter.sendMail(mailOptions, async function(error, info) {
-        if (error) {
-            console.error('Errore nell\'invio dell\'email:', error);
-            res.sendStatus(500);
-        } else {
-            console.log('Email inviata con successo a:', userName);
-                res.redirect('/admin/approvazioneUtenti')
-        }
-    });
+    try{
+        const result = await sendEmail(email, subject, text);
+        console.log('approvazione utente');
+        console.log(result);
+        res.redirect('/admin/approvazioneUtenti')
+    }catch(error){
+        console.log('errore: ', error);
+        return res.render('errorPage', {error: `Errore nell\'invio dell\'email per l'approvazione.`});
+    }
 });
 
 router.post('/approveAdmin', authenticateJWT, async (req, res) =>{
     const email = req.body.email;
-    const approve = await Admin.findOneAndUpdate({
+    await Admin.findOneAndUpdate({
         "email": email
     },
     {
@@ -653,7 +604,7 @@ router.post('/approveAdmin', authenticateJWT, async (req, res) =>{
 });
 router.post('/disapproveAdmin', authenticateJWT, async (req, res) =>{
     const email = req.body.email;
-    const disapprove = await Admin.deleteOne({
+    await Admin.deleteOne({
         "email": email
     }
     );
@@ -663,7 +614,7 @@ router.post('/disapproveUser', authenticateJWT, async (req, res) =>{
     const userName = req.body.userName;
     const email = req.body.email;
     const cell = req.body.cell;
-    const disapprove = await credentials.deleteOne({
+    await credentials.deleteOne({
         "userName": userName,
         "email": email,
         "cell": cell
@@ -689,8 +640,7 @@ router.get('/admin/formatoEmail', authenticateJWT, async (req, res) => {
 });
 router.post('/editFormatoEmail', authenticateJWT, async (req, res) => {
     const content = req.body.formatoField;
-
-    const editFormato = await formatoEmail.findOneAndUpdate({}, {"content": content});
+    await formatoEmail.findOneAndUpdate({}, {"content": content});
     res.redirect('/admin/formatoEmail');
 });
 router.get('/admin/fatture/:utente',authenticateJWT , async (req, res)=>{
@@ -910,57 +860,38 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
                 "email": 1
             }
         );
-        const attachment = {
-            filename: `fattura_${dati.nomeCliente}_${dati.cognomeCliente}.pdf`,
-            content: fs.createReadStream(`./fatture/fattura_${dati.nomeCliente}_${dati.cognomeCliente}.pdf`)
-        };
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'autoscuolacentraletorino@gmail.com',
-                pass: 'me k r o n e s s p c c w x j q'
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
+        const subject = 'Fattura di cortesia';
+        const text = `Gentile ${dati.cognomeCliente} ${dati.nomeCliente} ti inviamo la fattura di cortesia per il pagamento che hai effettuato.`;
+        const filename = `./fatture/fattura_${dati.nomeCliente}_${dati.cognomeCliente}.pdf`;
+        try{
+            const result = await sendEmail(email, subject, text, filename);
+            console.log('fattura cortesia');
+            console.log(result);
+        }catch(error){
+            console.log('errore email fattura cortesia: ', error);
+        }
 
-        const mailOptions = {
-            from: 'autoscuolacentraletorino@gmail.com',
-            to: email,
-            subject: 'Fattura di cortesia',
-            text: `Gentile ${dati.cognomeCliente} ${dati.nomeCliente} ti inviamo la fattura di cortesia per il pagamento che hai effettuato.`,
-            attachments: [attachment]
-        };
-
-        transporter.sendMail(mailOptions, async function(error, info) {
-            if (error) {
-                console.error('Errore nell\'invio dell\'email per la fattura:', error);
-                res.sendStatus(500);
-            } else {
-                console.log('Email per la fattura di cortesia inviata con successo a: ' + dati.cognomeCliente + ' ' + dati.nomeCliente); 
-                const numero = parseInt(dati.progressivoInvio.replace(/\D/g, ''), 10);
-                const today = new Date();
-                const DD = String(today.getDate()).padStart(2, '0'); 
-                const MM = String(today.getMonth() + 1).padStart(2, '0'); 
-                const YYYY = today.getFullYear(); 
-                const dataFatturazione = `${DD}/${MM}/${YYYY}`;
-                const nuovaFattura = new storicoFatture({
-                    numero: numero,
-                    importo: dati.importoPagamento,
-                    data: dataFatturazione,
-                    nomeFile: nomeFile,
-                });
-            
-                await  nuovaFattura.save()
-                .catch((errore) => {
-                    console.error('Si è verificato un errore durante l\'aggiunta della fattura:', errore);
-                });
-            
-                await numeroFattura.updateOne({$inc: {"numero": 1}});
-                res.redirect(`/admin/fatture/:${dati.userName}`);
-            }
+        const numero = parseInt(dati.progressivoInvio.replace(/\D/g, ''), 10);
+        const today = new Date();
+        const DD = String(today.getDate()).padStart(2, '0'); 
+        const MM = String(today.getMonth() + 1).padStart(2, '0'); 
+        const YYYY = today.getFullYear(); 
+        const dataFatturazione = `${DD}/${MM}/${YYYY}`;
+        
+        const nuovaFattura = new storicoFatture({
+            numero: numero,
+            importo: dati.importoPagamento,
+            data: dataFatturazione,
+            nomeFile: nomeFile,
         });
+        await  nuovaFattura.save()
+        .catch((errore) => {
+            console.error(`Si è verificato un errore durante l'aggiunta della fattura:`, errore);
+            return res.render('errorPage', {error: `si è verificato un errore nel salvataggio della fattura contatta l'assistenza`})
+        });
+    
+        await numeroFattura.updateOne({$inc: {"numero": 1}});
+        res.redirect(`/admin/fatture/:${dati.userName}`);
     }
 });
 });
@@ -995,10 +926,6 @@ router.get('/admin/storicoFatture',authenticateJWT, async (req, res) => {
     }
 });
 
-
-
-
-
 router.get('/scaricaFatture', async (req, res) => {
     try {
         let nomiFile = [];
@@ -1019,8 +946,6 @@ router.get('/scaricaFatture', async (req, res) => {
         }else{
             nomiFile = await storicoFatture.distinct('nomeFile');
         }
-        
-
         // Imposta il nome del file ZIP e la disposizione della risposta HTTP
         res.set('Content-Type', 'application/zip');
         res.set('Content-Disposition', 'attachment; filename="fatture_filtrate.zip"');
