@@ -344,11 +344,11 @@ app.get('/profile', isAuthenticated, async (req, res) => {
 
 
 app.post('/book', async (req, res) => {
-    try {
+    
         const { instructor, time, day, duration, student, price, location } = req.body;
-        const durationInHour = duration/60;
         const giorno = time.split(' - ')[0];
         const hour = time.split(' - ')[1];
+        try {
         await guide.findOneAndUpdate(
             { 
                 "instructor": instructor, 
@@ -368,67 +368,74 @@ app.post('/book', async (req, res) => {
                 ] 
             }
         );
+
+    } catch (error) {
+        console.error('Errore durante la prenotazione:', error);
+        return res.render('errorPage', {error: 'Errore durante la prenotazione'});
+    }
+    try{  
         const user = await credentials.findOne(
             {"userName": student}, 
             {
                 "email": 1,
                 "billingInfo": 1
             }
-        );
-
+        ); 
         let subject = 'Prenotazione effettuata per lezione di guida';
         const {content} = await formatoEmail.findOne({})
         let text = content
-        .replace(/\(NOME\)/g, nome)
-        .replace(/\(COGNOME\)/g, cognome)
+        .replace(/\(NOME\)/g, user.billingInfo[0].nome)
+        .replace(/\(COGNOME\)/g, user.billingInfo[0].cognome)
         .replace(/\(DATA\)/g, day)
         .replace(/\(DAORA\)/g, hour.split('-')[0])
         .replace(/\(AORA\)/g, hour.split('-')[1])
         .replace(/\(LINKPOSIZIONE\)/g, location);
-    
         try{
             const result = await sendEmail(user.email, subject, text);
             console.log(result);
         }catch(error){
             console.log('errore: ', error);
         }
-
-        const [nome, cognome] = instructor.split(" ");
-        const existingOrario = await admin.findOne({"nome": nome, "cognome": cognome, "ore.data": day});
-
-        if (existingOrario) {
-            await admin.findOneAndUpdate(
-                {"nome": nome, "cognome": cognome, "ore.data": day},
-                {$inc: {"ore.$.totOreGiorno": durationInHour}},
-                {new: true}
-            );
-        } else {
-            await admin.findOneAndUpdate(
-                {"nome": nome, "cognome": cognome},
-                {$addToSet: {"ore": {"data": day, "totOreGiorno": durationInHour}}},
-                {new: true}
-            );
-        }
-        const today = new Date();
-        const d = String(today.getDate()).padStart(2, '0'); 
-        const month = String(today.getMonth() + 1).padStart(2, '0'); 
-        const year = today.getFullYear(); 
-        const dataFatturazione = `${d}/${month}/${year}`;
-        await credentials.findOneAndUpdate(
-            {"userName": student},
-            {
-                $addToSet: {
-                    "fatturaDaFare": {"tipo": 'lezione di guida', "data": dataFatturazione, "importo": price, "emessa": false},
-                    "lessonList": {"istruttore": instructor, "giorno": giorno, "ora": hour, "duration": durationInHour}
-                }
-            },
-            {new: true}
-        );
-        res.sendStatus(200);
     } catch (error) {
-        console.error('Errore durante la prenotazione:', error);
-        return res.render('errorPage', {error: 'Errore durante la prenotazione'});
+        console.error(`Errore durante la creazione del testo per l'email di conferma prenotazione: ${error}`);
     }
+        try {
+            const durationInHour = duration/60;
+            const [nome, cognome] = instructor.split(" ");
+            const existingOrario = await admin.findOne({"nome": nome, "cognome": cognome, "ore.data": day});
+
+            if (existingOrario) {
+                await admin.findOneAndUpdate(
+                    {"nome": nome, "cognome": cognome, "ore.data": day},
+                    {$inc: {"ore.$.totOreGiorno": durationInHour}},
+                    {new: true}
+                );
+            } else {
+                await admin.findOneAndUpdate(
+                    {"nome": nome, "cognome": cognome},
+                    {$addToSet: {"ore": {"data": day, "totOreGiorno": durationInHour}}},
+                    {new: true}
+                );
+            }
+            const today = new Date();
+            const d = String(today.getDate()).padStart(2, '0'); 
+            const month = String(today.getMonth() + 1).padStart(2, '0'); 
+            const year = today.getFullYear(); 
+            const dataFatturazione = `${d}/${month}/${year}`;
+            await credentials.findOneAndUpdate(
+                {"userName": student},
+                {
+                    $addToSet: {
+                        "fatturaDaFare": {"tipo": 'lezione di guida', "data": dataFatturazione, "importo": price, "emessa": false},
+                        "lessonList": {"istruttore": instructor, "giorno": giorno, "ora": hour, "duration": durationInHour}
+                    }
+                },
+                {new: true}
+            );
+        } catch (error) {
+            console.error(`errore durante il salvataggio della fattura: ${error}`);
+        }
+        res.sendStatus(200);
 });
 
 app.post('/bookExam', async (req, res) => {
