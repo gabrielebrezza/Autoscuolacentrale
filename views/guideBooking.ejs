@@ -98,139 +98,171 @@
                 </span>
     </aside>
     <main>
-    <div class="storicoGuide" style="display: none;">
-        <a href=" ">
-            <span class="material-symbols-outlined">
-                cancel
-            </span>
-        </a>
-        <h2>Storico Guide</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Istruttore</th>
-                    <th>Giorno</th>
-                    <th>Ora</th>
-                    <th>Durata</th>
-                    <th>Sposta</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% for (let i = 0; i < storicoGuide.lessonList.length; i++) { %>
+        <div class="storicoGuide" style="display: none;">
+            <a href=" ">
+                <span class="material-symbols-outlined">
+                    cancel
+                </span>
+            </a>
+            <h2>Storico Guide</h2>
+            <table>
+                <thead>
                     <tr>
-                        <td class="first" data-label="Istruttore"><%= storicoGuide.lessonList[i].istruttore %></td>
-                        <td data-label="Giorno"><%= storicoGuide.lessonList[i].giorno %></td>
-                        <td data-label="Ora"><%= storicoGuide.lessonList[i].ora %></td>
-                        <td data-label="Durata"><%= storicoGuide.lessonList[i].duration < 1 ? storicoGuide.lessonList[i].duration * 60 + 'min' : storicoGuide.lessonList[i].duration.toFixed(2) + 'h'%></td>
-                        <% var oggi = new Date(); %>
-                        <% 
-                          var partiData = storicoGuide.lessonList[i].giorno.split('/');
-                          var giornoLezione = new Date(partiData[2], partiData[1] - 1, partiData[0]); 
-                        %>
-                        <% var differenzaGiorni = (giornoLezione - oggi) / (1000 * 60 * 60 * 24); %>
-                        
-                        <% if (differenzaGiorni >= 2 && giornoLezione > oggi) { %>
-                          <td class="last" data-label="Sposta">
-                            <button class="SpostaGuida" data-durata="<%= storicoGuide.lessonList[i].duration %>" data-ora="<%= storicoGuide.lessonList[i].ora %>" data-giorno="<%= storicoGuide.lessonList[i].giorno %>" data-istruttore="<%= storicoGuide.lessonList[i].istruttore %>">Sposta Guida</button>
-                          </td>
-                        <% } else{ %>
-                            <td></td>
-                        <% } %>
+                        <th>Istruttore</th>
+                        <th>Giorno</th>
+                        <th>Ora</th>
+                        <th>Durata</th>
+                        <th>Sposta</th>
                     </tr>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
-
-
-    
-    <%if(esame[0].paid && !bocciato){ %>
-    <div class="container">
-        <% for(var i = 0; i < lezioni.length; i++) { %>
-            <% let exclude = false %>
-            <% for( let j = 0; j < excludeInstructor.length; j++ ) { %>
-                <% if (excludeInstructor[j].instructor == lezioni[i].instructor) { %>
-                    <% exclude = true; %>
-                <% } %>
-            <% } %>
-            <% if (exclude) { %>
-                <% continue; %>
-            <% } %>
-        <% let dateElaborate = []; %>
-        
-        <% for(j = 0; j < lezioni[i].book.length; j++) { %>
-            <% if (!dateElaborate.includes(lezioni[i].book[j].day)) { %>
-                <% dateElaborate.push(lezioni[i].book[j].day); %>
-                <% let hasAvailableTime = false; %>
-                <% let hasStudentBooking = false; %>
-                <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
-                    <% const schedule = lezioni[i].book[j].schedule[k]; %>
-                    <% if(schedule.student === null) { %>
-                        <% hasAvailableTime = true; %>
-                    <% } else if (schedule.student && schedule.student != nome) { %>
-                        <% hasStudentBooking = true; %>
-                    <% } %>
-            <% } %>
-            <% if(hasAvailableTime && (lezioni[i].instructor.split(' '))[0] != 'Esame') { %>
-            <section class="section" data-date="<%= lezioni[i].book[j].day %>">
-                <h2 class="section-title"> <span>Istruttore: <%= (lezioni[i].instructor.split(' '))[0] %></span> <br> Data: <%= lezioni[i].book[j].day %></h2>
-                <table class="table">
-                    <thead>
+                </thead>
+                <tbody>
+                    <% for (let i = 0; i < storicoGuide.lessonList.length; i++) { %>
                         <tr>
-                            <th>Ora</th>
+                            <td class="first" data-label="Istruttore"><%= storicoGuide.lessonList[i].istruttore %></td>
+                            <td data-label="Giorno"><%= storicoGuide.lessonList[i].giorno %></td>
+                            <td data-label="Ora"><%= storicoGuide.lessonList[i].ora %></td>
+                            <td data-label="Durata"><%= storicoGuide.lessonList[i].duration < 1 ? storicoGuide.lessonList[i].duration * 60 + 'min' : storicoGuide.lessonList[i].duration.toFixed(2) + 'h'%></td>
+                            <% var oggi = new Date(); %>
+                            <% 
+                              var partiData = storicoGuide.lessonList[i].giorno.split('/');
+                              var giornoLezione = new Date(partiData[2], partiData[1] - 1, partiData[0]); 
+                            %>
+                            <% var differenzaGiorni = (giornoLezione - oggi) / (1000 * 60 * 60 * 24); %>
+
+                            <% if (differenzaGiorni >= 2 && giornoLezione > oggi) { %>
+                              <td class="last" data-label="Sposta">
+                                <button class="SpostaGuida" data-durata="<%= storicoGuide.lessonList[i].duration %>" data-ora="<%= storicoGuide.lessonList[i].ora %>" data-giorno="<%= storicoGuide.lessonList[i].giorno %>" data-istruttore="<%= storicoGuide.lessonList[i].istruttore %>">Sposta Guida</button>
+                              </td>
+                            <% } else{ %>
+                                <td></td>
+                            <% } %>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <% let lessonBookedYet = false; %>
-                        <% let atLeastOneLesson = false %>
-                        <% for(k = 0; k < lezioni[i].book[j].schedule.length; k++) { %>
-                            <% const schedule = lezioni[i].book[j].schedule[k]; %>
-                            <% let stopPrinting = false %>
-                            <% let reservedtoMe = schedule.reservedTo.length == 0 ? true : false %>
-                            <% let reservedtoOthers = schedule.reservedTo.length > 0 ? true : false %>
-                            <% for( let n = 0; n < schedule.reservedTo.length; n++ ) { 
-                                if(schedule.reservedTo[n] == userEmail){
-                                    reservedtoMe = true;
-                                    break;
-                                }else{
-                                    reservedtoOthers == false
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <% if(esame[0].paid && !bocciato){ %>
+            <div class="container">
+                <% for(const lezione of lezioni) { %>
+                    <% const instructor = lezione.instructor; %>
+                    <% if (instructor == 'Esame Guida') continue; %>
+
+                    <% let exclude = false; %>
+                    <% for( const escluso of excludeInstructor) {
+                        if (escluso.instructor == instructor) {
+                            exclude = true; 
+                            break;
+                        }
+                    } %>
+                    <% if (exclude) continue; %>
+                
+                    <% for( const bookObj of lezione.book ) { %>
+                        <% let hasAvailableTime = false; %>
+                        <% for(const schedule of bookObj.schedule) { 
+                            if(!schedule.student){
+                                hasAvailableTime = true; 
+                                break;
+                            }
+                        } %>
+                        <% if(hasAvailableTime) { %>
+                            <% function reserved(reservedList){
+                                for(let k = 0; k < reservedList.length; k++ ) { 
+                                    if(reservedList[k] == userEmail){
+                                        return true;
+                                    }else if(k == reservedList.length){
+                                        return false;
+                                    }
                                 }
                             } %>
-                            <% if(!schedule.student && reservedtoMe) { %>
-                                <tr>
-                                    <td class="hour"><%= schedule.hour %></td>
-                                    <td>
-                                        <button class="book" data-location="<%= schedule.locationLink %>" data-time="<%= lezioni[i].book[j].day %> - <%= schedule.hour %>"
-                                            data-instructor="<%= lezioni[i].instructor %>"
-                                            data-price="<%= schedule.price %>">Costo: <%= Number(schedule.price).toFixed(2) %>€ <br> <strong>PRENOTA</strong></button>
-                                    </td>
-                                </tr>
-                                <% atLeastOneLesson = true %>
-                            <% } else if (schedule.student == nome) { %>
-                                <tr>
-                                    <td class="removeBooking"></td>
-                                </tr>
-                                <% break; %>
-                            <% }else if(reservedtoOthers){ %>
-                                <td class="reservedtoOthers" style="display: none;"></td>
-                            <% }else if(schedule.student){
-                                lessonBookedYet = true;
+                            <% let scheduleArr = []; %>
+                            <% let booked = false; %>
+                            <% let previousSchedule = false; %>
+                            <% for( const schedule of bookObj.schedule ) {
+                                //se io ho già prenotato una guida nascondo la card
+                                if(schedule.student == nome){
+                                    booked = true;
+                                    break;
+                                }
+                                //guardo se la prima guida è occupata
+                                if(schedule.student && !previousSchedule && !booked) booked = true;
+
+                                //cerco la prima guida ad occupata e salvo la precedente
+                                if(schedule.student && previousSchedule && !booked){
+                                    booked = true;
+                                    //controllo che non sia riservata
+                                    if(previousSchedule.reservedTo.length != 0){
+                                        //controllo se è riservata a me
+                                        if(reserved(previousSchedule.reservedTo)) scheduleArr.push(previousSchedule);  
+                                    }else{
+                                        scheduleArr.push(previousSchedule);
+                                    }
+                                //cerco la prima guida libera dopo quella occupata e la salvo
+                                }else if(!schedule.student && booked){
+                                    //controllo che non sia riservata
+                                    if(schedule.reservedTo.length != 0){
+                                        //controllo se è riservata a me
+                                        if(reserved(schedule.reservedTo)) scheduleArr.push(schedule);
+                                    }else{
+                                        scheduleArr.push(schedule);
+                                    }
+                                    break;
+                                }
+                                previousSchedule = schedule;
                             } %>
-        
-                            <% if((lessonBookedYet && atLeastOneLesson) || !reservedtoMe) { 
-                                stopPrinting == true;
-                                break;
-                            }%>
+                            <%# caso in cui non ci siano ancora guide prenotate %>
+                            <% if(!booked) {
+                                for( const schedule of bookObj.schedule ) {
+                                    //controllo che non sia riservata
+                                    if(schedule.reservedTo.length != 0){
+                                        //controllo se è riservata a me
+                                        if(reserved(schedule.reservedTo)) scheduleArr.push(schedule);
+                                    }else{
+                                        scheduleArr.push(schedule);
+                                    }
+                                }
+                            } %>
+                            <% if (scheduleArr.length != 0) { %>
+                                <section class="section" data-date="<%= bookObj.day %>">
+                                    <h2 class="section-title"> 
+                                        <span>Istruttore: <%= instructor.split(' ')[0] %></span> 
+                                        <br> 
+                                        Data: <%= bookObj.day %>
+                                    </h2>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Ora</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% for(lesson of scheduleArr){ %>
+                                                <tr>
+                                                    <td class="hour"><%= lesson.hour %></td>
+                                                    <td>
+                                                        <button class="book" 
+                                                          data-location="<%= lesson.locationLink %>" 
+                                                          data-time="<%= bookObj.day %> - <%= lesson.hour %>"
+                                                          data-instructor="<%= instructor %>"
+                                                          data-price="<%= lesson.price %>">
+                                                            Costo: <%= Number(lesson.price).toFixed(2) %>€
+                                                            <br>
+                                                            <strong>
+                                                                PRENOTA
+                                                            </strong>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </section>
+                            <% } %>
                         <% } %>
-                    </tbody>
-                </table>
-            </section>
-            <% } %>
-        <% } %>
-        <% } %>
-        <% } %>
-    </div>
-    <% }%>
+                    <% } %>
+                <% } %>
+            </div>
+        <% }%>
     </main>
 
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
@@ -284,10 +316,9 @@ $(function() {
             var dateString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
 
             var sectionExists = $('.section[data-date="' + dateString + '"]').length > 0;
-            var removeBookingExists = $('.section[data-date="' + dateString + '"] .removeBooking').length > 0;
             var hasReservedToOthersButNotBook = $('.section[data-date="' + dateString + '"] .reservedtoOthers').length > 0 && $('.section[data-date="' + dateString + '"] .book').length === 0;
             if (sectionExists) {
-                if (removeBookingExists || hasReservedToOthersButNotBook) {
+                if (hasReservedToOthersButNotBook) {
                     return [true, "redDate disabled", "Non ci sono guide libere"];
                 } else {
                     return [true, "greenDate", "Ci sono guide libere"];
@@ -323,13 +354,10 @@ function selectFirstGreenDate() {
 
 function updateSectionsVisibility(selectedDate) {
     var sections = document.querySelectorAll('.section');
-    var noGuideElement = document.querySelector('.noGuide');
-    var noGuide = true;
     sections.forEach(function (section) {
         var bookElement = section.querySelector('.book');
         if (section.getAttribute('data-date') === selectedDate && bookElement) {
             section.style.display = 'block';
-            noGuide = false;
         } else {
             section.style.display = 'none';
         }
@@ -551,7 +579,6 @@ function updateSectionsVisibility(selectedDate) {
 
             });
         }
-        const noGuideText = document.querySelector('.noGuide');
     </script>
     <% }else{ %>
         <form id="paymentForm" class="paymentModal" style="display: block; opacity: 1;" method="POST">

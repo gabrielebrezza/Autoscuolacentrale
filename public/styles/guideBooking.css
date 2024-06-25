@@ -129,13 +129,6 @@ table {
     margin-top: 10px;
 }
 
-section:has(.removeBooking) {
-    display: none !important;
-}
-
-section:has(.bookDisabled) tr:has(.bookDisabled){
-    display: none;
-}
 th, td {
     padding: 10px;
     border-bottom: 1px solid #dee2e6;
@@ -149,22 +142,15 @@ th, td {
     font-weight: bold;
     border-radius: 20px;
 }
-.book, .removeBooking, .bookDisabled {
-    padding: 8px 8px;
-    border-radius: 4px;
-    outline: #0000;
-    border: 2px solid #0000;
-}
 .book {
     cursor: pointer;
     background: #5681a9;
     color: white;
+    padding: 8px 8px;
+    border-radius: 4px;
+    outline: #0000;
+    border: 2px solid #0000;
     transition: .5s;
-}
-
-.removeBooking {
-    background-color: #dc3545;
-    color: white;
 }
 
 .book:hover{
@@ -180,9 +166,6 @@ th, td {
     word-spacing: 5px;
     font-style: normal !important;
 }
-.noGuide{
-    display: none;
-}
 aside{
     display: flex;
     flex-wrap: wrap;
@@ -190,17 +173,11 @@ aside{
     align-items: center;
     height: auto;
     background: #71a1cb;
-    /* background: #5681a9; */
     border-bottom: 2px solid #fff;
-    /* border-radius: 0 0 20px 20px; */
 }
 aside input{
     position: absolute;
 }
-
-
-
-
 
 aside span{
     font-family: "Bebas Neue", sans-serif !important;
@@ -253,13 +230,6 @@ aside .esami p{
     font-weight: 1000;
     font-size: .9rem;
 }
-/* aside .bacheca p{
-    padding: 10px;
-    font-size: 1.1rem;
-    font-family: "Gotu", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-} */
 .esame{
     background-color: #fff;
     border-inline: 2px solid #343a40;
@@ -277,7 +247,6 @@ aside .esami p{
     background-color: #81d381;
 }
 .esame p:has(.daPagare){
-    color: rgb(114, 29, 29);
     color: #954e4e;
     cursor: pointer;
     transition: .5s;
@@ -355,8 +324,9 @@ aside .esami p{
 }
 .ui-state-disabled, .ui-datepicker-unselectable, .ui-state-default{
     border: none !important;
-    
+    background-color: #0000 !important;
 }
+
 .ui-state-disabled{
     opacity: 0 !important;
 }
@@ -368,11 +338,8 @@ aside .esami p{
     color: green !important;
 }
 
-
-/* Stili per la data odierna */
 .ui-datepicker-today{
     background-color: transparent !important;
-    /* color: aqua !important; */
 }
  .ui-state-highlight {
     border: 1px solid #0000 !important;
@@ -380,8 +347,9 @@ aside .esami p{
     color: #0000 !important;
 }
 .ui-state-active{
-    background: #80909f !important;
+    background: #a9bccdc5 !important;
 }
+
 /* Stili per le date non disponibili */
 .redDate a {
     border: 2px solid #0000 !important;
@@ -391,10 +359,8 @@ aside .esami p{
     color: red !important;
 }
 .disabled{
-    cursor: not-allowed !important;
     pointer-events: none;
 }
-
 
 .paymentModal {
     opacity: 0;
