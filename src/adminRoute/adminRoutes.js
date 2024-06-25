@@ -522,11 +522,11 @@ router.post('/bacheca',authenticateJWT , async (req, res) => {
     const content = req.body.bacheca;
     try {
         const existingDocument = await bacheca.findOne();
-            existingDocument.content = content;
-            existingDocument.editedBy.push(instructor); 
-            await existingDocument.save(); 
-            console.log(`Bacheca modificata da ${instructor}`);
-            res.redirect('/admin/bacheca');
+        existingDocument.content = content;
+        existingDocument.editedBy.push(instructor); 
+        await existingDocument.save(); 
+        console.log(`Bacheca modificata da ${instructor}`);
+        res.redirect('/admin/bacheca');
     } catch (error) {
         console.error("Error while adding or updating bacheca entry:", error);
         res.status(500).send('Errore durante la modifica della bacheca');
@@ -634,8 +634,8 @@ router.get('/admin/formatoEmail', authenticateJWT, async (req, res) => {
     const instructor = req.user.username;
     const [nome, cognome] = instructor.split(" ");
     const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-    const formato = await formatoEmail.find({});
-    res.render('admin/adminComponents/formatoEmail', {title: 'Admin - Formato Email', formato, role});
+    const {content} = await formatoEmail.findOne({});
+    res.render('admin/adminComponents/formatoEmail', {title: 'Admin - Formato Email', content, role});
 });
 router.post('/editFormatoEmail', authenticateJWT, async (req, res) => {
     const content = req.body.formatoField;
@@ -863,7 +863,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
         const text = `Gentile ${dati.cognomeCliente} ${dati.nomeCliente} ti inviamo la fattura di cortesia per il pagamento che hai effettuato.`;
         const filename = `./fatture/fattura_${dati.nomeCliente}_${dati.cognomeCliente}.pdf`;
         try{
-            const result = await sendEmail(email, subject, text, filename);
+            const result = await sendEmail(email.email, subject, text, filename);
             console.log('fattura cortesia');
             console.log(result);
         }catch(error){

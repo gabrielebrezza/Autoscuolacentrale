@@ -377,14 +377,15 @@ app.post('/book', async (req, res) => {
         );
 
         let subject = 'Prenotazione effettuata per lezione di guida';
-        const {content} = await formatoEmail.find({})
+        const {content} = await formatoEmail.findOne({})
         let text = content
-            .replace('(NOME)', nome)
-            .replace('(COGNOME)', cognome)
-            .replace('(DATA)', day)
-            .replace('(DAORA)', hour.split('-')[0]) 
-            .replace('(AORA)', hour.split('-')[1]) 
-            .replace('(LINKPOSIZIONE)', location)
+        .replace(/\(NOME\)/g, nome)
+        .replace(/\(COGNOME\)/g, cognome)
+        .replace(/\(DATA\)/g, day)
+        .replace(/\(DAORA\)/g, hour.split('-')[0])
+        .replace(/\(AORA\)/g, hour.split('-')[1])
+        .replace(/\(LINKPOSIZIONE\)/g, location);
+    
         try{
             const result = await sendEmail(user.email, subject, text);
             console.log(result);
