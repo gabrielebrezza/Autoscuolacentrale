@@ -111,10 +111,13 @@
             });
         
             var costoTot = (totaleOre * price).toFixed(2);
-        
+            
             var ore = Math.floor(totaleOre);
             var minuti = Math.round((totaleOre - ore) * 60); 
-        
+            if(minuti == 60){
+                ore++;
+                minuti = 0;
+            }
             document.getElementById('oreContainer').innerText = 'Totale ore svolte: ' + ore + ' ore e ' + minuti + ' minuti. Il pagamento dovrà essere di ' + costoTot + '€.';
         });
         </script>
