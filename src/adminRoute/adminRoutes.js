@@ -786,7 +786,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
         console.error('Errore durante il salvataggio del file:', err);
         return res.status(500).send('Errore durante il salvataggio del file');
     } else {
-        const updateFatturaDB = await credentials.findOneAndUpdate(
+        await credentials.findOneAndUpdate(
             {
                 "userName": dati.userName,
                 "fatturaDaFare": {

@@ -7,9 +7,6 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken'); 
 const paypal = require('paypal-rest-sdk');
-const nodemailer = require('nodemailer');
-const tls = require('tls');
-const crypto = require('crypto');
 
 //DB schemas
 const credentials = require('./Db/User');
@@ -50,6 +47,31 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false}));
 
 app.use(adminRoutes);
+
+
+// Autenticazione semplice (esempio)
+const authenticateIscrizioneAPI = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (token === 'ciao') {
+        next();
+    } else {
+        res.status(403).send('Forbidden');
+    }
+};
+
+app.use(authenticateIscrizioneAPI);
+
+app.get('/invoice/:id', (req, res) => {
+    const nFattura = req.params.id;
+    const fileName = `IT06498290011_i${nFattura.padStart(3, '0')}.xml`;
+    const filePath = path.join('fatture', fileName);
+
+    if (fs.existsSync(filePath)) {
+        res.download(filePath);
+    } else {
+        res.status(404).send('Fattura non trovata');
+    }
+});
 
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 // Funzione per la generazione di token JWT
