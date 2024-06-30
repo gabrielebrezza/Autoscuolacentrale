@@ -50,14 +50,14 @@ app.use(adminRoutes);
 
 
 // Autenticazione semplice (esempio)
-// const authenticateIscrizioneAPI = (req, res, next) => {
-//     const token = req.headers['authorization'];
-//     if (token === 'ciao') {
-//         next();
-//     } else {
-//         res.status(403).send('Forbidden');
-//     }
-// };
+const authenticateIscrizioneAPI = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (token === 'ciao') {
+        next();
+    } else {
+        res.status(403).send('Forbidden');
+    }
+};
 
 
 app.get('/invoice/:id', authenticateIscrizioneAPI, async (req, res) => {
