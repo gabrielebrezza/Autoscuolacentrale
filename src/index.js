@@ -59,9 +59,8 @@ app.use(adminRoutes);
 //     }
 // };
 
-// app.use(authenticateIscrizioneAPI);
 
-app.get('/invoice/:id', (req, res) => {
+app.get('/invoice/:id', authenticateIscrizioneAPI, async (req, res) => {
     try {
         const nFattura = req.params.id;
     const fileName = `IT06498290011_i${nFattura.padStart(3, '0')}.xml`;
