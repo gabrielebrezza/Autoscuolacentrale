@@ -55,6 +55,7 @@ const authenticateIscrizioneAPI = (req, res, next) => {
     if (token === process.env.API_KEY_AGENDA) {
         next();
     } else {
+        console.log(`Accesso non autorizzato tentato alle fatture da IP: ${req.ip}, URL: ${req.originalUrl}`);
         res.status(403).send('Forbidden');
     }
 };
@@ -66,12 +67,18 @@ app.get('/invoice/:id', authenticateIscrizioneAPI, async (req, res) => {
         const fileName = `IT06498290011_g00${nFattura}.xml`;
         const filePath = path.join('fatture', fileName);
         if (fs.existsSync(filePath)) {
-            res.download(filePath);
+            res.download(filePath, (err) => {
+                if (err) {
+                    console.error(`Errore nel download della fattura ${nFattura}: ${err}`);
+                    res.status(500).send('Errore nel server');
+                }
+            });
         } else {
             res.status(404).send('Fattura non trovata');
         }
         } catch (error) {
-            console.log(`si è verificato un errore ${error}`)
+            console.log(`si è verificato un errore ${error}`);
+            res.status(500).send('Errore nel server');
         }
     
 });
