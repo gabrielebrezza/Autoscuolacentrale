@@ -50,10 +50,9 @@ app.use(bodyParser.urlencoded({ extended: false}));
 app.use(adminRoutes);
 
 
-// Autenticazione semplice (esempio)
 const authenticateIscrizioneAPI = (req, res, next) => {
     const token = req.headers['authorization'];
-    if (token === 'ciao') {
+    if (token === process.env.API_KEY_AGENDA) {
         next();
     } else {
         res.status(403).send('Forbidden');
@@ -64,11 +63,8 @@ const authenticateIscrizioneAPI = (req, res, next) => {
 app.get('/invoice/:id', authenticateIscrizioneAPI, async (req, res) => {
     try {
         const nFattura = req.params.id.replace(':', '');
-        console.log(nFattura)
         const fileName = `IT06498290011_g00${nFattura}.xml`;
-        console.log(fileName)
         const filePath = path.join('fatture', fileName);
-        console.log(filePath)
         if (fs.existsSync(filePath)) {
             res.download(filePath);
         } else {
