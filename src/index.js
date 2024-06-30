@@ -65,7 +65,7 @@ app.get('/invoice/:id', authenticateIscrizioneAPI, async (req, res) => {
     try {
         const nFattura = req.params.id.replace(':', '');
         console.log(nFattura)
-        const fileName = `IT06498290011_i${nFattura.padStart(3, '00')}.xml`;
+        const fileName = `IT06498290011_g00${nFattura}.xml`;
         console.log(fileName)
         const filePath = path.join('fatture', fileName);
         console.log(filePath)
