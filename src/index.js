@@ -59,7 +59,7 @@ app.use(adminRoutes);
 //     }
 // };
 
-app.use(authenticateIscrizioneAPI);
+// app.use(authenticateIscrizioneAPI);
 
 app.get('/invoice/:id', (req, res) => {
     try {
