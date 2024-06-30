@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken'); 
 const paypal = require('paypal-rest-sdk');
+const fs = require('fs');
 
 //DB schemas
 const credentials = require('./Db/User');
