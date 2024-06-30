@@ -76,11 +76,10 @@ app.get('/invoice/:id', authenticateIscrizioneAPI, async (req, res) => {
         } else {
             res.status(404).send('Fattura non trovata');
         }
-        } catch (error) {
-            console.log(`si è verificato un errore ${error}`);
-            res.status(500).send('Errore nel server');
-        }
-    
+    } catch (error) {
+        console.log(`si è verificato un errore ${error}`);
+        res.status(500).send('Errore nel server');
+    }
 });
 
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
