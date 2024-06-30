@@ -63,18 +63,20 @@ const authenticateIscrizioneAPI = (req, res, next) => {
 
 app.get('/invoice/:id', authenticateIscrizioneAPI, async (req, res) => {
     try {
-        const nFattura = req.params.id;
-    const fileName = `IT06498290011_i${nFattura.padStart(3, '0')}.xml`;
-    const filePath = path.join('fatture', fileName);
-
-    if (fs.existsSync(filePath)) {
-        res.download(filePath);
-    } else {
-        res.status(404).send('Fattura non trovata');
-    }
-    } catch (error) {
-        console.log(`si è verificato un errore ${error}`)
-    }
+        const nFattura = req.params.id.replace(':', '');
+        console.log(nFattura)
+        const fileName = `IT06498290011_i${nFattura.padStart(3, '0')}.xml`;
+        console.log(fileName)
+        const filePath = path.join('fatture', fileName);
+        console.log(filePath)
+        if (fs.existsSync(filePath)) {
+            res.download(filePath);
+        } else {
+            res.status(404).send('Fattura non trovata');
+        }
+        } catch (error) {
+            console.log(`si è verificato un errore ${error}`)
+        }
     
 });
 
