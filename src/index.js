@@ -50,19 +50,20 @@ app.use(adminRoutes);
 
 
 // Autenticazione semplice (esempio)
-const authenticateIscrizioneAPI = (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (token === 'ciao') {
-        next();
-    } else {
-        res.status(403).send('Forbidden');
-    }
-};
+// const authenticateIscrizioneAPI = (req, res, next) => {
+//     const token = req.headers['authorization'];
+//     if (token === 'ciao') {
+//         next();
+//     } else {
+//         res.status(403).send('Forbidden');
+//     }
+// };
 
 app.use(authenticateIscrizioneAPI);
 
 app.get('/invoice/:id', (req, res) => {
-    const nFattura = req.params.id;
+    try {
+        const nFattura = req.params.id;
     const fileName = `IT06498290011_i${nFattura.padStart(3, '0')}.xml`;
     const filePath = path.join('fatture', fileName);
 
@@ -71,6 +72,10 @@ app.get('/invoice/:id', (req, res) => {
     } else {
         res.status(404).send('Fattura non trovata');
     }
+    } catch (error) {
+        console.log(`si è verificato un errore ${error}`)
+    }
+    
 });
 
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
