@@ -171,6 +171,10 @@ const LoginSchema = new mongoose.Schema({
             default: false
         }
     },
+    paymentId: {
+        type: String,
+        required: false
+    },
     archiviato: {
         type: Boolean,
         default: false

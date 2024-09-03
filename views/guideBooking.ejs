@@ -240,8 +240,7 @@
                                                 <tr>
                                                     <td class="hour"><%= lesson.hour %></td>
                                                     <td>
-                                                        <button class="book" 
-                                                          data-location="<%= lesson.locationLink %>" 
+                                                        <button class="book"
                                                           data-time="<%= bookObj.day %> - <%= lesson.hour %>"
                                                           data-instructor="<%= instructor %>"
                                                           data-price="<%= lesson.price %>">
@@ -264,7 +263,6 @@
             </div>
         <% }%>
     </main>
-
     <div id="paymentModal" class="paymentModal modal" style="display: none;">
         <a href=" ">
             <span class="material-symbols-outlined">
@@ -273,33 +271,57 @@
         </a>
         <form id="paymentForm" method="POST">
             <input type="hidden" id="causeInput" name="cause" value="">
-            <input type="hidden" id="locationInput" name="location" value="">
             <div class="form-group">
                 <label for="price" id="priceLabel"></label>
                 <input type="hidden" id="priceInput" name="price" value="">
                 <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
             </div>
-                    <input type="hidden" id="instructorInput" name="instructor" value="">
-                    <input type="hidden" id="timeInput" name="time" value="">
-                    <input type="hidden" id="numEsameInput" name="numEsame" value="">
-                    
-                    <button id="payPalButton" type="button" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
-                    <label for="codicePagamento">O paga con codice</label>
-                    <input type="text" id="codicePagamento" name="codicePagamento"> 
-                    <button id="codiceButton" type="button" class="btn btn-primary">Paga con codice</button>
-                </form>
+            <input type="hidden" id="instructorInput" name="instructor" value="">
+            <input type="hidden" id="timeInput" name="time" value="">
+            <input type="hidden" name="paymentMethod" id="paymentMethod">
+            <button id="payPalButton" type="button" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
+            <button id="satispayButton" type="button" class="btn btn-primary"><i class="fa fa-qrcode"></i> Paga con Satispay</button>
+            <label for="codicePagamento">O paga con codice</label>
+            <input type="text" id="codicePagamento" name="codicePagamento"> 
+            <button id="codiceButton" type="button" class="btn btn-primary">Paga con codice</button>
+        </form>
                 
-                <script>
-                document.getElementById("payPalButton").addEventListener("click", function() {
-                    document.getElementById("paymentForm").action = "/create-payment";
-                    document.getElementById("paymentForm").submit();
-                });
-                
-                document.getElementById("codiceButton").addEventListener("click", function() {
-                    document.getElementById("paymentForm").action = "/create-code-payment";
-                    document.getElementById("paymentForm").submit();
-                });
-                </script>
+        <script>
+            const paymentForm = document.getElementById("paymentForm");
+            document.getElementById("payPalButton").addEventListener("click", function() {
+                paymentForm.querySelector('[name="paymentMethod"]').value = 'paypal';
+                const cause = paymentForm.querySelector('[name="cause"]').value;
+                if(cause == 'lesson'){
+                    paymentForm.action = "/book";
+                } 
+                if(cause == 'exam'){
+                    paymentForm.action = "/bookExam";
+                }
+                paymentForm.submit();
+            });
+            document.getElementById("satispayButton").addEventListener("click", function() {
+                paymentForm.querySelector('[name="paymentMethod"]').value = 'satispay';
+                const cause = paymentForm.querySelector('[name="cause"]').value;
+                if(cause == 'lesson'){
+                    paymentForm.action = "/book";
+                } 
+                if(cause == 'exam'){
+                    paymentForm.action = "/bookExam";
+                }
+                paymentForm.submit();
+            });
+            document.getElementById("codiceButton").addEventListener("click", function() {
+                paymentForm.querySelector('[name="paymentMethod"]').value = 'code';
+                const cause = paymentForm.querySelector('[name="cause"]').value;
+                if(cause == 'lesson'){
+                    paymentForm.action = "/book";
+                } 
+                if(cause == 'exam'){
+                    paymentForm.action = "/bookExam";
+                }
+                paymentForm.submit();
+            });
+        </script>
     </div>
     
     <script>
@@ -365,9 +387,9 @@ function updateSectionsVisibility(selectedDate) {
 }
 
     </script>
-    <div id="spostaGuidaForm" style="display: none;">
+    <div id="spostaGuidaFormContainer" style="display: none;">
 
-        <form action="/create-payment" method="POST">
+        <form id="spostaGuidaForm" action="/spostaGuida" method="POST">
             <a href=" ">
                 <span class="material-symbols-outlined">
                     cancel
@@ -375,14 +397,13 @@ function updateSectionsVisibility(selectedDate) {
             </a>
             <p>Per spostare la guida dovrai pagare 5€</p>
             <input type="hidden" name="student" value="<%= nome %>">
-            <input type="hidden" name="cause" value="spostaGuida">
-            <input type="hidden" name="istruttoreLezioneDaSpostare" id="istruttoreLezioneDaSpostare" value="">
-            <input type="hidden" name="dataLezioneDaSpostare" id="dataLezioneDaSpostare" value="">
-            <input type="hidden" name="oraLezioneDaSpostare" id="oraLezioneDaSpostare" value="">
-            <input type="hidden" name="durataLezioneDaSpostare" id="durataLezioneDaSpostare" value="">
+            <input type="hidden" name="oldInstructor" id="istruttoreLezioneDaSpostare" value="">
+            <input type="hidden" name="oldDate" id="dataLezioneDaSpostare" value="">
+            <input type="hidden" name="oldHour" id="oraLezioneDaSpostare" value="">
+            <input type="hidden" name="duration" id="durataLezioneDaSpostare" value="">
             <div class="field">
-                <label for="nuovoIstruttore">Istruttore:</label>
-                <select name="nuovoIstruttore" id="nuovoIstruttore">
+                <label for="newInstructor">Istruttore:</label>
+                <select name="newInstructor" id="newInstructor">
                     <% for( let i = 0; i < lezioni.length; i++ ) { %>
                         <% if(lezioni[i].instructor != 'Esame Guida' && lezioni[i].instructor != 'Developer Account'){ %>
                             <option value="<%= lezioni[i].instructor %>"><%= lezioni[i].instructor.split(' ')[0] %></option>
@@ -391,16 +412,33 @@ function updateSectionsVisibility(selectedDate) {
                 </select>
             </div>
             <div class="field">
-                <label for="nuovaData">Data:</label>
-                <select name="nuovaData" id="nuovaData"></select>
+                <label for="newDate">Data:</label>
+                <select name="newDate" id="newDate"></select>
             </div>
             <div class="field">
-                <label for="nuovaOra">Fascia Oraria:</label>
-                <select name="nuovaOra" id="nuovaOra"></select>
+                <label for="newHour">Fascia Oraria:</label>
+                <select name="newHour" id="newHour"></select>
             </div>
-            <button id="SubmitSpostaGuida" type="submit"><i class="fa fa-paypal"></i> Paga con PayPal</button>
+            <input type="hidden" name="paymentMethod" value="paypal">
+            <button id="satispayButtonspostaGuida" type="button" class="btn btn-primary"><i class="fa fa-qrcode"></i> Paga con Satispay</button>
+            <button id="paypalButtonspostaGuida" type="button" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
         </form>
     </div>
+    <script>
+        
+        
+
+        const spostaGuidaForm = document.getElementById("spostaGuidaForm");
+            document.getElementById("paypalButtonspostaGuida").addEventListener("click", function() {
+                spostaGuidaForm.querySelector('[name="paymentMethod"]').value = 'paypal';
+                spostaGuidaForm.submit();
+            });
+            document.getElementById("satispayButtonspostaGuida").addEventListener("click", function() {
+                spostaGuidaForm.querySelector('[name="paymentMethod"]').value = 'satispay';
+                spostaGuidaForm.submit();
+            });
+
+    </script>
     <script>
         let disponibilitaDate = [];  
         const sections = document.querySelectorAll('.section');
@@ -427,7 +465,7 @@ function updateSectionsVisibility(selectedDate) {
 
     <script>
         const SpostaGuidaBtn = document.querySelectorAll('.SpostaGuida');
-        const spostaGuidaForm = document.getElementById('spostaGuidaForm');
+        const spostaGuidaFormContainer = document.getElementById('spostaGuidaFormContainer');
         const istruttoreLezioneDaSpostare = document.getElementById('istruttoreLezioneDaSpostare');
         const dataLezioneDaSpostare = document.getElementById('dataLezioneDaSpostare');
         const oraLezioneDaSpostare = document.getElementById('oraLezioneDaSpostare');
@@ -438,20 +476,19 @@ function updateSectionsVisibility(selectedDate) {
                 const ora = btn.dataset.ora;
                 const giorno = btn.dataset.giorno;
                 const istruttore = btn.dataset.istruttore;
-                spostaGuidaForm.style.display = 'block';
+                spostaGuidaFormContainer.style.display = 'block';
                 istruttoreLezioneDaSpostare.value = istruttore;
                 dataLezioneDaSpostare.value = giorno;
                 oraLezioneDaSpostare.value = ora;
                 durataLezioneDaSpostare.value = durata;
                 popolaDate();
                 popolaFasceOrarie();
-
             });
         });
 
-        const dateSelect = document.getElementById('nuovaData');
-            const fasceOrarieSelect = document.getElementById('nuovaOra');
-            const istruttoreSelect = document.getElementById('nuovoIstruttore');
+        const dateSelect = document.getElementById('newDate');
+            const fasceOrarieSelect = document.getElementById('newHour');
+            const istruttoreSelect = document.getElementById('newInstructor');
     
             function popolaDate() {
                 const istruttoreSelezionato = istruttoreSelect.value.split(' ')[0];
@@ -540,8 +577,6 @@ function updateSectionsVisibility(selectedDate) {
         const priceInput = document.getElementById('priceInput');
         const priceLabel = document.getElementById('priceLabel');
         const causeInput = document.getElementById('causeInput');
-        const numEsameInput = document.getElementById('numEsameInput');
-        const locationInput = document.getElementById('locationInput');
         const bookButtons = document.querySelectorAll('.book');
         bookButtons.forEach(async(button) => {
             button.addEventListener("click", bookHandler);
@@ -552,11 +587,9 @@ function updateSectionsVisibility(selectedDate) {
             const instructor = button.dataset.instructor;
             const time = button.dataset.time;
             const price = button.dataset.price;
-            const location = button.dataset.location
             causeInput.value = 'lesson';
             instructorInput.value = instructor;
             timeInput.value = time;
-            locationInput.value = location;
             priceInput.value = price;
             priceLabel.innerHTML = 'Procedi con il pagamento per la lezione di guida. <br> Il totale è di ' + price + '€';
             paymentModal.style.display = 'flex';
@@ -568,9 +601,7 @@ function updateSectionsVisibility(selectedDate) {
         const examBtn = document.querySelector('.daPagare');
         if(examBtn){
             examBtn.addEventListener('click', () =>{
-                const numEsame = examBtn.dataset.esame;
                 causeInput.value = 'exam'; 
-                numEsameInput.value = numEsame;
                 priceLabel.innerHTML = 'Procedi con il pagamento dell\'esame di guida. <br> Il totale è di ' + 100 + '€';
                 paymentModal.style.display = 'flex';
                 setTimeout(() =>{
@@ -581,26 +612,32 @@ function updateSectionsVisibility(selectedDate) {
         }
     </script>
     <% }else{ %>
-        <form id="paymentForm" class="paymentModal" style="display: block; opacity: 1;" method="POST">
+        <form id="paymentForm" class="paymentModal" style="display: block; opacity: 1;" action="/trascinamento"  method="POST">
             <p style="color: #fff;">È stato attivato il trascinamento per poter continuare a prenotare dovrai pagare 150€</p>
             <div class="form-group">
                 <input type="hidden" id="causeInput" name="cause" value="trascinamento">
                 <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
             </div>
+            <input type="hidden" name="paymentMethod" id="paymentMethod">
             <button id="payPalButton" type="button" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
+            <button id="satispayButton" type="button" class="btn btn-primary"><i class="fa fa-qrcode"></i> Paga con Satispay</button>
             <label for="codicePagamento">O paga con codice</label>
             <input type="text" id="codicePagamento" name="codicePagamento"> 
             <button id="codiceButton" type="button" class="btn btn-primary">Paga con codice</button>
         </form>
         <script>
+            const paymentFormTrasc = document.getElementById('paymentForm');
             document.getElementById("payPalButton").addEventListener("click", function() {
-                document.getElementById("paymentForm").action = "/create-payment";
-                document.getElementById("paymentForm").submit();
+                paymentFormTrasc.querySelector('[name="paymentMethod"]').value = 'paypal';
+                paymentFormTrasc.submit();
             });
-            
+            document.getElementById("satispayButton").addEventListener("click", function() {
+                paymentFormTrasc.querySelector('[name="paymentMethod"]').value = 'satispay';
+                paymentFormTrasc.submit();
+            });
             document.getElementById("codiceButton").addEventListener("click", function() {
-                document.getElementById("paymentForm").action = "/create-code-payment";
-                document.getElementById("paymentForm").submit();
+                paymentFormTrasc.querySelector('[name="paymentMethod"]').value = 'code';
+                paymentFormTrasc.submit();
             });
         </script>
     <% } %>

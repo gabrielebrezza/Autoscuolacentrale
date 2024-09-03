@@ -5,8 +5,7 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken'); 
-const paypal = require('paypal-rest-sdk');
+const jwt = require('jsonwebtoken');
 const fs = require('fs');
 
 //DB schemas
@@ -23,15 +22,9 @@ const { Admin } = require('mongodb');
 
 //utils 
 const sendEmail = require('./utils/emailsUtils');
-
-paypal.configure({
-    mode: "live",
-    client_id: "AWjDhLyGssYR8jG_CSb6LTtajG-1GiqImcVnoVxHvrBg3wsYYszIqK99CWG7vHapMlNIh6nXe1dwG6kp",
-    client_secret: "EJRa3xt9-nOV0QLVqi31cGzLu5ohxVtyx69zCt-ByMbawOlrgLKRzt_VDrT49lDqd72xgqF6IbXIQiJW"
-});
+const {createPaypal, retrivePayPal, createSatispay, retriveSatispay, checkCode, setLessonPaid, setSpostaGuidaPaid, setExamPaid } = require('./utils/paymentUtils');
 
 const app = express();
-
 
 app.use(cookieParser());
 
@@ -59,7 +52,6 @@ const authenticateIscrizioneAPI = (req, res, next) => {
         res.status(403).send('Forbidden');
     }
 };
-
 
 app.get('/invoice/:id', authenticateIscrizioneAPI, async (req, res) => {
     try {
@@ -89,12 +81,11 @@ function generateUserToken(username) {
 }
 
 app.get('/', async (req, res) =>{
-    const user = req.cookies.userName;
     const token = req.cookies.userName;
     if (token) {
         return res.redirect('/profile');
     }
-        res.render('login');
+    res.render('login');
 });
 app.get('/userLogout', (req, res) => {
     res.cookie('userName', '', {maxAge: 1});
@@ -310,9 +301,9 @@ async function isAuthenticated(req, res, next) {
         // Controlla se l'utente è approvato
         try {
             const username = user.username; 
-            const approvedAdmin = await credentials.findOne({ "userName": username, "approved": true });
+            const approved = await credentials.findOne({ "userName": username, "approved": true });
             const archiviato = await credentials.findOne({ "userName": username, "archiviato": true });
-            if (!approvedAdmin) {
+            if (!approved) {
                 return res.redirect(`/waitingApprovation/:${username}`);
             }
             if(archiviato){
@@ -372,624 +363,263 @@ app.get('/profile', isAuthenticated, async (req, res) => {
     res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide, userEmail, trascinamento});
 });
 
+app.post('/book', isAuthenticated, async (req, res) => {
+    try {
+        const username = req.user.username;
+        const { paymentMethod } = req.body;
+        const {_id} = await credentials.findOne({"userName": username});
+        const returnPath = `/success/lesson`;
 
+        const { instructor, time } = req.body;
+        const [day, hour] = time.split(' - ');
+        const guides = await guide.findOne({"instructor": instructor, "book": { $elemMatch: { "day": day, "schedule.hour": hour }}},
+             { "book.$": 1 });
+        if (!guides) return res.render('errorPage', { error: 'Schedule or lesson not found' });
+        
+        const lesson = guides.book[0].schedule.find(item => item.hour === hour);
 
-app.post('/book', async (req, res) => {
-    
-        const { instructor, time, day, duration, student, price, location } = req.body;
-        const giorno = time.split(' - ')[0];
-        const hour = time.split(' - ')[1];
-        try {
-        await guide.findOneAndUpdate(
-            { 
-                "instructor": instructor, 
-                "book.day": giorno, 
-                "book.schedule.hour": hour,
-                "book.schedule.locationLink": location
-            },
-            { 
-                $set: { 
-                    "book.$[bookElem].schedule.$[scheduleElem].student": student 
-                } 
-            },
-            { 
-                arrayFilters: [
-                    { "bookElem.day": giorno },
-                    { "scheduleElem.hour": hour }
-                ] 
+        if (!lesson) return res.render('errorPage', { error: 'Lesson not found' });
+        
+        const {price, location} = lesson;
+        const custom = {scheduleId: lesson._id, bookId: guides.book[0]._id, instructor, day, hour, location}
+        if(paymentMethod == 'paypal'){
+            const url = await createPaypal(price, username, returnPath, custom);
+            return res.redirect(url);
+        }
+        if(paymentMethod == 'satispay'){
+            const url = await createSatispay(price, _id, returnPath, custom);
+            return res.redirect(url);
+        }
+        if(paymentMethod == 'code'){
+            if(await checkCode(req.body.codicePagamento, price, username)){
+                await setLessonPaid(username, _id, custom);
+                return res.redirect('/profile');
+            }else{
+                return res.render('errorPage', {error: 'Codice non esistente'});
             }
-        );
-
+        }
     } catch (error) {
-        console.error('Errore durante la prenotazione:', error);
+        console.log('Si è verificato un\'errore durante la creazione del pagamento per la guida: ', error)
         return res.render('errorPage', {error: 'Errore durante la prenotazione'});
     }
-    try{  
-        const user = await credentials.findOne(
-            {"userName": student}, 
-            {
-                "email": 1,
-                "billingInfo": 1
-            }
-        ); 
-        let subject = 'Prenotazione effettuata per lezione di guida';
-        const {content} = await formatoEmail.findOne({})
-        let text = content
-        .replace(/\(NOME\)/g, user.billingInfo[0].nome)
-        .replace(/\(COGNOME\)/g, user.billingInfo[0].cognome)
-        .replace(/\(DATA\)/g, day)
-        .replace(/\(DAORA\)/g, hour.split('-')[0])
-        .replace(/\(AORA\)/g, hour.split('-')[1])
-        .replace(/\(LINKPOSIZIONE\)/g, location);
-        try{
-            const result = await sendEmail(user.email, subject, text);
-            console.log(result);
-        }catch(error){
-            console.log('errore: ', error);
-        }
-    } catch (error) {
-        console.error(`Errore durante la creazione del testo per l'email di conferma prenotazione: ${error}`);
-    }
-        try {
-            const durationInHour = duration/60;
-            const [nome, cognome] = instructor.split(" ");
-            const existingOrario = await admin.findOne({"nome": nome, "cognome": cognome, "ore.data": day});
-
-            if (existingOrario) {
-                await admin.findOneAndUpdate(
-                    {"nome": nome, "cognome": cognome, "ore.data": day},
-                    {$inc: {"ore.$.totOreGiorno": durationInHour}},
-                    {new: true}
-                );
-            } else {
-                await admin.findOneAndUpdate(
-                    {"nome": nome, "cognome": cognome},
-                    {$addToSet: {"ore": {"data": day, "totOreGiorno": durationInHour}}},
-                    {new: true}
-                );
-            }
-            const today = new Date();
-            const d = String(today.getDate()).padStart(2, '0'); 
-            const month = String(today.getMonth() + 1).padStart(2, '0'); 
-            const year = today.getFullYear(); 
-            const dataFatturazione = `${d}/${month}/${year}`;
-            await credentials.findOneAndUpdate(
-                {"userName": student},
-                {
-                    $addToSet: {
-                        "fatturaDaFare": {"tipo": 'lezione di guida', "data": dataFatturazione, "importo": price, "emessa": false},
-                        "lessonList": {"istruttore": instructor, "giorno": giorno, "ora": hour, "duration": durationInHour}
-                    }
-                },
-                {new: true}
-            );
-        } catch (error) {
-            console.error(`errore durante il salvataggio della fattura: ${error}`);
-        }
-        res.sendStatus(200);
 });
 
-app.post('/bookExam', async (req, res) => {
+app.get('/success/lesson', isAuthenticated, async (req, res) => {
     try {
-        const price = req.body.price;
-        const userName = req.body.student;
-        let numEsame = parseInt(req.body.numEsame);
-        await credentials.findOneAndUpdate(
-            { "userName": userName },
-            { $set: { ["exams." + numEsame + ".paid"]: true } }
-        );
-         
-        await credentials.findOneAndUpdate(
-            { "userName": userName },
-            { $push: { "exams": { "paid": false, "bocciato": false } } }
-        );
-        const today = new Date();
-        const d = String(today.getDate()).padStart(2, '0'); 
-        const month = String(today.getMonth() + 1).padStart(2, '0'); 
-        const year = today.getFullYear(); 
-        const dataFatturazione = `${d}/${month}/${year}`;
-        await credentials.findOneAndUpdate(
-            {"userName": userName},
-            {$addToSet: {"fatturaDaFare": {"tipo": 'Esame di guida', "data": dataFatturazione, "importo": price, "emessa": false}}},
-            {new: true}
-        );
-        res.sendStatus(200); 
+        const {paymentMethod} = req.query;
+        const { username } = req.user;
+        const type = 'Lezione di guida';
+        if(!paymentMethod) return res.render('errorPage', {error: 'errore nel pagamento dell\'esame, metodo di pagamento non riconosciuto'})
+        
+        let id, custom;
+        if(paymentMethod == 'paypal'){
+            const payerId = req.query.PayerID;
+            const paymentId = req.query.paymentId;
+            if(!paymentId || !payerId){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
+            }
+            const dati = await retrivePayPal(payerId, paymentId, type);
+            id = dati.userId, custom = dati.custom
+        }
+        if(paymentMethod == 'satispay'){
+            id = req.query.id;
+            const { paymentId } = await credentials.findOne({"userName": username});
+            const dati = await retriveSatispay(paymentId, username, type);
+            custom = dati.custom;
+            if(dati.status.toLowerCase() !='accepted' || !dati.status){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
+            }
+        }
+        await setLessonPaid(username, id, custom);
+
+        res.redirect('/profile');
+    } catch (error) {
+        console.log('errore nella ricezione del pagamento lezione: ', error);
+        res.render('errorPage', {error: 'errore nel pagamento della lezione'});
+    }
+});
+
+app.post('/bookExam', isAuthenticated, async (req, res) => {
+    try {
+        const price = 100;
+        const username = req.user.username;
+        const { paymentMethod } = req.body;
+        const returnPath = `/success/exam`;
+        const {_id} = await credentials.findOne({"userName": username});
+        if(paymentMethod == 'paypal'){
+            const url = await createPaypal(price, username, returnPath);
+            return res.redirect(url);
+        }
+        if(paymentMethod == 'code'){
+            if(await checkCode(req.body.codicePagamento, price, username)){
+                await setExamPaid(_id);
+                return res.redirect('/profile');
+            }else{
+                return res.render('errorPage', {error: 'Codice non esistente'});
+            }
+        }
+        if(paymentMethod == 'satispay'){
+            const url = await createSatispay(price, _id, returnPath);
+            return res.redirect(url);
+        }
     } catch (error) {
         console.error('Errore durante la prenotazione dell\'Esame :', error);
         return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'Esame'});
     }
 });
 
-app.post('/create-code-payment', async (req, res) => {
+app.get('/success/exam', isAuthenticated, async (req, res) => {
     try {
-        const student = req.body.student;
-        const cause = req.body.cause;
-        let instructor, location;
-        let price, time, day, hour, numEsame, duration;
-        if(req.body.time){
-            time = req.body.time;
-            const timeParts = time.split(' - '); 
-            day = timeParts[0];
-            hour = timeParts[1];
-            const [startTime, endTime] = hour.split('-').map(t => t.trim());
-
-            const [startHour, startMin] = startTime.split(':').map(Number);
-            const [endHour, endMin] = endTime.split(':').map(Number);
-            
-            
-            if (endHour > startHour || (endHour === startHour && endMin >= startMin)) {
-                duration = (endHour - startHour) * 60 + (endMin - startMin);
-            } else {
-                duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
-            }
-        }
-        const pricePerHour = await prezzoGuida.findOne();
-        price = cause == 'exam' ? 100 : cause == 'trascinamento' ? 150 : (pricePerHour.prezzo * (duration/60));
-        const code = req.body.codicePagamento;
-        const exists = !!(await credentials.findOne({
-            "userName": student,
-            "codicePagamento": {
-              $elemMatch: {
-                "codice": code,
-                "importo": price
-              }
-            }
-        }));
-        if(exists){
-            if(cause == 'lesson'){
-                instructor = req.body.instructor;
-                location = req.body.location;
-                
-                const guides = await guide.findOne({ instructor: instructor });
-                if (!guides) {
-                    return res.render('errorPage', {error: 'Instructor not found'});
-                }
-                const schedule = guides.book.find(item => item.day === day);
-                if (!schedule) {
-                    return res.render('errorPage', {error: 'Schedule not found'});
-                }
-                const lesson = schedule.schedule.find(item => item.hour === hour);
-                if (!lesson) {
-                    return res.render('errorPage', {error: 'Lesson not found'});
-                }
-                price = lesson.price;
-                fetch('https://agenda-autoscuolacentrale.com/book', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ instructor, time, day, duration, student, price, location})
-                })
-                .then(async  response => {
-                    if (response.ok) {
-                        await credentials.updateOne(
-                            {"userName": student},
-                            { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
-                          );
-                        console.log('Prenotazione effettuata con successo dopo il pagamento con codice');
-                        return { success: true };
-                    } else {
-                        console.error('Errore durante la prenotazione dopo il pagamento');
-                        return { success: false, error: 'Errore durante la prenotazione dopo il pagamento' };
-                    }
-                })
-                .catch(error => {
-                    console.error('Errore durante la prenotazione dopo il pagamento:', error);
-                    return { success: false, error: 'Errore durante la prenotazione dopo il pagamento' };
-                })
-                .then(result => {
-                    if (result.success) {
-                        return res.redirect('/profile');
-                    } else {
-                        return res.render('errorPage', { error: result.error });
-                    }
-                });
-            }else if(cause == 'exam'){
-                price = 100;
-                numEsame = req.body.numEsame;
-                const response = await fetch('https://agenda-autoscuolacentrale.com/bookExam', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ student, numEsame, price})
-                });
-                if (response.ok) {
-                    await credentials.updateOne(
-                        {"userName": student},
-                        { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
-                    );
-                    console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento con codice');
-                    return res.redirect(`/profile`);
-                } else {
-                    console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
-                    return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'esame dopo il pagamento'});
-                }
-            }else if(cause == 'trascinamento'){
-                await credentials.findOneAndUpdate(
-                    {"userName": student},
-                    {"trascinamento.pagato": true}
-                );
-                await credentials.updateOne(
-                    {"userName": student},
-                    { $pull: { "codicePagamento": { "codice": code, "importo": price } } }
-                );
-                return res.redirect(`/profile`);
-            }
-        }else{
-            return res.render('errorPage', {error: 'codice non esistente o importo diverso da quello del codice'});
-        }
-    } catch (error) {
-        console.error(error);
-        return res.render('errorPage', {error: 'Internal server error'});
-    }
-});
-
-
-app.post('/create-payment',  async (req, res) =>{
-    try {
-        const student = req.body.student;
-        const cause = req.body.cause;
+        const { paymentMethod } = req.query;
+        const { username } = req.user;
+        const type = 'Esame di guida';
+        if(!paymentMethod) return res.render('errorPage', {error: 'errore nel pagamento dell\'esame, metodo di pagamento non riconosciuto'})
         
-        let instructor, location;
-        let price, description, returnUrl, day, hour, numEsame, name, sku;
-        if(cause == 'lesson'){
-            instructor = req.body.instructor;
-            location = req.body.location;
-            const timeParts = req.body.time.split(' - '); 
-            day = timeParts[0];
-            hour = timeParts[1];
-            const guides = await guide.findOne({ instructor: instructor });
-            if (!guides) {
-                return res.render('errorPage', {error: 'Instructor not found'});
+        let id;
+        if(paymentMethod == 'paypal'){
+            let payerId = req.query.PayerID;
+            let paymentId = req.query.paymentId;
+            if(!paymentId || !payerId){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
             }
-
-        const schedule = guides.book.find(item => item.day === day);
-        if (!schedule) {
-            return res.render('errorPage', {error: 'Schedule not found'});
+            const { userId } = await retrivePayPal(payerId, paymentId, type);
+            id = userId;
         }
-        const lesson = schedule.schedule.find(item => item.hour === hour);
-        if (!lesson) {
-            return res.render('errorPage', {error: 'Lesson not found'});
-        }
-        price = lesson.price;
-        description: "Pagamento per la lezione di guida in AutoScuolaCentrale"; 
-        name = "Lezione di Guida";
-        sku = 1;
-        returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&instructor=${encodeURIComponent(instructor)}&time=${encodeURIComponent(day + ' - ' + hour)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&location=${encodeURIComponent(location)}`;
-        }else if(cause == 'exam'){
-            price = 100;
-            numEsame = req.body.numEsame;
-            description: "Pagamento per l'esame di guida in AutoScuolaCentrale"; 
-            name = "Esame di Guida";
-            sku = 2;
-            returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&numEsame=${encodeURIComponent(numEsame)}&price=${encodeURIComponent(price)}`;
-
-        }else if(cause == 'spostaGuida'){
-            const istruttoreLezioneDaSpostare = req.body.istruttoreLezioneDaSpostare;
-            const dataLezioneDaSpostare = req.body.dataLezioneDaSpostare;
-            const oraLezioneDaSpostare = req.body.oraLezioneDaSpostare;
-            const nuovoIstruttore = req.body.nuovoIstruttore;
-            const nuovaData = req.body.nuovaData;
-            const nuovaOra = req.body.nuovaOra;
-            const durata = req.body.durataLezioneDaSpostare;
-            price = 5;
-            description: "Pagamento per lo spostamento della lezione di guida in AutoScuolaCentrale"; 
-            name = "Spostamento lezione di Guida";
-            sku = 3;
-            returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}&oldInstructor=${encodeURIComponent(istruttoreLezioneDaSpostare)}&oldDate=${encodeURIComponent(dataLezioneDaSpostare)}&oldHour=${encodeURIComponent(oraLezioneDaSpostare)}&newInstructor=${encodeURIComponent(nuovoIstruttore)}&newDate=${encodeURIComponent(nuovaData)}&newHour=${encodeURIComponent(nuovaOra)}&durata=${encodeURIComponent(durata)}`;
-        }else if(cause == 'trascinamento'){
-            price = 150;
-            description: "Pagamento per il trascinamento in AutoScuolaCentrale"; 
-            name = "Trascinamento";
-            sku = 4;
-            returnUrl = `https://agenda-autoscuolacentrale.com/success?cause=${encodeURIComponent(cause)}&student=${encodeURIComponent(student)}&price=${encodeURIComponent(price)}`;
-        }
-        const create_payment_json = {
-            intent: "sale",
-            payer: {
-                payment_method: "paypal"
-            },
-            redirect_urls: {
-                return_url: returnUrl,
-                cancel_url: "https://agenda-autoscuolacentrale.com/cancel",
-            },
-            transactions: [
-                {
-                    item_list: {
-                        items: [
-                            {
-                                name: name,
-                                sku: sku,
-                                price: price,
-                                currency: "EUR",
-                                quantity: 1
-                            }
-                        ]
-                    },
-                    amount: {
-                        currency: "EUR",
-                        total: price
-                    },
-                    description: description
-                }
-            ]
-        }; 
-        paypal.payment.create(create_payment_json, (error, payment) => {
-            if (error) {
-                throw error;
-            } else {
-                for (let i = 0; i < payment.links.length; i++) {
-                    if (payment.links[i].rel === "approval_url") {
-                        res.redirect(payment.links[i].href);
-                    }
-                }
+        if(paymentMethod == 'satispay'){
+            id = req.query.id;
+            const { paymentId } = await credentials.findOne({"userName": username});
+            const {status} = await retriveSatispay(paymentId, username, type);
+            if(status.toLowerCase() !='accepted' || !status){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
             }
-        });
+        }
+        await setExamPaid(id);
+
+        res.redirect('/profile');
     } catch (error) {
-        console.error(error);
-        return res.render('errorPage', {error: 'Internal server error'});
+        console.log('errore nella ricezione del pagamento esame: ', error)
+        res.render('errorPage', {error: 'errore nel pagamento dell\'esame'})
     }
 });
 
-app.get('/success',  async (req, res) =>{
+app.post('/trascinamento', isAuthenticated, async (req, res) => {
     try {
-        const payerId = req.query.PayerID;
-        const paymentId = req.query.paymentId;
-        const price = req.query.price;
-        if(!paymentId || !payerId){
-            return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
+        const price = 150;
+        const username = req.user.username;
+        const { paymentMethod } = req.body;
+        const returnPath = `/success/trascinamento`;
+        const {_id} = await credentials.findOne({"userName": username});
+        if(paymentMethod == 'paypal'){
+            const url = await createPaypal(price, username, returnPath);
+            return res.redirect(url);
         }
-        const execute_payment_json = {
-            payer_id: payerId,
-            transactions: [
-                {
-                    amount: {
-                        currency: "EUR",
-                        total: price
-                    }
-                }
-            ]
-        };
-
-
-        paypal.payment.execute(paymentId, execute_payment_json, async (error, payment) =>{
-            if(error){
-                console.error(error.response);
-                throw error
-            } else{
-                const cause = req.query.cause;
-                const student = req.query.student;
-                if(cause == 'lesson'){
-                    const location = req.query.location;
-                    const instructor = req.query.instructor;
-                    const time = req.query.time;
-                    const [day, timePart] = time.split(' - ');
-                    const [startTime, endTime] = timePart.split('-').map(t => t.trim());
-                    
-                    const [startHour, startMin] = startTime.split(':').map(Number);
-                    const [endHour, endMin] = endTime.split(':').map(Number);
-                    
-                    let duration;
-                    if (endHour > startHour || (endHour === startHour && endMin >= startMin)) {
-                        duration = (endHour - startHour) * 60 + (endMin - startMin);
-                    } else {
-                        duration = (24 - startHour + endHour) * 60 + (endMin - startMin);
-                    }
-
-                    fetch('https://agenda-autoscuolacentrale.com/book', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ instructor, time, day, duration, student, price, location})
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            console.log('Prenotazione effettuata con successo dopo il pagamento', req.query);
-
-                            res.redirect(`/profile`);
-                        } else {
-                            console.error('Errore durante la prenotazione dopo il pagamento');
-
-                            return res.render('errorPage', {error: 'Errore durante la prenotazione dopo il pagamento'});
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Errore durante la prenotazione dopo il pagamento:', error);
-
-                        return res.render('errorPage', {error: 'Errore durante la prenotazione dopo il pagamento'});
-                    });
-                }else if(cause == 'exam'){
-                    const numEsame = req.query.numEsame;
-                    const response = await fetch('https://agenda-autoscuolacentrale.com/bookExam', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ student, numEsame, price})
-                    });
-                    if (response.ok) {
-                        console.log('Prenotazione dell\'esame effettuata con successo dopo il pagamento', req.query);
-                        
-                        res.redirect(`/profile`);
-                    } else {
-                        console.error('Errore durante la prenotazione dell\'esame dopo il pagamento');
-                        
-                        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'esame dopo il pagamento'});
-                    }
-                }else if(cause == 'spostaGuida'){
-                    const oldInstructor = req.query.oldInstructor;
-                    const oldDate = req.query.oldDate;
-                    const oldHour = req.query.oldHour;
-                    const newInstructor = req.query.newInstructor;
-                    const newDate = req.query.newDate;
-                    const newHour = req.query.newHour;
-                    const durata = Number(req.query.durata);
-                        const [oldName, oldSurName] = oldInstructor.split(" ");
-                        await admin.findOneAndUpdate(
-                            {
-                                "nome": oldName,
-                                "cognome": oldSurName,
-                                "ore.data": oldDate
-                            },
-                            {
-                                $inc: {
-                                    "ore.$.totOreGiorno": -durata
-                                }
-                            }
-                        );
-                        const [newName, newSurName] = newInstructor.split(" ");
-                        const existingOrario = await admin.findOne({"nome": newName, "cognome": newSurName, "ore.data": newDate});
-                        if (existingOrario) {
-                            await admin.findOneAndUpdate(
-                                {
-                                    "nome": newName,
-                                    "cognome": newSurName,
-                                    "ore.data": newDate
-                                },
-                                {
-                                    $inc: {
-                                        "ore.$.totOreGiorno": durata
-                                    }
-                                },
-                                {
-                                    new: true
-                                }
-                            );
-                        } else {
-                            await admin.findOneAndUpdate(
-                                {
-                                    "nome": newName,
-                                    "cognome": newSurName
-                                },
-                                {
-                                    $addToSet: {
-                                        "ore": {
-                                            "data": newDate,
-                                            "totOreGiorno": durata
-                                        }
-                                    }
-                                },
-                                {
-                                    new: true
-                                }
-                            );
-                        }
-                    await guide.findOneAndUpdate(
-                        {
-                            "instructor": oldInstructor,
-                            "book": {
-                                $elemMatch: {
-                                    "day": oldDate,
-                                    "schedule": {
-                                        $elemMatch: {
-                                            "hour": oldHour,
-                                            "student": student
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            $set: {
-                                "book.$[outer].schedule.$[inner].student": null
-                            }
-                        },
-                        {
-                            arrayFilters: [
-                                { "outer.day": oldDate },
-                                { "inner.hour": oldHour, "inner.student": student }
-                            ]
-                        }
-                    );
-                    
-                    await guide.findOneAndUpdate(
-                        {
-                            "instructor": newInstructor,
-                            "book": {
-                                $elemMatch: {
-                                    "day": newDate,
-                                    "schedule": {
-                                        $elemMatch: {
-                                            "hour": newHour,
-                                            "student": null
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            $set: {
-                                "book.$[outer].schedule.$[inner].student": student
-                            }
-                        },
-                        {
-                            arrayFilters: [
-                                { "outer.day": newDate },
-                                { "inner.hour": newHour, "inner.student": null }
-                            ]
-                        }
-                    );
-                     
-                    const today = new Date();
-                    const d = String(today.getDate()).padStart(2, '0'); 
-                    const month = String(today.getMonth() + 1).padStart(2, '0'); 
-                    const year = today.getFullYear(); 
-                    const dataFatturazione = `${d}/${month}/${year}`;
-                    await credentials.findOneAndUpdate(
-                        {
-                            "userName": student
-                        },
-                        {
-                            $pull: {
-                                "lessonList": {
-                                        "istruttore": oldInstructor,
-                                        "giorno": oldDate,
-                                        "ora": oldHour,
-                                        "duration": durata
-                                }
-                            }
-                        }
-                    );            
-                    await credentials.findOneAndUpdate(
-                        {"userName": student},
-                        {
-                            $addToSet: {
-                                "fatturaDaFare": {"tipo": 'spostamento lezione di guida', "data": dataFatturazione, "importo": price, "emessa": false},
-                                "lessonList": {"istruttore": newInstructor, "giorno": newDate, "ora": newHour, "duration": durata}
-                            }
-                        },
-                        {new: true}
-                    );   
-                    res.redirect('/profile');                 
-                }else if(cause == "trascinamento"){
-                    await credentials.findOneAndUpdate(
-                        {"userName": student},
-                        {"trascinamento.pagato": true}
-                    );
-                    const today = new Date();
-                    const d = String(today.getDate()).padStart(2, '0'); 
-                    const month = String(today.getMonth() + 1).padStart(2, '0'); 
-                    const year = today.getFullYear(); 
-                    const dataFatturazione = `${d}/${month}/${year}`;
-                    await credentials.findOneAndUpdate(
-                        {"userName": student},
-                        {
-                            $addToSet: {
-                                "fatturaDaFare": {"tipo": 'trascinamento', "data": dataFatturazione, "importo": price, "emessa": false},
-                            }
-                        },
-                        {new: true}
-                    ); 
-                    res.redirect('/profile'); 
-                }
+        if(paymentMethod == 'satispay'){
+            const url = await createSatispay(price, _id, returnPath);
+            return res.redirect(url);
+        }
+        if(paymentMethod == 'code'){
+            if(await checkCode(req.body.codicePagamento, price, username)){
+                await credentials.findOneAndUpdate({"userName": username}, {"trascinamento.pagato": true});
+                return res.redirect('/profile');
+            }else{
+                return res.render('errorPage', {error: 'Codice non esistente'});
             }
-        });
+        }
     } catch (error) {
-        console.error('Errore generale:', error);
+        console.error('Errore durante la prenotazione dell\'Esame :', error);
+        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'Esame'});
+    }
+});
 
-        return res.render('errorPage', {error: 'Errore del server'});
+app.get('/success/trascinamento', isAuthenticated, async (req, res) => {
+    try {
+        const { paymentMethod } = req.query;
+        const { username } = req.user;
+        const type = 'Trascinamento';
+        if(!paymentMethod) return res.render('errorPage', {error: 'errore nel pagamento dell\'esame, metodo di pagamento non riconosciuto'})
+        
+        let id;
+        if(paymentMethod == 'paypal'){
+            let payerId = req.query.PayerID;
+            let paymentId = req.query.paymentId;
+            if(!paymentId || !payerId){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
+            }
+            const { userId } = await retrivePayPal(payerId, paymentId, type);
+            id = userId;
+        }
+        if(paymentMethod == 'satispay'){
+            id = req.query.id;
+            const { paymentId } = await credentials.findOne({"userName": username});
+            const {status} = await retriveSatispay(paymentId, username, type);
+            if(status.toLowerCase() !='accepted' || !status){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
+            }
+        }
+        await credentials.findOneAndUpdate({"_id": id}, {"trascinamento.pagato": true});
+
+        res.redirect('/profile');
+    } catch (error) {
+        console.log('errore nella ricezione del pagamento trascinamento: ', error)
+        res.render('errorPage', {error: 'errore nel pagamento del trascinamento'})
+    }
+});
+
+app.post('/spostaGuida', isAuthenticated, async (req, res) => {
+    try {
+        const price = 5;
+        const username = req.user.username;
+        const { paymentMethod } = req.body;
+        const custom = req.body;
+        const returnPath = `/success/spostaGuida`;
+        const {_id} = await credentials.findOne({"userName": username});
+        if(paymentMethod == 'paypal'){
+            const url = await createPaypal(price, username, returnPath, custom);
+            res.redirect(url);
+        }
+        if(paymentMethod == 'satispay'){
+            const url = await createSatispay(price, _id, returnPath, custom);
+            return res.redirect(url);
+        }
+    } catch (error) {
+        console.error('Errore durante la prenotazione dell\'Esame :', error);
+        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'Esame'});
+    }
+});
+
+app.get('/success/spostaGuida', isAuthenticated, async (req, res) => {
+    try {
+        const {paymentMethod} = req.query;
+        const { username } = req.user;
+        const type = 'Spostamento Lezione di Guida';
+        if(!paymentMethod) return res.render('errorPage', {error: 'errore nel pagamento dell\'esame, metodo di pagamento non riconosciuto'})
+        
+        let id, custom;
+        if(paymentMethod == 'paypal'){
+            const payerId = req.query.PayerID;
+            const paymentId = req.query.paymentId;
+            if(!paymentId || !payerId){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
+            }
+            const dati = await retrivePayPal(payerId, paymentId, type);
+            id = dati.userId, custom = dati.custom
+        }
+        if(paymentMethod == 'satispay'){
+            id = req.query.id;
+            const { paymentId } = await credentials.findOne({"userName": username});
+            const dati = await retriveSatispay(paymentId, username, type);
+            custom = dati.custom;
+            if(dati.status.toLowerCase() !='accepted' || !dati.status){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
+            }
+        }
+
+        await setSpostaGuidaPaid(id, custom);
+        
+        res.redirect('/profile');
+    } catch (error) {
+        console.log('errore nella ricezione del pagamento sposta guida: ', error)
+        res.render('errorPage', {error: 'errore nel pagamento per lo spostamento della guida'})
     }
 });
 

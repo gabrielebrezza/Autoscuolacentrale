@@ -99,12 +99,12 @@
             var oreFiltrate = oreIstruttori.find(function(istruttore) {
                 return istruttore.email === selectedInstructor;
             });
-        
+            console.log(oreFiltrate)
             var oreSvolte = oreFiltrate.ore.filter(function(ora) {
-                var dataOra = new Date(ora.data.split('/').reverse().join('/'));
+                var dataOra = new Date(ora.data.split('/').reverse().join('-'));
                 return dataOra >= fromDate && dataOra <= toDate;
             });
-        
+            console.log(oreSvolte)
             var totaleOre = 0;
             oreSvolte.forEach(function(ora) {
                 totaleOre += ora.totOreGiorno;

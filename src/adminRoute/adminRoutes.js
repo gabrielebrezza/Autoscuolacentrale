@@ -342,7 +342,7 @@ router.post('/perfezionamento', authenticateJWT, async (req, res) =>{
         res.status(500)
     }
 });
-router.post('/trascinamento', authenticateJWT, async (req, res) =>{
+router.post('/admin/trascinamento', authenticateJWT, async (req, res) =>{
     const {email} = req.body;
     try{
         await credentials.findOneAndUpdate(

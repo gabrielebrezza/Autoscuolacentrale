@@ -376,7 +376,6 @@ aside .esami p{
     border-radius: 5px;
     padding: 20px;
     width: 300px;
-    height: 300px;
     margin: 0 auto;
     transition: 1s opacity;
 }
@@ -415,6 +414,7 @@ aside .esami p{
     border: none;
     color: #5681a9;
     padding: 10px 20px;
+    margin-block: 10px;
     border-radius: 5px;
     cursor: pointer;
     transition: .5s;
@@ -426,7 +426,6 @@ aside .esami p{
     background: #5681a9;
     color: #fff;
 }
-
 main{
     display: flex;
     align-items: center;
@@ -514,7 +513,7 @@ button.SpostaGuida  {
     border-radius: 5px;
     cursor: pointer;
 }
-#spostaGuidaForm{
+#spostaGuidaFormContainer{
     z-index: 11;
     position: fixed;
     top: 50%;
@@ -523,20 +522,20 @@ button.SpostaGuida  {
     max-width: 300px;
     width: 100%;
 }
-#spostaGuidaForm a{
+#spostaGuidaFormContainer a{
     color: #fff;
     font-weight: 1000;
     text-align: right;
     transition: .5s;
 }
-#spostaGuidaForm a:hover{
+#spostaGuidaFormContainer a:hover{
     color: red;
 }
-#spostaGuidaForm p{
+#spostaGuidaFormContainer p{
     font-weight: 600;
     text-align: center;
 }
-#spostaGuidaForm form{
+#spostaGuidaFormContainer form{
     padding: 25px;
     background: #71a1cb;
     color: #fff;
@@ -545,18 +544,18 @@ button.SpostaGuida  {
     filter: drop-shadow(15px 15px 2px #32327f1f);
     border-radius: 5px;
 }
-#spostaGuidaForm .field{
+#spostaGuidaFormContainer .field{
     width: 100%;
     display: flex;
     flex-direction: column;
     margin-block: 10px;
     border-radius: 5px;
 }
-#spostaGuidaForm .field select:focus{
+#spostaGuidaFormContainer .field select:focus{
     border-radius: 5px;
     outline: 3px solid #5681a9;
 }
-#spostaGuidaForm form button{
+#spostaGuidaFormContainer form button{
     background:#fff ;
     font-size: 1rem;
     font-weight: bold;
@@ -567,10 +566,10 @@ button.SpostaGuida  {
     cursor: pointer;
     transition: .5s;
 }
-#spostaGuidaForm form button i{
+#spostaGuidaFormContainer form button i{
     font-size: 1.2rem;
 }
-#spostaGuidaForm form button:hover {
+#spostaGuidaFormContainer form button:hover {
     background: #5681a9;
     color: #fff;
 }
