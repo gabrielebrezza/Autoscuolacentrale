@@ -113,7 +113,6 @@ function signString(stringToSign) {
 }
 
 async function createSatispay(price, id, returnPath, custom = {}) {
-    console.log('pagamento effettuato con satispay')
     const payload = {
         flow: 'MATCH_CODE',
         amount_unit: price * 100,
@@ -153,6 +152,7 @@ async function createSatispay(price, id, returnPath, custom = {}) {
 }
 
 async function retriveSatispay(paymentId, username, type) {
+    console.log('pagamento effettuato con satispay')
   const url = `https://${process.env.SATISPAY_API_URL}/g_business/v1/payments/${paymentId}`;
   const date = new Date().toUTCString();
   const requestTarget = `(request-target): get /g_business/v1/payments/${paymentId}`;
