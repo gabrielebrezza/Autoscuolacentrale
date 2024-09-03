@@ -34,8 +34,6 @@ paypal.configure({
     client_id: process.env.PAYPAL_PUBLIC,
     client_secret: process.env.PAYPAL_SECRET
 });
-// client_id: "AWjDhLyGssYR8jG_CSb6LTtajG-1GiqImcVnoVxHvrBg3wsYYszIqK99CWG7vHapMlNIh6nXe1dwG6kp",
-// client_secret: "EJRa3xt9-nOV0QLVqi31cGzLu5ohxVtyx69zCt-ByMbawOlrgLKRzt_VDrT49lDqd72xgqF6IbXIQiJW"
 
 async function createPaypal(price, userName, returnPath, custom = {}){
     const create_payment_json = {
@@ -115,6 +113,7 @@ function signString(stringToSign) {
 }
 
 async function createSatispay(price, id, returnPath, custom = {}) {
+    console.log('pagamento effettuato con satispay')
     const payload = {
         flow: 'MATCH_CODE',
         amount_unit: price * 100,
