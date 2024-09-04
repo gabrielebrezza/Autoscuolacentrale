@@ -123,10 +123,7 @@
                             <td data-label="Ora"><%= storicoGuide.lessonList[i].ora %></td>
                             <td data-label="Durata"><%= storicoGuide.lessonList[i].duration < 1 ? storicoGuide.lessonList[i].duration * 60 + 'min' : storicoGuide.lessonList[i].duration.toFixed(2) + 'h'%></td>
                             <% var oggi = new Date(); %>
-                            <% 
-                              var partiData = storicoGuide.lessonList[i].giorno.split('/');
-                              var giornoLezione = new Date(partiData[2], partiData[1] - 1, partiData[0]); 
-                            %>
+                            <% var giornoLezione = new Date(storicoGuide.lessonList[i].giorno.split('/').reverse().join('-')); %>
                             <% var differenzaGiorni = (giornoLezione - oggi) / (1000 * 60 * 60 * 24); %>
 
                             <% if (differenzaGiorni >= 2 && giornoLezione > oggi) { %>
@@ -178,7 +175,11 @@
                             <% let scheduleArr = []; %>
                             <% let booked = false; %>
                             <% let previousSchedule = false; %>
-                            <% for( const schedule of bookObj.schedule ) {
+                            <% const filteredSchedules = [...bookObj.schedule].sort((a, b) => {
+                                return a.hour.split('-')[0].localeCompare(b.hour.split('-')[0]);
+                            }); %>
+                            
+                            <% for( const schedule of filteredSchedules ) {
                                 //se io ho già prenotato una guida nascondo la card
                                 if(schedule.student == nome){
                                     booked = true;
