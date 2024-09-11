@@ -391,7 +391,7 @@ app.post('/book', isAuthenticated, async (req, res) => {
             return res.redirect(url);
         }
         if(paymentMethod == 'code'){
-            if(await checkCode(req.body.codicePagamento, price, username)){
+            if(await checkCode(req.body.codicePagamento, price, username, 'Lezione di guida')){
                 await setLessonPaid(username, _id, custom);
                 return res.redirect('/profile');
             }else{
@@ -451,7 +451,7 @@ app.post('/bookExam', isAuthenticated, async (req, res) => {
             return res.redirect(url);
         }
         if(paymentMethod == 'code'){
-            if(await checkCode(req.body.codicePagamento, price, username)){
+            if(await checkCode(req.body.codicePagamento, price, username, 'Esame di guida')){
                 await setExamPaid(_id);
                 return res.redirect('/profile');
             }else{
@@ -518,7 +518,7 @@ app.post('/trascinamento', isAuthenticated, async (req, res) => {
             return res.redirect(url);
         }
         if(paymentMethod == 'code'){
-            if(await checkCode(req.body.codicePagamento, price, username)){
+            if(await checkCode(req.body.codicePagamento, price, username, 'Trascinamento')){
                 await credentials.findOneAndUpdate({"userName": username}, {"trascinamento.pagato": true});
                 return res.redirect('/profile');
             }else{

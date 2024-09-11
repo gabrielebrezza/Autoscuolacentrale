@@ -11,7 +11,7 @@ const formatoEmail = require('./../Db/formatoEmail');
 
 const sendEmail = require('./../utils/emailsUtils');
 
-async function addFattura(student, type, price){
+async function addFattura(student, paymentUrl, type, price){
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0'); 
     const mm = String(today.getMonth() + 1).padStart(2, '0'); 
@@ -21,7 +21,7 @@ async function addFattura(student, type, price){
         {"userName": student},
         {
             $addToSet: {
-                "fatturaDaFare": {"tipo": type, "data": data, "importo": price, "emessa": false},
+                "fatturaDaFare": {"tipo": type, "data": data, "importo": price, "paymentUrl": paymentUrl, "emessa": false},
             }
         },
         {new: true}
@@ -89,9 +89,11 @@ async function retrivePayPal(payerId, paymentId, type){
             if(error){
                 reject(error);
             }else{
+                const transactionId = payment.transactions[0].related_resources[0].sale.id;
+                const paymentUrl = `https://paypal.com/activity/payment/${transactionId}`;
                 const custom = JSON.parse(payment.transactions[0].custom);
                 const user = await credentials.findOne({"paymentId": paymentId});
-                await addFattura(user.userName, type, payment.transactions[0].amount.total);
+                await addFattura(user.userName, paymentUrl, type, payment.transactions[0].amount.total);
                 resolve({userId: user._id, custom});
             }
         });
@@ -178,7 +180,8 @@ async function retriveSatispay(paymentId, username, type) {
           }
       });
       const { status, metadata, amount_unit } = response.data;
-      await addFattura(username, type, amount_unit/100);
+      const paymentUrl = `https://dashboard.satispay.com/dashboard/transactions/${user.paymentId}`;
+      await addFattura(username, paymentUrl, type, amount_unit/100);
       return { status, custom: metadata};
   } catch (error) {
       console.error('Error checking payment status:', error.response ? error.response.data : error.message);
@@ -187,9 +190,10 @@ async function retriveSatispay(paymentId, username, type) {
 }
 
 //CODE CHECKOUT
-async function checkCode(code, price, username) {
+async function checkCode(code, price, username, type) {
     const result = await credentials.findOne({"userName": username, "codicePagamento": {$elemMatch: {"codice": code,"importo": price}}});
     await credentials.updateOne({"userName": username},{ $pull: { "codicePagamento": { "codice": code, "importo": price }}});
+    if(!!result) await addFattura(username, 'Codice', type, price);
     return !!result;
 }
 

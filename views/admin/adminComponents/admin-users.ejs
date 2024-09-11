@@ -180,21 +180,30 @@
                                     <% } %>
                                 </span>
                             </td>
-                            <% let collegamento = '/admin/fatture/:'+ utenti[i].userName; %>
                             <td data-label="Guide"> <button class="tableBtn"><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
                             <td data-label="Limitazioni"> <button class="limitation tableBtn" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
                             <td data-label="Boccia"> <button class="boccia tableBtn" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
-                            <% let noFatture = true %>
-                            <% for( let j = 0; j < utenti[i].fatturaDaFare.length; j++ ) { %>
-                                <% if (!utenti[i].fatturaDaFare[j].emessa) { %>
-                                    <td data-label="Fatture"> <a href=" <%= collegamento %> "><button class="fatture tableBtn" style="background-color: orange !important;" data-student="<%= utenti[i].userName %>">Fatture</button></a></td>
-                                    <% noFatture = false %>
-                                    <% break; %>
+                            <td data-label="Fatture">
+                                <% let noFatture = true %>
+                                <% for(const fattura of utenti[i].fatturaDaFare) { %>
+                                    <% if (!fattura.emessa) { %>
+                                        <a href=" <%= `/admin/fatture?user=${utenti[i].userName}` %> ">
+                                            <span class="material-symbols-outlined" style="color: orange;">
+                                                receipt_long
+                                            </span>
+                                        </a>
+                                        <% noFatture = false %>
+                                        <% break; %>
+                                    <% } %>
                                 <% } %>
-                            <% } %>
-                            <% if (noFatture) { %>
-                                <td data-label="Fatture"> <a href=" <%= collegamento %> "><button class="fatture tableBtn" data-student="<%= utenti[i].userName %>">Fatture</button></a></td>
-                            <% } %>
+                                <% if (noFatture) { %>
+                                    <a href=" <%= `/admin/pagamenti?id=${utenti[i]._id}` %> ">
+                                        <span class="material-symbols-outlined" style="color: rgb(18, 161, 209);">
+                                            payments
+                                        </span>
+                                    </a>
+                                <% } %>
+                            </td>
                         </tr>
                 <% } %>
         </tbody>

@@ -63,6 +63,26 @@
                     <p class="card-text">Tipo: <%= dati[i].tipo %></p>
                     <p class="card-text">Data: <%= dati[i].data %></p>
                     <p class="card-text">Importo: <%= dati[i].importo %>€</p>
+                    <% if (dati[i].paymentUrl) { %>
+                        <% 
+                            const services = ['Paypal', 'Satispay', 'Codice'];
+                            const cleanedUrl = dati[i].paymentUrl.replace(/^https?:\/\/(www\.)?/, '').split('/')[0].toLowerCase();
+                            let paymentMethod;
+                            for(const service of services){
+                                if(cleanedUrl.includes(service.toLowerCase())){
+                                    paymentMethod = service;
+                                    break;
+                                }
+                            }
+                        %>
+                        <p class="card-text"> Metodo: 
+                            <% if (paymentMethod != 'Codice') { %>
+                                <a href="<%= dati[i].paymentUrl %>"><%= paymentMethod %></a>
+                            <% }else{ %>
+                                <%= paymentMethod %>
+                            <% } %>
+                        </p>
+                    <% } %>
                     <% let dataEncoded = encodeURIComponent(dati[i].data); %>
                     <% let link = `/admin/emettiFattura/${userName}/${dati[i].tipo}/${dataEncoded}/${dati[i].importo}` %>
                     <a href="<%= link %>" class="btn btn-primary">Emetti Fattura</a>

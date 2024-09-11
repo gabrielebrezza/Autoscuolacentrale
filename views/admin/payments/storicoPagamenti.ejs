@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Storico Pagamenti</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            background: #71a1cb;
+        }
+        main{
+            margin-top: 175px;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        table{
+            margin-top: 75px;
+            border-collapse: collapse;
+            border-spacing: 0;
+            max-width: 600px;
+            width: 100%;
+        }
+        td, th{
+            text-align: center;
+            border-bottom: 2px solid #ccc;
+            padding: 5px;
+            background: #f1f1f1;
+        }
+        th{
+            background: #588dbc;
+            color: #f1f1f1;
+            text-transform: uppercase;
+        }
+        tr th:first-child{
+            border-radius:5px 0  0 0 ;
+        }
+        tr th:last-child{
+            border-radius: 0 5px 0 0 ;
+        }
+        tr:last-child td:last-child{
+            border-radius: 0 0 5px 0;
+        }
+        tr:last-child td:first-child{
+            border-radius: 0 0 0 5px;
+        }
+        tr:last-child td{
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../adminComponents/header.ejs') %>
+    <main>
+        <table>
+            <thead>
+                <th>data</th>
+                <th>importo</th>
+                <th>metodo</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <% pagamenti.forEach(pagamento => { %>
+                        <tr>
+                            <td><%= pagamento.data %></td>
+                            <td><%= pagamento.importo %>€</td>
+                            <td>
+                                <% if (pagamento.paymentUrl) { %>
+                                    <% 
+                                        const services = ['Paypal', 'Stripe', 'Satispay', 'Codice'];
+                                        const cleanedUrl = pagamento.paymentUrl.replace(/^https?:\/\/(www\.)?/, '').split('/')[0].toLowerCase();
+                                        let paymentMethod;
+                                        for(const service of services){
+                                            if(cleanedUrl.includes(service.toLowerCase())){
+                                                paymentMethod = service;
+                                                break;
+                                            }
+                                        }
+                                    %>
+                                    <% if (paymentMethod != 'Codice') { %>
+                                        <a href="<%= pagamento.paymentUrl %>"><%= paymentMethod %></a>
+                                    <% }else{ %>
+                                        <%= paymentMethod %>
+                                    <% } %>
+                                <% }else{ %>
+                                    La traccia dei pagamenti è tenuta dall'11/09/2024
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>

@@ -642,17 +642,32 @@ router.post('/editFormatoEmail', authenticateJWT, async (req, res) => {
     await formatoEmail.findOneAndUpdate({}, {"content": content});
     res.redirect('/admin/formatoEmail');
 });
-router.get('/admin/fatture/:utente',authenticateJWT , async (req, res)=>{
-    const instructor = req.user.username;
-    const [nome, cognome] = instructor.split(" ");
-    const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-    const userName = req.params.utente.replace(':', '');
-    const operazioniDaFatturare = await credentials.findOne(
-        {"userName": userName},
-        {"fatturaDaFare": 1}
-    );
-    const dati = operazioniDaFatturare.fatturaDaFare;
-    res.render('admin/adminComponents/fattureDaFare', {title: 'Admin - Fatture Da Emettere', dati, userName, role});
+router.get('/admin/pagamenti',authenticateJWT , async (req, res)=>{
+    try {
+        const instructor = req.user.username;
+        const [nome, cognome] = instructor.split(" ");
+        const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
+        const id = req.query.id;
+        const {fatturaDaFare} = await credentials.findOne({"_id": id});
+        const pagamenti = fatturaDaFare;
+        res.render('admin/payments/storicoPagamenti', {pagamenti, role});
+    } catch (error) {
+        console.log(error)
+        res.render('errorPage', {error: `Utente non Trovato`});
+    }
+});
+router.get('/admin/fatture',authenticateJWT , async (req, res)=>{
+    try {
+        const instructor = req.user.username;
+        const [nome, cognome] = instructor.split(" ");
+        const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
+        const userName = req.query.user;
+        const {fatturaDaFare} = await credentials.findOne({"userName": userName});
+        const dati = fatturaDaFare;
+        res.render('admin/adminComponents/fattureDaFare', {title: 'Admin - Fatture Da Emettere', dati, userName, role});
+    } catch (error) {
+        res.render('errorPage', {error: `Utente non Trovato`});
+    }
 });
 
 router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT , async (req, res)=>{
