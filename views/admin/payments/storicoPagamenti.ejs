@@ -72,7 +72,7 @@
                             <td>
                                 <% if (pagamento.paymentUrl) { %>
                                     <% 
-                                        const services = ['Paypal', 'Stripe', 'Satispay', 'Codice'];
+                                        const services = ['Paypal', 'Satispay', 'Codice'];
                                         const cleanedUrl = pagamento.paymentUrl.replace(/^https?:\/\/(www\.)?/, '').split('/')[0].toLowerCase();
                                         let paymentMethod;
                                         for(const service of services){
