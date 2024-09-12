@@ -656,7 +656,7 @@ router.get('/admin/pagamenti',authenticateJWT , async (req, res)=>{
         res.render('errorPage', {error: `Utente non Trovato`});
     }
 });
-router.get('/admin/fatture',authenticateJWT , async (req, res)=>{
+router.get('/admin/fatture/:user',authenticateJWT , async (req, res)=>{
     try {
         const instructor = req.user.username;
         const [nome, cognome] = instructor.split(" ");
