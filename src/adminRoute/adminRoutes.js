@@ -661,7 +661,7 @@ router.get('/admin/fatture/:user',authenticateJWT , async (req, res)=>{
         const instructor = req.user.username;
         const [nome, cognome] = instructor.split(" ");
         const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-        const userName = req.query.user;
+        const userName = req.params.user;
         const {fatturaDaFare} = await credentials.findOne({"userName": userName});
         const dati = fatturaDaFare;
         res.render('admin/adminComponents/fattureDaFare', {title: 'Admin - Fatture Da Emettere', dati, userName, role});
