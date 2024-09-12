@@ -656,12 +656,12 @@ router.get('/admin/pagamenti',authenticateJWT , async (req, res)=>{
         res.render('errorPage', {error: `Utente non Trovato`});
     }
 });
-router.get('/admin/fatture/:user',authenticateJWT , async (req, res)=>{
+router.get('/admin/fatture/:username',authenticateJWT , async (req, res)=>{
     try {
         const instructor = req.user.username;
         const [nome, cognome] = instructor.split(" ");
         const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-        const userName = req.params.user;
+        const userName = req.params.username;
         const {fatturaDaFare} = await credentials.findOne({"userName": userName});
         const dati = fatturaDaFare;
         res.render('admin/adminComponents/fattureDaFare', {title: 'Admin - Fatture Da Emettere', dati, userName, role});
