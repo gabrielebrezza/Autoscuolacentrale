@@ -187,7 +187,7 @@
                                 <% let noFatture = true %>
                                 <% for(const fattura of utenti[i].fatturaDaFare) { %>
                                     <% if (!fattura.emessa) { %>
-                                        <a href=" <%= `/admin/fatture?user=${utenti[i].userName}` %> ">
+                                        <a href=" <%= `/admin/fatture/${utenti[i].userName}` %> ">
                                             <span class="material-symbols-outlined" style="color: orange;">
                                                 receipt_long
                                             </span>
