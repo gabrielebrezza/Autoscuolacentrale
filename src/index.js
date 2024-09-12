@@ -43,6 +43,11 @@ app.use(bodyParser.urlencoded({ extended: false}));
 app.use(adminRoutes);
 
 
+app.use((req, res, next) => {
+    console.log(req.method, req.url);
+    next()
+});
+
 const authenticateIscrizioneAPI = (req, res, next) => {
     const token = req.headers['authorization'];
     if (token === process.env.API_KEY_AGENDA) {
