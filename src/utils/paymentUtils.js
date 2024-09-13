@@ -199,6 +199,20 @@ async function checkCode(code, price, username, type) {
 
 //SETPAID FUNCTIONS
 async function setLessonPaid(username, userId, custom){
+    const guideRecord = await guide.findOne({
+        "instructor": custom.instructor,
+        "book._id": custom.bookId,
+        "book.schedule._id": custom.scheduleId,
+        "book.schedule.student": null
+    });
+  
+    const paymentStartTime = new Date(guideRecord.book.find(b => b._id.toString() === custom.bookId).schedule.find(s => s._id.toString() === custom.scheduleId).paymentCreatedAt);
+    const currentTime = new Date();
+    const expirationTime = 15 * 60 * 1000;
+  
+    if (currentTime - paymentStartTime > expirationTime) {
+        return {expired: true};
+    }
     await guide.findOneAndUpdate(
         { "instructor": custom.instructor, "book._id": custom.bookId, "book.schedule._id": custom.scheduleId, "book.schedule.student": null },
         { $set: { "book.$[outer].schedule.$[inner].student": username }},
@@ -232,6 +246,7 @@ async function setLessonPaid(username, userId, custom){
 
     await credentials.findOneAndUpdate({"_id": userId},
         {$addToSet: {"lessonList": {"istruttore": custom.instructor, "giorno": custom.day, "ora": custom.hour, "duration": duration}}},{new: true});
+    return {expired: false};
 }
 
 async function setSpostaGuidaPaid(userId, custom) {

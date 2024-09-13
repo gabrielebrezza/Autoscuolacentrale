@@ -368,17 +368,41 @@ app.post('/book', isAuthenticated, async (req, res) => {
         const { paymentMethod } = req.body;
         const {_id} = await credentials.findOne({"userName": username});
         const returnPath = `/success/lesson`;
-
         const { instructor, time } = req.body;
         const [day, hour] = time.split(' - ');
         const guides = await guide.findOne({"instructor": instructor, "book": { $elemMatch: { "day": day, "schedule.hour": hour }}},
              { "book.$": 1 });
+        
         if (!guides) return res.render('errorPage', { error: 'Schedule or lesson not found' });
         
         const lesson = guides.book[0].schedule.find(item => item.hour === hour);
 
         if (!lesson) return res.render('errorPage', { error: 'Lesson not found' });
-        
+        if (lesson.pending) {
+            const paymentCreatedAt = new Date(lesson.paymentCreatedAt);
+            const currentDate = new Date();
+            const expirationTime = 15 * 60 * 1000;
+            
+            if (currentDate - paymentCreatedAt < expirationTime) return res.render('errorPage', { error: 'Qualcuno ha già iniziato a prenotare questa lezione' });
+        }
+        await guide.findOneAndUpdate(
+            { 
+                "instructor": instructor, 
+                "book": { $elemMatch: { "day": day, "schedule.hour": hour } } 
+            },
+            {
+                $set: {
+                    "book.$[dayElem].schedule.$[scheduleElem].pending": true,
+                    "book.$[dayElem].schedule.$[scheduleElem].paymentCreatedAt": new Date()
+                }
+            },
+            {
+                arrayFilters: [
+                    { "dayElem.day": day },
+                    { "scheduleElem.hour": hour }
+                ]
+            }
+        );
         const {price, location} = lesson;
         const custom = {scheduleId: lesson._id, bookId: guides.book[0]._id, instructor, day, hour, location}
         if(paymentMethod == 'paypal'){
@@ -429,8 +453,8 @@ app.get('/success/lesson', isAuthenticated, async (req, res) => {
                 return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
             }
         }
-        await setLessonPaid(username, id, custom);
-
+        const status = await setLessonPaid(username, id, custom);
+        if(status.expired) return res.render('errorPage', {error: 'Il pagamento è scaduto'});
         res.redirect('/profile');
     } catch (error) {
         console.log('errore nella ricezione del pagamento lezione: ', error);

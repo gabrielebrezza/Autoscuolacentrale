@@ -42,6 +42,15 @@ const guideSchema = new mongoose.Schema({
                     student: {
                         type: String,
                         required: false
+                    },
+                    pending: {
+                        type: Boolean,
+                        required: false,
+                        default: false
+                    },
+                    paymentCreatedAt: {
+                        type: Date,
+                        required: false
                     }
                 }
             ]
