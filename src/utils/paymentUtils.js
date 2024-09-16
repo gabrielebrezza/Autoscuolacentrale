@@ -180,6 +180,7 @@ async function retriveSatispay(paymentId, username, type) {
           }
       });
       const { status, metadata, amount_unit } = response.data;
+      const user = await credentials.findOne({'userName': username});
       const paymentUrl = `https://dashboard.satispay.com/dashboard/transactions/${user.paymentId}`;
       await addFattura(username, paymentUrl, type, amount_unit/100);
       return { status, custom: metadata};

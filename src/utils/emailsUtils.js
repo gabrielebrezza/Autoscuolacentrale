@@ -37,6 +37,7 @@ const sendEmail = async (email, subject, text, attachment = null) => {
         }
         transporter.sendMail(mailOptions, async function(error, info) {
             if (error) {
+                console.log(error)
                 reject(new Error('Errore nell\'invio dell\'email:'));
             } else {
                 resolve(`email inviata con successo a ${email}`);
