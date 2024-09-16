@@ -206,8 +206,7 @@ async function setLessonPaid(username, userId, custom){
         "book.schedule._id": custom.scheduleId,
         "book.schedule.student": null
     });
-  
-    const paymentStartTime = new Date(guideRecord.book.find(b => b._id.toString() === custom.bookId).schedule.find(s => s._id.toString() === custom.scheduleId).paymentCreatedAt);
+    const paymentStartTime = new Date(guideRecord.book.find(b => b._id.toString() == custom.bookId.toString()).schedule.find(s => s._id.toString() == custom.scheduleId.toString()).paymentCreatedAt);
     const currentTime = new Date();
     const expirationTime = 15 * 60 * 1000;
   
