@@ -737,7 +737,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             .up()
             .ele('CessionarioCommittente')
                 .ele('DatiAnagrafici')
-                    .ele('CodiceFiscale').txt(dati.codiceFiscaleCliente).up()
+                    .ele('CodiceFiscale').txt(dati.codiceFiscaleCliente.toUpperCase()).up()
                     .ele('Anagrafica')
                         .ele('Nome').txt(dati.nomeCliente).up()
                         .ele('Cognome').txt(dati.cognomeCliente).up()
