@@ -594,6 +594,7 @@ app.post('/spostaGuida', isAuthenticated, async (req, res) => {
         const username = req.user.username;
         const { paymentMethod } = req.body;
         const custom = req.body;
+        if (!req.body.newInstructor || !req.body.newDate  || !req.body.newHour) return res.render('errorPage', {error: 'Selezionare una fascia oraria e una data'})
         const returnPath = `/success/spostaGuida`;
         const {_id} = await credentials.findOne({"userName": username});
         if(paymentMethod == 'paypal'){
