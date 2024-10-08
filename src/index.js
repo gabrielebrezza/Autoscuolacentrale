@@ -381,7 +381,7 @@ app.post('/book', isAuthenticated, async (req, res) => {
         if (lesson.pending) {
             const paymentCreatedAt = new Date(lesson.paymentCreatedAt);
             const currentDate = new Date();
-            const expirationTime = 15 * 60 * 1000;
+            const expirationTime = 30 * 60 * 1000;
             
             if (currentDate - paymentCreatedAt < expirationTime) return res.render('errorPage', { error: 'Qualcuno ha già iniziato a prenotare questa lezione' });
         }
