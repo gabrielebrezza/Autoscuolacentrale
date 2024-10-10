@@ -378,8 +378,7 @@ app.post('/book', isAuthenticated, async (req, res) => {
         const lesson = guides.book[0].schedule.find(item => item.hour === hour && item.completed != true);
 
         if (!lesson) return res.render('errorPage', { error: 'Errore' });
-        console.log(lesson,lesson.student)
-        if (lesson.student) return res.render('errorPage', { error: 'Guida già prenotata' });
+        if (lesson.student || lesson.completed) return res.render('errorPage', { error: 'Guida già prenotata' });
         if (lesson.pending) {
             const paymentCreatedAt = new Date(lesson.paymentCreatedAt);
             const currentDate = new Date();
