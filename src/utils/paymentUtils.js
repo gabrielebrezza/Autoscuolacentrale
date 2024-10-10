@@ -208,18 +208,21 @@ async function setLessonPaid(username, userId, custom){
         "instructor": custom.instructor,
         "book._id": custom.bookId,
         "book.schedule._id": custom.scheduleId,
-        "book.schedule.student": null
     });
-    const paymentStartTime = new Date(guideRecord.book.find(b => b._id.toString() == custom.bookId.toString()).schedule.find(s => s._id.toString() == custom.scheduleId.toString()).paymentCreatedAt);
+    
+    const lezione = guideRecord.book.find(b => b._id.toString() == custom.bookId.toString()).schedule.find(s => s._id.toString() == custom.scheduleId.toString());
+    
+    const paymentStartTime = new Date(lezione.paymentCreatedAt);
+    if (lezione.completed) return { expired: true };
     const currentTime = new Date();
-    const expirationTime = 15 * 60 * 1000;
+    const expirationTime = 30 * 60 * 1000;
   
     if (currentTime - paymentStartTime > expirationTime) {
         return {expired: true};
     }
     await guide.findOneAndUpdate(
         { "instructor": custom.instructor, "book._id": custom.bookId, "book.schedule._id": custom.scheduleId, "book.schedule.student": null },
-        { $set: { "book.$[outer].schedule.$[inner].student": username }},
+        { $set: { "book.$[outer].schedule.$[inner].student": username, "book.$[outer].schedule.$[inner].completed": true }},
         {arrayFilters: [{ "outer._id": custom.bookId }, { "inner._id": custom.scheduleId }]});
 
     const {email, billingInfo} = await credentials.findOne({"_id": userId});
@@ -266,11 +269,11 @@ async function setSpostaGuidaPaid(userId, custom) {
         }
 
         await guide.findOneAndUpdate({"instructor": custom.oldInstructor, "book.day": custom.oldDate, "book.schedule.hour": custom.oldHour,"book.schedule.student": custom.student},
-            {$set: {"book.$[outer].schedule.$[inner].student": null}},
+            { $set: { "book.$[outer].schedule.$[inner].student": null, "book.$[outer].schedule.$[inner].completed": false }},
             {arrayFilters: [{ "outer.day": custom.oldDate },{ "inner.hour": custom.oldHour, "inner.student": custom.student }]});
 
         await guide.findOneAndUpdate({"instructor": custom.newInstructor, "book.day": custom.newDate, "book.schedule.hour": custom.newHour, "book.schedule.student": null},
-                {$set: {"book.$[outer].schedule.$[inner].student": custom.student}},
+            { $set: { "book.$[outer].schedule.$[inner].student": custom.student, "book.$[outer].schedule.$[inner].completed": true}},
                 {arrayFilters: [{ "outer.day": custom.newDate }, { "inner.hour": custom.newHour, "inner.student": null }]});
 
         await credentials.findOneAndUpdate({"_id": userId},

@@ -48,6 +48,10 @@ const guideSchema = new mongoose.Schema({
                         required: false,
                         default: false
                     },
+                    completed: {
+                        type: Boolean,
+                        required: false
+                    },
                     paymentCreatedAt: {
                         type: Date,
                         required: false
