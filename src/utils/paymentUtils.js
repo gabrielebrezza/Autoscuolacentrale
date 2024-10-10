@@ -269,11 +269,11 @@ async function setSpostaGuidaPaid(userId, custom) {
         }
 
         await guide.findOneAndUpdate({"instructor": custom.oldInstructor, "book.day": custom.oldDate, "book.schedule.hour": custom.oldHour,"book.schedule.student": custom.student},
-            { $set: { "book.$[outer].schedule.$[inner].student": null, "book.$[outer].schedule.$[inner].completed": false }},
+            { $set: { "book.$[outer].schedule.$[inner].student": null, "book.$[outer].schedule.$[inner].completed": false, "book.$[outer].schedule.$[inner].pending": false }},
             {arrayFilters: [{ "outer.day": custom.oldDate },{ "inner.hour": custom.oldHour, "inner.student": custom.student }]});
 
         await guide.findOneAndUpdate({"instructor": custom.newInstructor, "book.day": custom.newDate, "book.schedule.hour": custom.newHour, "book.schedule.student": null},
-            { $set: { "book.$[outer].schedule.$[inner].student": custom.student, "book.$[outer].schedule.$[inner].completed": true}},
+            { $set: { "book.$[outer].schedule.$[inner].student": custom.student, "book.$[outer].schedule.$[inner].completed": true, "book.$[outer].schedule.$[inner].pending": true }},
                 {arrayFilters: [{ "outer.day": custom.newDate }, { "inner.hour": custom.newHour, "inner.student": null }]});
 
         await credentials.findOneAndUpdate({"_id": userId},
