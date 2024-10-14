@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Utente</title>
+    <style>
+#updateUserForm{
+    margin-top: 200px;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin: 50px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            background: #f1f1f1;
+        }
+
+        th {
+            color: #fff;
+            background: #5681a9;
+            text-transform: uppercase;
+        }
+        th:first-child{
+            border-radius: 5px 0 0  0;
+        }
+        th:last-child{
+            border-radius:  0 5px 0  0;
+        }
+        tfoot td{
+            padding: 0;
+            background: #0000;
+            border: none;
+        }
+        #submitFormBtn{
+            width: 100%;
+            /* margin-top: 5px; */
+            cursor: pointer;
+            padding: 10px 20px;
+            background: green;
+            color: #fff;
+            transition: .5s;
+            outline: none;
+            border: none;
+            border-radius: 0 0 5px 5px;
+        }
+        #submitFormBtn:hover{
+            opacity: .7;
+        }
+    </style>
+    <!-- icone -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <form id="updateUserForm" action="/admin/updateUser" method="post">
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Valore</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <input type="hidden" name="id" value="<%= user._id %>">
+                    <td>Username</td>
+                    <td><%= user.userName %></td>
+                </tr>
+                <tr>
+                    <td>Nome</td>
+                    <td><input type="text" id="nome" name="nome" value="<%= user.billingInfo[0].nome %>" style=" text-transform: capitalize;"></td>
+                </tr>
+                <tr>
+                    <td>Nome</td>
+                    <td><input type="text" id="cognome" name="cognome" value="<%= user.billingInfo[0].cognome %>" style=" text-transform: capitalize;"></td>
+                </tr>
+                <tr>
+                    <td>Codice Fiscale</td>
+                    <td><input type="text" id="codiceFiscale" name="codiceFiscale" value="<%= user.billingInfo[0].codiceFiscale %>"></td>
+                </tr>
+                <tr>
+                    <td>Via di Residenza</td>
+                    <td><input type="text" id="viaResidenza" name="via" value="<%= user.billingInfo[0].via %>"></td>
+                </tr>
+                <tr>
+                    <td>Numero Civico</td>
+                    <td><input type="text" id="civicoResidenza" name="nCivico" value="<%= user.billingInfo[0].nCivico %>"></td>
+                </tr>
+                <tr>
+                    <td>Cap</td>
+                    <td><input type="text" id="capResidenza" name="CAP" value="<%= user.billingInfo[0].CAP %>"></td>
+                </tr>
+                <tr>
+                    <td>Comune di Residenza</td>
+                    <td><input type="text" id="comuneResidenza" name="citta" value="<%= user.billingInfo[0].citta %>"></td>
+                </tr>
+                <tr>
+                    <td>Provincia di Residenza</td>
+                    <td>
+                        <select name="provincia" class="provincia">
+                            <option value="<%= user.billingInfo[0].provincia %>"><%= user.billingInfo[0].provincia %></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td><input type="email" id="email" name="email" value="<%= user.email %>" autocomplete="false"></td>
+                </tr>
+                <tr>
+                    <td>Cellulare</td>
+                    <td><input type="tel" id="cell" name="cell" value="<%= user.cell %>"></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <td colspan="2"><button id="submitFormBtn" type="submit">Salva</button></td>
+            </tfoot>
+        </table>
+    </form>
+    <script>
+        const provinceList = [
+            "AG", "AL", "AN", "AR", "AP", "AT", "AV", "BA", "BT", "BL",
+            "BN", "BG", "BI", "BO", "BZ", "BS", "BR", "CA", "CL", "CB",
+            "CI", "CE", "CT", "CZ", "CH", "CO", "CS", "CR", "KR", "CN",
+            "EN", "FM", "FE", "FI", "FG", "FC", "FR", "GE", "GO", "GR",
+            "IM", "IS", "AQ", "SP", "LT", "LE", "LC", "LI", "LO", "LU",
+            "MC", "MN", "MS", "MT", "VS", "ME", "MI", "MO", "MB", "NA",
+            "NO", "NU", "OG", "OT", "OR", "PD", "PA", "PR", "PV", "PG",
+            "PU", "PE", "PC", "PI", "PT", "PN", "PZ", "PO", "RG", "RA",
+            "RC", "RE", "RI", "RN", "RM", "RO", "SA", "SS", "SV", "SI",
+            "SR", "SO", "TA", "TE", "TR", "TO", "TP", "TN", "TV", "TS",
+            "UD", "AO", "VA", "VE", "VB", "VC", "VR", "VV", "VI", "VT"
+        ];
+    
+        const selectProvince = document.querySelectorAll(".provincia");
+
+        selectProvince.forEach((opt) => {
+            provinceList.forEach(province => {
+                // Verifica se l'opzione è già presente nelle opzioni
+                if (!opt.querySelector(`option[value="${province}"]`)) {
+                    const option = document.createElement("option");
+                    option.value = province;
+                    option.textContent = province;
+                    opt.appendChild(option);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

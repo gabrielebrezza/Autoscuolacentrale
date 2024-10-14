@@ -157,7 +157,6 @@ async function createSatispay(price, id, returnPath, custom = {}) {
 }
 
 async function retriveSatispay(paymentId, username, type) {
-    console.log('pagamento effettuato con satispay')
   const url = `https://${process.env.SATISPAY_API_URL}/g_business/v1/payments/${paymentId}`;
   const date = new Date().toUTCString();
   const requestTarget = `(request-target): get /g_business/v1/payments/${paymentId}`;
@@ -185,7 +184,7 @@ async function retriveSatispay(paymentId, username, type) {
       const { status, metadata, amount_unit } = response.data;
       const user = await credentials.findOne({'userName': username});
       const paymentUrl = `https://dashboard.satispay.com/dashboard/transactions/${user.paymentId}`;
-
+      console.log(`satispay id: ${paymentId}, user: ${username}, type: ${type}, response: ${response}`);
       await addFattura(username, paymentUrl, type, amount_unit/100);
       return { status, custom: metadata};
   } catch (error) {

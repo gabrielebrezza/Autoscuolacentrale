@@ -227,6 +227,40 @@ router.get('/admin/users',authenticateJWT , async (req, res) => {
         return res.render('errorPage', {error: 'Errore durante il recupero degli utenti' });
     }
 });
+router.get('/admin/user/:userId', authenticateJWT, async (req, res) => {
+    try {
+        const istruttore = req.user.username;
+        const [nome, cognome] = istruttore.split(" ");
+        const role = await Admin.findOne({ "nome": nome, "cognome": cognome }, { "role": 1 });
+        const userId = req.params.userId;
+        const user = await credentials.findOne({ "_id": userId });
+        res.render('admin/adminComponents/userPage', { role, user })
+    } catch (error) {
+        console.error('errore nella ricerca dell\'utente: ', error);
+        res.render('errorPage', {error: 'errore nella ricerca dell\'utente'});
+    }
+
+});
+router.post('/admin/updateUser', authenticateJWT, async (req, res) => {
+    try {
+        const dati = req.body;
+        const billingInfo = [{
+            nome: dati.nome,
+            cognome: dati.cognome,
+            codiceFiscale: dati.codiceFiscale,
+            via: dati.via,
+            nCivico: dati.nCivico,
+            CAP: dati.CAP,
+            citta: dati.citta,
+            provincia: dati.provincia 
+        }];
+        await credentials.findOneAndUpdate({ "_id": dati.id }, { "email": dati.email, "cell": dati.cell,"billingInfo": billingInfo});
+        res.redirect(`/admin/user/${dati.id}`);
+    } catch (error) {
+        console.error('errore nell\'aggiornamento dell\'utente', error);
+        res.render('errorPage', { error: 'errore nell\'aggiornamento dell utente' });
+    }
+})
 router.post('/createCode', authenticateJWT, async (req, res)=>{
     const code = (req.body.code).split(',');
     const email = req.body.utenti;

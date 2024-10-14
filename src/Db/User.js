@@ -57,34 +57,48 @@ const LoginSchema = new mongoose.Schema({
         {
             nome: {
                 type:String,
+                trim: true,
+                lowercase: true,
                 required: false
             },
             cognome: {
                 type:String,
+                trim: true,
+                lowercase: true,
                 required: false
             },
             codiceFiscale: {
                 type:String,
-                required: false
+                required: false,
+                trim: true,
+                uppercase: true
             },
             via: {
                 type:String,
+                trim: true,
+                lowercase: true,
                 required: false
             },
             nCivico: {
                 type:String,
+                trim: true,
+                lowercase: true,
                 required: false
             },
             CAP: {
                 type:String,
+                trim: true,
                 required: false
             },
             citta: {
                 type:String,
+                trim: true,
+                lowercase: true,
                 required: false
             },
             provincia: {
                 type: String,
+                trim: true,
                 required: false
             },
             stato: {

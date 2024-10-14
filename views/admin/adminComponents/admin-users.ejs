@@ -143,7 +143,6 @@
             </tr>
         </thead>
         <tbody id="usersTableBody">
-
                 <% let enumeration = 1; %>
                 <% for (let i = 0; i < utenti.length; i++) { %>
                     <tr class="allievi <%= utenti[i].archiviato ? 'archiviato' : '' %>" data-archiviato="<%= utenti[i].archiviato %>">
@@ -151,7 +150,7 @@
                         <% let codice = utenti[i].codicePagamento.length + '/' + (!utenti[i].totalCodes ? 0 : utenti[i].totalCodes)  %>
                         <td data-label="N"><span><%= !utenti[i].archiviato ? enumeration++ : ''  %></span></td>
                         <td data-label="Allievo" >
-                            <div class="nameCell">
+                            <div class="nameCell" data-idutente="<%= utenti[i]._id %>">
                                 <% if (utenti[i].trascinamento.attivo) { %>
                                     <span class="material-symbols-outlined <%= utenti[i].trascinamento.pagato ? 'trascPagato' : 'trascNonPagato' %>">
                                         drag_click
@@ -168,7 +167,7 @@
                                 </a>
                             </div>
                         </td>
-                        <td data-label="Email" data-email="<%= utenti[i].email %>"><span><%= utenti[i].email %></span></td>
+                        <td data-label="Email" data-email="<%= utenti[i].email %>"><span><a href="/admin/user/<%= utenti[i]._id %>"><%= utenti[i].email %></a></span></td>
                         <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
                             <td data-label="Esami pagati"> 
                                 <span>
