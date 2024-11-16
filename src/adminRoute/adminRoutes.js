@@ -703,6 +703,47 @@ router.get('/admin/fatture/:username',authenticateJWT , async (req, res)=>{
         res.render('errorPage', {error: `Utente non Trovato`});
     }
 });
+router.post('/admin/spostaLezione', authenticateJWT, async (req, res) => {
+    try {
+        const duration = req.body.duration/60;
+        const student = req.body.student;
+
+        const oldDate = req.body.date;
+        const oldHour = req.body.hour;
+        const oldInstructor = req.body.istruttore;
+
+        await Admin.findOneAndUpdate({ "nome": oldInstructor.split(' ')[0], "cognome": oldInstructor.split(' ')[1], "ore.data": oldDate }, { $inc: { "ore.$.totOreGiorno": -duration } });
+
+        const newDate = req.body.newLesson.split(' - ')[0];
+        const newHour = req.body.newLesson.split(' - ')[1];
+        const newInstructor = req.body.newLesson.split(' - ')[2];
+
+        const existingOrario = await Admin.updateOne({ "nome": newInstructor.split(' ')[0], "cognome": newInstructor.split(' ')[1], "ore.data": newDate },
+            { $inc: { "ore.$[elem].totOreGiorno": duration } }, { arrayFilters: [{ "elem.data": newDate }], upsert: false });
+        if (existingOrario.matchedCount == 0) {
+            await Admin.updateOne({ "nome": newInstructor.split(' ')[0], "cognome": newInstructor.split(' ')[1] },
+                { $addToSet: { "ore": { data: newDate, totOreGiorno: duration } } }, { upsert: true });
+        }
+
+        await guide.findOneAndUpdate({ "instructor": oldInstructor, "book.day": oldDate, "book.schedule.hour": oldHour, "book.schedule.student": student },
+            { $set: { "book.$[outer].schedule.$[inner].student": null, "book.$[outer].schedule.$[inner].completed": false, "book.$[outer].schedule.$[inner].pending": false } },
+            { arrayFilters: [{ "outer.day": oldDate }, { "inner.hour": oldHour, "inner.student": student }] });
+
+        await guide.findOneAndUpdate({ "instructor": newInstructor, "book.day": newDate, "book.schedule.hour": newHour, "book.schedule.student": null },
+            { $set: { "book.$[outer].schedule.$[inner].student": student, "book.$[outer].schedule.$[inner].completed": true, "book.$[outer].schedule.$[inner].pending": true } },
+            { arrayFilters: [{ "outer.day": newDate }, { "inner.hour": newHour, "inner.student": null }] });
+
+        await credentials.findOneAndUpdate({ "userName": student },
+            { $pull: { "lessonList": { "istruttore": oldInstructor, "giorno": oldDate, "ora": oldHour, "duration": duration } } })
+        await credentials.findOneAndUpdate({ "userName": student },
+            { $addToSet: { "lessonList": { "istruttore": newInstructor, "giorno": newDate, "ora": newHour, "duration": duration } } }, { new: true });
+        
+        res.redirect('/admin/guides');
+    } catch (error) {
+        console.error(error);
+        res.render('errorPage', { error: `errore nello spostamento della guida` });
+    }
+});
 
 router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT , async (req, res)=>{
     const instructor = req.user.username;

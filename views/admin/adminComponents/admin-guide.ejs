@@ -20,15 +20,15 @@
         <div id="data" name="data"></div>
 
 
-    
+    <% const notBookedLessons = []; %>
         <div id="lezioni-disponibili">
             <% for(let i = 0; i < guides.length; i++) { %>
                 <% const guide = guides[i]; %>
                 <% let dateElaborate = []; %>
-        
                 <% for(let j = 0; j < guide.book.length; j++) { %>
                     <% let anyBooking = false; %>
                     <% const dateString = guide.book[j].day; %>
+                    
                     <% if (!dateElaborate.includes(dateString)) { %>
                         <% dateElaborate.push(dateString); %>
                         <div class="day-card" data-date="<%= dateString %>" style="display: none;">
@@ -66,6 +66,9 @@
                                                             <span class="si">Prenotata</span>
                                                         <% } %>    
                                                     <% } else { %>
+                                                        <% if (guide.instructor != 'Esame Guida') { %>
+                                                            <% notBookedLessons.push(`${guide.book[j].day} - ${schedule.hour} - ${guide.instructor}`) %>
+                                                        <% } %>
                                                         <span class="no">Non Prenotata</span>
                                                     <% } %>
                                                 </td>
@@ -77,6 +80,9 @@
                                                             <% for (let n = 0; n < infos.length; n++) { %>
                                                                 <% if (infos[n].userName === schedule.student) { %>
                                                                     <span class="material-symbols-outlined userInfo" data-student="<%= infos[n].userName %>" data-email="<%= infos[n].email %>" data-cell="<%= infos[n].cell %>">info</span>
+                                                                    <span style="cursor: pointer; color: rgb(45, 45, 189);" data-instructor="<%= guide.instructor %>" data-student="<%= schedule.student %>" data-book="<%= guide.book[j]._id %>" data-schedule="<%= schedule._id %>" data-time="<%= guide.book[j].day %> - <%= schedule.hour %>" class="material-symbols-outlined move_date">
+                                                                        edit_calendar
+                                                                    </span>
                                                                 <% } %>
                                                             <% } %>
                                                             <% anyBooking = true; %>
@@ -98,8 +104,128 @@
                 <% } %>
             <% } %>
         </div>
-        
-        
+
+        <div id="notBookedLessons" style="display: none;"><%= notBookedLessons %></div>
+        <style>
+            #moveLessonForm{
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translateY(-50%) translateX(-50%);
+                width: 500px;
+                padding: 25px;
+                pointer-events: none;
+                opacity: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                gap: 50px;
+                background: #5681a9;
+                color: #fff;
+                border-radius: 25px;
+                transition: .25s ease-in-out;
+            }
+            #moveLessonForm.active{
+                pointer-events: all;
+                opacity: 1;
+            }
+            .closeMoveLessonModal{
+                position: absolute;
+                right: 5px;
+                top: 5px;
+                cursor: pointer;
+            }
+            .field{
+                display: flex;
+                gap: 10px;
+            }
+            #moveLessonForm button{
+                padding: 10px;
+                cursor: pointer;
+                outline: none;
+                border: none;
+                background: #71a1cb;
+                color: #fff;
+                transition: .25s ease-in-out;
+            }
+            #moveLessonForm button:hover{
+                transform: scale(1.2);
+            }
+        </style>
+                <form id="moveLessonForm" action="/admin/spostaLezione" method="POST">
+                    <span class="material-symbols-outlined closeMoveLessonModal">
+                        cancel
+                    </span>
+                    <h1>Sposta Lezione</h1>
+                    <h3>Data Lezione Attuale: <span id="moveLessonFormDate"></span></h3>
+                    <input type="hidden" name="duration">
+                    <input type="hidden" name="student">
+                    <input type="hidden" name="istruttore">
+                    <input type="hidden" name="bookId">
+                    <input type="hidden" name="scheduleId">
+                    <input type="hidden" name="date">
+                    <input type="hidden" name="hour">
+                    <div class="field">
+                        <label for="date">Nuova Lezione:</label>
+                        <select name="newLesson" id="moveDateinputDate"></select>
+                    </div>
+                    <button type="submit">Conferma</button>
+                </form>
+        <script>
+            const moveLessonForm = document.getElementById('moveLessonForm');
+            document.querySelector('.closeMoveLessonModal').addEventListener('click', () => moveLessonForm.classList.remove('active'))
+            const moveDate = document.querySelectorAll('.move_date');
+            for (const btn of moveDate) {
+                btn.addEventListener('click', () => {
+                    
+                    const date = btn.dataset.time.split(' - ')[0];
+                    const hour = btn.dataset.time.split(' - ')[1];
+                    const today = new Date().toISOString().split('T')[0];
+                    const startHour = new Date(`${today}T${hour.split('-')[0]}:00`);
+                    const endHour = new Date(`${today}T${hour.split('-')[1]}:00`);
+                    const duration = (endHour - startHour)/1000/60;
+                    document.querySelector('[name="student"]').value = btn.dataset.student;
+                    document.querySelector('[name="duration"]').value = duration;
+                    document.querySelector('[name="date"]').value = date;
+                    document.getElementById('moveLessonFormDate').innerText = btn.dataset.time;
+                    document.querySelector('[name="istruttore"]').value = btn.dataset.instructor;
+                    document.querySelector('[name="bookId"]').value = btn.dataset.book;
+                    document.querySelector('[name="scheduleId"]').value = btn.dataset.schedule;
+                    document.querySelector('[name="hour"]').value = hour;
+                    populateDate(duration);
+                    moveLessonForm.classList.add('active');
+                });
+            }
+            function populateDate(duration){
+                const dates = document.getElementById('notBookedLessons').innerText.split(',');
+                for (let i = 0; i < dates.length; i++) {                    
+                    const day = dates[i].split(' - ')[0].split('/').reverse().join('-');
+                    if(new Date(day) < new Date()){
+                        dates.splice(i, 1);
+                        i--;
+                        continue;
+                    }
+                    const hour = dates[i].split(' - ')[1];
+                    const today = new Date().toISOString().split('T')[0];
+                    const startHour = new Date(`${today}T${hour.split('-')[0]}:00`);
+                    const endHour = new Date(`${today}T${hour.split('-')[1]}:00`);
+                    const elDuration = (endHour - startHour)/1000/60;
+                    if(duration != elDuration){
+                        dates.splice(i, 1);
+                        i--;
+                    }
+                }
+                let dateOptions = ''
+                for (const date of dates) {
+                    dateOptions += `<option value="${date}">${date}</option>`
+                }
+                document.getElementById('moveDateinputDate').innerHTML = dateOptions;
+            }
+        </script>
+
+
+
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 const deleteButton = document.querySelectorAll(".deleteAllGuides");
