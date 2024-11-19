@@ -970,6 +970,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
         const nuovaFattura = new storicoFatture({
             numero: numero,
             importo: dati.importoPagamento,
+            user:`${dati.nomeCliente} ${dati.cognomeCliente}`,
             data: dataFatturazione,
             nomeFile: nomeFile,
         });

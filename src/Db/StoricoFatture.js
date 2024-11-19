@@ -21,6 +21,10 @@ const storicoFattureSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    user:{
+        type: String,
+        required: false
+    },
     nomeFile: {
         type: String,
         required: true
