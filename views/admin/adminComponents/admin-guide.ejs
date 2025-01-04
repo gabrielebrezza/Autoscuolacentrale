@@ -59,7 +59,13 @@
                                                             <% for (let n = 0; n < infos.length; n++) { %>
                                                                 <% if (infos[n].userName === schedule.student) { %>
                                                                     <% const utente = infos[n].billingInfo[0].cognome + ' ' + infos[n].billingInfo[0].nome %>
+                                                                    <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                                                                        <a href="/admin/pagamenti?id=<%=infos[n]._id%>">
+                                                                    <% } %>
                                                                     <span class="si" title="<%= utente %>" ><%= utente %></span>
+                                                                    <% if (role.role == 'Super' || guide.instructor === istruttore) { %>
+                                                                        </a>
+                                                                    <% } %>
                                                                 <% } %>
                                                             <% } %>
                                                         <% }else{ %>
