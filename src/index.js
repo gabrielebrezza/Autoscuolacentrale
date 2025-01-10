@@ -465,7 +465,7 @@ app.get('/success/lesson', isAuthenticated, async (req, res) => {
 
 app.post('/bookExam', isAuthenticated, async (req, res) => {
     try {
-        const price = 100;
+        const price = 90;
         const username = req.user.username;
         const { paymentMethod } = req.body;
         const returnPath = `/success/exam`;
