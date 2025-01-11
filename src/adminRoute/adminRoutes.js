@@ -23,6 +23,7 @@ const prezzoGuida = require('../Db/CostoGuide');
 
 //utils 
 const sendEmail = require('../utils/emailsUtils');
+const { randomInt, randomUUID } = require('crypto');
 
 const JWT_SECRET = 'q3o8M$cS#zL9*Fh@J2$rP5%vN&wG6^x';
 function generateToken(username) {
@@ -76,6 +77,69 @@ router.post('/logout', authenticateJWT, async (req, res) => {
 
 router.get('/admin/register', (req, res) => {
     res.render('admin/adminRegister');
+});
+
+const authenticateIscrizioneAPI = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (token === process.env.API_KEY_AGENDA) {
+        next();
+    } else {
+        console.log(`Accesso non autorizzato tentato alle fatture da IP: ${req.ip}, URL: ${req.originalUrl}`);
+        res.status(403).send('Forbidden');
+    }
+};
+
+router.post('/admin/api/newUser', authenticateIscrizioneAPI, async (req, res) => {
+    try {
+        const dati = req.body;
+        let username = dati.email.split('@')[0];
+        let usernameChecked;
+        while(!usernameChecked){
+            const utente = await credentials.findOne({"userName": username});
+            if(!utente) usernameChecked = true;
+            if(utente) username+=randomInt(0, 9);
+        }
+        const length = randomInt(7, 12);
+        let password = '';
+        const chars = '1234567890!?"£$%&/()=^'
+        for (let i = 0; i < length; i++) {
+            password+=chars[randomInt(0, 22)];
+        }
+        const saveUser = new credentials({
+            email: dati.email,
+            cell: dati.tel,
+            userName: username,
+            password: await bcrypt.hash(password, 10),
+            approved: false,
+            exams: [{paid: false, bocciato: false}],
+            billingInfo: [
+                {
+                    nome: dati.nome,
+                    cognome: dati.cognome,
+                    codiceFiscale: dati.cf,
+                    via: dati.viaResidenza,
+                    nCivico: dati.civicoResidenza,
+                    CAP: dati.capResidenza,
+                    citta: dati.comuneResidenza,
+                    provincia: dati.provinciaResidenza,
+                    stato: 'IT'
+                }
+            ]
+        });
+        await saveUser.save();
+        try{
+            const subject = 'Agenda Guide';
+            const text = `Complimenti! Hai superato l'esame di teoria. Adesso potrai accedere all'agenda per poter prenotare le guide, vai su agenda-autoscuolacentrale.com e inserisci le seguenti credenziali: email: ${dati.email}, telefono: ${dati.tel}, username: ${username}, password: ${password} Ci raccomandiamo di cambiare subito la password, premendo su ho dimenticato la password, per questioni di sicurezza. `
+            const result = await sendEmail(dati.email, subject, text);
+            console.log(result);
+        }catch(error){
+            console.log('errore: ', error);
+        }
+        res.status(200).json({success: true});
+    } catch (error) {
+        console.log(`Si è verificato un'errore nella ricezione del nuovo utente ${error}`);
+        res.status(500).json({success: false});
+    }
 });
 
 router.post('/admin/register', async (req, res) => {
