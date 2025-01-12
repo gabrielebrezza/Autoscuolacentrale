@@ -16,6 +16,10 @@ const prezzoGuideSchema = new mongoose.Schema({
     prezzoEsame: {
         type: Number,
         required: true
+    },
+    prezzoPacchetto: {
+        type: Number,
+        required: true
     }
 });
 

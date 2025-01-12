@@ -530,13 +530,13 @@ app.get('/success/exam', isAuthenticated, async (req, res) => {
 
 app.post('/pacchetto', isAuthenticated, async (req, res) => {
     try {
-        const price = 370;
+        const { prezzoPacchetto } = await prices.findOne();
         const username = req.user.username;
         const { paymentMethod } = req.body;
         const returnPath = `/success/pacchetto`;
         const {_id} = await credentials.findOne({"userName": username});
         if(paymentMethod == 'satispay'){
-            const url = await createSatispay(price, _id, returnPath);
+            const url = await createSatispay(prezzoPacchetto, _id, returnPath);
             return res.redirect(url);
         }
     } catch (error) {
