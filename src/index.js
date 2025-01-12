@@ -535,10 +535,6 @@ app.post('/pacchetto', isAuthenticated, async (req, res) => {
         const { paymentMethod } = req.body;
         const returnPath = `/success/pacchetto`;
         const {_id} = await credentials.findOne({"userName": username});
-        if(paymentMethod == 'paypal'){
-            const url = await createPaypal(price, username, returnPath);
-            return res.redirect(url);
-        }
         if(paymentMethod == 'satispay'){
             const url = await createSatispay(price, _id, returnPath);
             return res.redirect(url);
@@ -558,15 +554,6 @@ app.get('/success/pacchetto', isAuthenticated, async (req, res) => {
         if(!paymentMethod) return res.render('errorPage', {error: 'errore nel pagamento dell\'esame, metodo di pagamento non riconosciuto'})
         
         let id;
-        if(paymentMethod == 'paypal'){
-            let payerId = req.query.PayerID;
-            let paymentId = req.query.paymentId;
-            if(!paymentId || !payerId){
-                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
-            }
-            const { userId } = await retrivePayPal(payerId, paymentId, type);
-            id = userId;
-        }
         if(paymentMethod == 'satispay'){
             id = req.query.id;
             const { paymentId } = await credentials.findOne({"userName": username});
