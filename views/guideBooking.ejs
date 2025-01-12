@@ -18,13 +18,9 @@
     <header class="header">
         <img id="mobileLogo" src="/styles/img/image.png" alt="">
         <img id="desktopLogo" src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
-        <div class="actions">
-            <% if (storicoGuide.lessonList.length > 0) { %>
-                <button class="storico">Storico Guide</button>
-            <% } else{ %>
-                <button class="storico disabled" disabled>Storico Guide</button>
-            <% } %>
-            
+        <div class="actions" style="display: flex; justify-content: space-around; gap: 10px;">
+            <button class="storico" <%= storicoGuide.lessonList.length > 0 ? '' : 'disabled' %>">Storico Guide</button>
+            <button class="pacchetti">Pacchetti Guide</button>
             <a style="color: red;" href="/userLogout" >LogOut</a>
         </div>
         <script>
@@ -32,12 +28,95 @@
             storico.addEventListener('click', () => {
                 document.querySelector('.storicoGuide').style.display = 'block';
             });
+            const pacchetti = document.querySelector('.pacchetti');
+            pacchetti.addEventListener('click', () => {
+                document.getElementById('pacchettiModal').classList.add('active');
+            })
             function logout() {
                 browser.cookies.remove('userName');
             }
         </script> 
 
     </header>
+    <style>
+        #pacchettiModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            opacity: 0;
+            pointer-events: none;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            transition: .25s ease-in-out;
+        }
+
+        #pacchettiModal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #pacchettiModal form {
+            position: relative;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #pacchettiModal h3 {
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        #pacchettiModal h4 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .material-symbols-outlined.closeModalBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        #pacchettiModal button {
+            background-color: #4075b2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: .25s ease-in-out;
+        }
+
+        #pacchettiModal button:hover {
+            opacity: .8;
+        }
+    </style>
+    <div id="pacchettiModal">
+
+        <form action="/pacchetto" method="post">
+            <span class="material-symbols-outlined closeModalBtn"onclick="document.getElementById('pacchettiModal').classList.remove('active');">
+                cancel
+            </span>
+            <h3>Compra il pacchetto di 10 lezioni da 1 ora e risparmia!</h3>
+            <h4>Il costo del pacchetto è di <s><%= prezzi.prezzo * 10 %></s> 370€</h4>
+            <input type="hidden" name="paymentMethod" value="paypal">
+            <button>Paga Con Satispay</button>
+        </form>
+    </div>
     <% if ((trascinamento.attivo && trascinamento.pagato) || !trascinamento.attivo) { %>
     <% if(!esami.exams[0].paid){ %>
         <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>

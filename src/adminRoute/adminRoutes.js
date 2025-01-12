@@ -284,8 +284,8 @@ router.get('/admin/users',authenticateJWT , async (req, res) => {
         const utenti = await credentials.find();
         const listaIstruttori = await Admin.find({}, 'nome cognome');
         const istruttori = listaIstruttori.map(admin => `${admin.nome} ${admin.cognome}`);
-        const pricePerHour = await prezzoGuida.findOne();
-        res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', istruttore, utenti, istruttori, role, pricePerHour});
+        const prices = await prezzoGuida.findOne();
+        res.render('admin/adminComponents/admin-users', { title: 'Admin - Visualizza Utenti', istruttore, utenti, istruttori, role, prices});
     } catch (error) {
         console.error('Errore durante il recupero degli utenti:', error);
         return res.render('errorPage', {error: 'Errore durante il recupero degli utenti' });
@@ -330,34 +330,27 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
     const email = req.body.utenti;
     const nCodes = Number(req.body.totaleCodici);
     const durata = req.body.durata;
-    const pricePerHour = await prezzoGuida.findOne();
+    const prices = await prezzoGuida.findOne();
     let importo;
     if(durata == 'esame'){
-        importo = 100;
+        importo = prices.prezzoEsame;
     }else if(durata == 'trascinamento'){
         importo = 150;
     }else{
-        importo = (pricePerHour.prezzo * (durata/60));
+        importo = (prices.prezzo * (durata/60));
     }
     await credentials.findOneAndUpdate(
         {"email": email},
         {$inc: {"totalCodes": nCodes}}
     );
     var today = new Date();
-    var day = today.getDate();
-    var month = today.getMonth() + 1;
+    var day = today.getDate().toString().padStart(2, '0');
+    var month = (today.getMonth() + 1).toString().padStart(2, '0');
     var year = today.getFullYear();
-
-    if (day < 10) {
-        day = '0' + day;
-    }
-    if (month < 10) {
-        month = '0' + month;
-    }
-
+    
     var date = day + '/' + month + '/' + year;
 
-    for(var i = 0; i< nCodes; i++){
+    for(var i = 0; i < nCodes; i++){
         await credentials.findOneAndUpdate(
             {"email": email},
             {$push: {"codicePagamento": { "codice": code[i], "data": date, "importo": importo}}},
@@ -641,8 +634,8 @@ router.get('/admin/prezzi',authenticateJWT , async (req, res)=>{
 });
 router.post('/admin/editPrezzi', async (req, res)=>{
     try {
-    const price = req.body.price;
-    const prices = await prezzoGuida.updateOne({"prezzo": price});
+    const {drivingLessonPrice, examPrice} = req.body;
+    await prezzoGuida.updateOne({"prezzo": drivingLessonPrice, "prezzoEsame": examPrice});
     res.redirect('/admin/prezzi');
     } catch (error) {
         console.error("Error while adding or updating prices:", error);

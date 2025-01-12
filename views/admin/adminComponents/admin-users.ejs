@@ -87,7 +87,7 @@
             <div class="field">
                 <button type="submit" >Attiva codici</button>
             </div>
-            <label style="color: #fff;" id="prezzoTotale" data-prezzo="<%= pricePerHour.prezzo %>"></label>
+            <label style="color: #fff;" id="prezzoTotale" data-drivingprice="<%= prices.prezzo %>" data-examprice="<%= prices.prezzoEsame %>"></label>
         </form>
     </div>
     <script>
@@ -110,12 +110,13 @@
             const prezzoTotLabel = document.getElementById('prezzoTotale');
             const durata = document.getElementById('durata').value;
             if(durata == 'esame'){
-                prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * 100 + "€";
+                const examePrice =Number(prezzoTotLabel.dataset.exameprice);
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * examePrice + "€";
             }else if(durata == 'trascinamento'){
                 prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * 150 + "€";
             }else{
-                const prezzoOra =Number(prezzoTotLabel.dataset.prezzo);
-                prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * (prezzoOra * (Number(durata)/60)) + "€";
+                const drivingPrice =Number(prezzoTotLabel.dataset.drivingprice);
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * (drivingPrice * (Number(durata)/60)) + "€";
             }
         });
 

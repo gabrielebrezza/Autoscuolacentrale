@@ -14,7 +14,7 @@ const admin = require('./Db/Admin');
 const guide = require('./Db/Guide');
 const bacheca = require('./Db/Bacheca');
 const formatoEmail = require('./Db/formatoEmail');
-const prezzoGuida = require('./Db/CostoGuide');
+const prices = require('./Db/CostoGuide');
 
 //routes
 const adminRoutes = require('./adminRoute/adminRoutes');
@@ -23,6 +23,7 @@ const { Admin } = require('mongodb');
 //utils 
 const sendEmail = require('./utils/emailsUtils');
 const {createPaypal, retrivePayPal, createSatispay, retriveSatispay, checkCode, setLessonPaid, setSpostaGuidaPaid, setExamPaid } = require('./utils/paymentUtils');
+const { randomInt } = require('crypto');
 
 const app = express();
 
@@ -358,8 +359,9 @@ app.get('/profile', isAuthenticated, async (req, res) => {
     const storicoGuide = await credentials.findOne({ "userName": nome }, {"lessonList": 1})
     const excludeInstructor = exclude.exclude;
     const email = await credentials.findOne({"userName": nome}, {"email": 1});
+    const prezzi = await prices.findOne();
     const userEmail = email.email;
-    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide, userEmail, trascinamento});
+    res.render('guideBooking', { nome, lezioni, esami, bachecaContent, excludeInstructor, personalData, storicoGuide, userEmail, trascinamento, prezzi});
 });
 
 app.post('/book', isAuthenticated, async (req, res) => {
@@ -465,17 +467,17 @@ app.get('/success/lesson', isAuthenticated, async (req, res) => {
 
 app.post('/bookExam', isAuthenticated, async (req, res) => {
     try {
-        const price = 90;
+        const { prezzoEsame } = await prices.findOne();
         const username = req.user.username;
         const { paymentMethod } = req.body;
         const returnPath = `/success/exam`;
         const {_id} = await credentials.findOne({"userName": username});
         if(paymentMethod == 'paypal'){
-            const url = await createPaypal(price, username, returnPath);
+            const url = await createPaypal(prezzoEsame, username, returnPath);
             return res.redirect(url);
         }
         if(paymentMethod == 'code'){
-            if(await checkCode(req.body.codicePagamento, price, username, 'Esame di guida')){
+            if(await checkCode(req.body.codicePagamento, prezzoEsame, username, 'Esame di guida')){
                 await setExamPaid(_id);
                 return res.redirect('/profile');
             }else{
@@ -483,7 +485,7 @@ app.post('/bookExam', isAuthenticated, async (req, res) => {
             }
         }
         if(paymentMethod == 'satispay'){
-            const url = await createSatispay(price, _id, returnPath);
+            const url = await createSatispay(prezzoEsame, _id, returnPath);
             return res.redirect(url);
         }
     } catch (error) {
@@ -525,6 +527,101 @@ app.get('/success/exam', isAuthenticated, async (req, res) => {
         res.render('errorPage', {error: 'errore nel pagamento dell\'esame'})
     }
 });
+
+app.post('/pacchetto', isAuthenticated, async (req, res) => {
+    try {
+        const price = 370;
+        const username = req.user.username;
+        const { paymentMethod } = req.body;
+        const returnPath = `/success/pacchetto`;
+        const {_id} = await credentials.findOne({"userName": username});
+        if(paymentMethod == 'paypal'){
+            const url = await createPaypal(price, username, returnPath);
+            return res.redirect(url);
+        }
+        if(paymentMethod == 'satispay'){
+            const url = await createSatispay(price, _id, returnPath);
+            return res.redirect(url);
+        }
+    } catch (error) {
+        console.error('Errore durante la prenotazione dell\'Esame :', error);
+        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'Esame'});
+    }
+});
+
+app.get('/success/pacchetto', isAuthenticated, async (req, res) => {
+    try {
+        const { paymentMethod } = req.query;
+        const { username } = req.user;
+        const type = 'pacchetto';
+        const numberOfCode = 10;
+        if(!paymentMethod) return res.render('errorPage', {error: 'errore nel pagamento dell\'esame, metodo di pagamento non riconosciuto'})
+        
+        let id;
+        if(paymentMethod == 'paypal'){
+            let payerId = req.query.PayerID;
+            let paymentId = req.query.paymentId;
+            if(!paymentId || !payerId){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
+            }
+            const { userId } = await retrivePayPal(payerId, paymentId, type);
+            id = userId;
+        }
+        if(paymentMethod == 'satispay'){
+            id = req.query.id;
+            const { paymentId } = await credentials.findOne({"userName": username});
+            const {status} = await retriveSatispay(paymentId, username, type);
+            if(status.toLowerCase() !='accepted' || !status){
+                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
+            }
+        }
+        await credentials.findOneAndUpdate(
+            {"userName": username},
+            {$inc: {"totalCodes": numberOfCode}}
+        );
+        var today = new Date();
+        var day = today.getDate().toString().padStart(2, '0');
+        var month = (today.getMonth() + 1).toString().padStart(2, '0');
+        var year = today.getFullYear();
+        
+        var date = day + '/' + month + '/' + year;
+        const pricePerHour = await prices.findOne();
+        const codes = [];
+        for (let i = 0; i < numberOfCode; i++) {
+            var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var codeLength = randomInt(10, 16);
+            var code = '';
+            for (var j = 0; j < codeLength; j++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            codes.push(code);
+            await credentials.findOneAndUpdate(
+                {"userName": username},
+                {$push: {"codicePagamento": { "codice": code, "data": date, "importo": pricePerHour.prezzo}}},
+                { new: true }
+            );
+        }
+        const user = await credentials.findOne({"userName": username});
+        const subject = 'Acquisto Pacchetto Guide';
+        let text = `Gentile ${user.billingInfo[0].nome} questi sono i codici con cui pagare le guide, Ricorda funzionano solamente con le guide dalla durata di 1 ora. Codici: `;
+        for (const code of codes) {
+            text+= `${code}, `
+        }
+        text+= `i codici sono già utilizzabili da ora.`
+        try{
+            const result = await sendEmail(user.email, subject, text);
+            console.log(result);
+        }catch(error){
+            console.log('errore: ', error);
+            return res.render('errorPage', {error: `Errore nell\'invio dell\'email per i codici.`});
+        }
+        res.redirect('/profile');
+    } catch (error) {
+        console.log('errore nella ricezione del pagamento pacchetti: ', error)
+        res.render('errorPage', {error: 'errore nel pagamento del pacchetto guide'})
+    }
+});
+
 
 app.post('/trascinamento', isAuthenticated, async (req, res) => {
     try {

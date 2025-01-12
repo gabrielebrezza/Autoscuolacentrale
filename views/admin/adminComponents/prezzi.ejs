@@ -9,7 +9,10 @@
             background-color: #71a1cb;
             color: white;
         }
-    
+        main{
+            display: flex;
+            flex-wrap: wrap;
+        }
         form {
             background-color: #f1f1f1;
             padding: 20px;
@@ -57,11 +60,17 @@
 </head>
 <body>
     <%- include('header.ejs') %>
-
-    <form action="/admin/editPrezzi" method="POST">
-        <label for="price">Prezzo per 1 ora di guida: </label>
-        <input type="number" name="price" id="price" min="1" value="<%= prices[0].prezzo %>">
-        <button type="submit">Aggiorna</button>
-    </form>
+    <main>
+        <form action="/admin/editPrezzi" method="POST">
+            <label for="drivingLessonPrice">Prezzo 1 ora di guida: </label>
+            <input type="number" name="drivingLessonPrice" id="drivingLessonPrice" min="1" value="<%= prices[0].prezzo %>">
+            <button type="submit">Aggiorna</button>
+        </form>
+        <form action="/admin/editPrezzi" method="POST">
+            <label for="examPrice">Prezzo Esame: </label>
+            <input type="number" name="examPrice" id="examPrice" min="1" value="<%= prices[0].prezzoEsame %>">
+            <button type="submit">Aggiorna</button>
+        </form>
+    </main>
 </body>
 </html>
