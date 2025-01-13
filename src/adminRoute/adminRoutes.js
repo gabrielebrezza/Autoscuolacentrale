@@ -110,7 +110,7 @@ router.post('/admin/api/newUser', authenticateIscrizioneAPI, async (req, res) =>
             cell: dati.tel,
             userName: username,
             password: await bcrypt.hash(password, 10),
-            approved: false,
+            approved: true,
             exams: [{paid: false, bocciato: false}],
             billingInfo: [
                 {
