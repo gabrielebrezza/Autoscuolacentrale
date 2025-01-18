@@ -328,14 +328,16 @@ router.post('/admin/updateUser', authenticateJWT, async (req, res) => {
 router.post('/createCode', authenticateJWT, async (req, res)=>{
     const code = (req.body.code).split(',');
     const email = req.body.utenti;
-    const nCodes = Number(req.body.totaleCodici);
     const durata = req.body.durata;
+    const nCodes = durata == 'pacchetto' ? 10 : Number(req.body.totaleCodici);
     const prices = await prezzoGuida.findOne();
     let importo;
     if(durata == 'esame'){
         importo = prices.prezzoEsame;
     }else if(durata == 'trascinamento'){
         importo = 150;
+    }else if(durata == 'pacchetto'){
+        importo = prices.prezzo;
     }else{
         importo = (prices.prezzo * (durata/60));
     }

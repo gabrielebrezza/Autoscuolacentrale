@@ -63,7 +63,7 @@
                 </select>
             </div>
             <div class="field">
-                <label for="totaleCodici">Numero di codici:</label>
+                <label for="totaleCodici">Numero di codici (selezionare 1 per il pacchetto):</label>
                 <input type="number" name="totaleCodici" id="totaleCodici" min="1">
             </div>
             <div class="field">
@@ -75,6 +75,7 @@
                         <option value="120">2 ore</option>
                         <option value="esame">esame</option>
                         <option value="trascinamento">trascinamento</option>
+                        <option value="pacchetto">pacchetto da 10 guide</option>
                 </select>
             </div>
             <div class="field">
@@ -87,12 +88,14 @@
             <div class="field">
                 <button type="submit" >Attiva codici</button>
             </div>
-            <label style="color: #fff;" id="prezzoTotale" data-drivingprice="<%= prices.prezzo %>" data-examprice="<%= prices.prezzoEsame %>"></label>
+            <label style="color: #fff;" id="prezzoTotale" data-drivingprice="<%= prices.prezzo %>" data-examprice="<%= prices.prezzoEsame %>" data-packprice="<%= prices.prezzoPacchetto %>"></label>
         </form>
     </div>
     <script>
         document.getElementById("createCode").addEventListener("click", function() {
             var totCodes = document.getElementById("totaleCodici").value;
+            const durata = document.getElementById('durata').value;
+            if(durata == 'pacchetto') totCodes = 10;
             let codici = [];
             for(var i = 0; i < totCodes; i++){
 
@@ -108,12 +111,15 @@
             codici.join(' , ')
             document.getElementById("code").value = codici;
             const prezzoTotLabel = document.getElementById('prezzoTotale');
-            const durata = document.getElementById('durata').value;
+            
             if(durata == 'esame'){
                 const examePrice =Number(prezzoTotLabel.dataset.exameprice);
                 prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * examePrice + "€";
             }else if(durata == 'trascinamento'){
                 prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * 150 + "€";
+            }else if(durata == 'pacchetto'){
+                const packPrice =prezzoTotLabel.dataset.packprice;
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + packPrice + "€";
             }else{
                 const drivingPrice =Number(prezzoTotLabel.dataset.drivingprice);
                 prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * (drivingPrice * (Number(durata)/60)) + "€";
