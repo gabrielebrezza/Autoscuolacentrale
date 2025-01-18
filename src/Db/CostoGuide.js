@@ -20,6 +20,10 @@ const prezzoGuideSchema = new mongoose.Schema({
     prezzoPacchetto: {
         type: Number,
         required: true
+    },
+    prezzoPacchettoFisico: {
+        type: Number,
+        required: true
     }
 });
 

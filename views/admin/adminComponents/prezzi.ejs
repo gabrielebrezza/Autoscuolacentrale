@@ -76,6 +76,11 @@
             <input type="number" name="pacchettoPrice" id="pacchettoPrice" min="1" value="<%= prices[0].prezzoPacchetto %>">
             <button type="submit">Aggiorna</button>
         </form>
+        <form action="/admin/editPrezzi" method="POST">
+            <label for="prezzoPacchettoFisico">Prezzo Pacchetto Guide in Autoscuola: </label>
+            <input type="number" name="prezzoPacchettoFisico" id="prezzoPacchettoFisico" min="1" value="<%= prices[0].prezzoPacchettoFisico %>">
+            <button type="submit">Aggiorna</button>
+        </form>
     </main>
 </body>
 </html>

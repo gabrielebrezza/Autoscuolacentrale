@@ -636,8 +636,8 @@ router.get('/admin/prezzi',authenticateJWT , async (req, res)=>{
 });
 router.post('/admin/editPrezzi', async (req, res)=>{
     try {
-    const {drivingLessonPrice, examPrice, pacchettoPrice} = req.body;
-    await prezzoGuida.updateOne({"prezzo": drivingLessonPrice, "prezzoEsame": examPrice, "prezzoPacchetto": pacchettoPrice});
+    const {drivingLessonPrice, examPrice, pacchettoPrice, prezzoPacchettoFisico} = req.body;
+    await prezzoGuida.updateOne({"prezzo": drivingLessonPrice, "prezzoEsame": examPrice, "prezzoPacchetto": pacchettoPrice, "prezzoPacchettoFisico": prezzoPacchettoFisico});
     res.redirect('/admin/prezzi');
     } catch (error) {
         console.error("Error while adding or updating prices:", error);
