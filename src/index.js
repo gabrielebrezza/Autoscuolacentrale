@@ -540,8 +540,8 @@ app.post('/pacchetto', isAuthenticated, async (req, res) => {
             return res.redirect(url);
         }
     } catch (error) {
-        console.error('Errore durante la prenotazione dell\'Esame :', error);
-        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'Esame'});
+        console.error('Errore durante la prenotazione del pacchetto:', error);
+        return res.render('errorPage', {error: 'Errore durante la prenotazione del pacchetto'});
     }
 });
 

@@ -326,22 +326,28 @@ router.post('/admin/updateUser', authenticateJWT, async (req, res) => {
     }
 })
 router.post('/createCode', authenticateJWT, async (req, res)=>{
-    const code = (req.body.code).split(',');
-    const email = req.body.utenti;
-    const durata = req.body.durata;
-    const nCodes = durata == 'pacchetto' ? 10 : Number(req.body.totaleCodici);
-    const prices = await prezzoGuida.findOne();
-    let importo;
-    if(durata == 'esame'){
-        importo = prices.prezzoEsame;
-    }else if(durata == 'trascinamento'){
-        importo = 150;
-    }else if(durata == 'pacchetto'){
-        importo = prices.prezzo;
-    }else{
-        importo = (prices.prezzo * (durata/60));
-    }
-    await credentials.findOneAndUpdate(
+    try {
+        const code = (req.body.code).split(',');
+        const email = req.body.utenti;
+        const durata = req.body.durata;
+        const nCodes = durata == 'pacchetto' ? 10 : Number(req.body.totaleCodici);
+        const prices = await prezzoGuida.findOne();
+        let type = '';
+        let importo;
+        if(durata == 'esame'){
+            type = 'Esame di guida'
+            importo = prices.prezzoEsame;
+        }else if(durata == 'trascinamento'){
+            type = 'Trascinamento'
+            importo = 150;
+        }else if(durata == 'pacchetto'){
+            type = 'pacchetto'
+            importo = prices.prezzo;
+        }else{
+            type = 'Lezione di guida'
+            importo = (prices.prezzo * (durata/60));
+        }
+        await credentials.findOneAndUpdate(
         {"email": email},
         {$inc: {"totalCodes": nCodes}}
     );
@@ -351,7 +357,18 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
     var year = today.getFullYear();
     
     var date = day + '/' + month + '/' + year;
-
+    await credentials.findOneAndUpdate(
+        {
+            "email": email
+        },
+        {
+            $addToSet: {
+                "fatturaDaFare": {"tipo": type, "data": date, "importo": (durata == 'pacchetto' ? prices.prezzoPacchettoFisico * (nCodes/10): importo * nCodes), "paymentUrl": 'Codice', "emessa": req.body.emettiFattura == 'on' ? false : true},
+            }
+        },
+        {new: true}
+    ); 
+    
     for(var i = 0; i < nCodes; i++){
         await credentials.findOneAndUpdate(
             {"email": email},
@@ -359,6 +376,9 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
             { new: true }
         );
     }
+} catch (error) {
+    console.log(error)   
+}
     res.redirect('/admin/users');
 });
 router.post('/ArchiviaUtente', authenticateJWT, async (req, res) =>{
@@ -366,7 +386,7 @@ router.post('/ArchiviaUtente', authenticateJWT, async (req, res) =>{
     const user = await credentials.findOne({"email": email});
     if (user) {
         const nuovoArchiviato = !user.archiviato;
-        const archiviazione = await credentials.findOneAndUpdate(
+        await credentials.findOneAndUpdate(
             {"email": email},
             {$set: {"archiviato": nuovoArchiviato}}
         );

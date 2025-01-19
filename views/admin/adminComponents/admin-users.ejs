@@ -63,7 +63,7 @@
                 </select>
             </div>
             <div class="field">
-                <label for="totaleCodici">Numero di codici (selezionare 1 per il pacchetto):</label>
+                <label for="totaleCodici" style="font-size: .9rem;">Numero di codici (selezionare 1 per il pacchetto):</label>
                 <input type="number" name="totaleCodici" id="totaleCodici" min="1">
             </div>
             <div class="field">
@@ -77,6 +77,10 @@
                         <option value="trascinamento">trascinamento</option>
                         <option value="pacchetto">pacchetto da 10 guide</option>
                 </select>
+            </div>
+            <div class="field">
+                <label for="emettiFattura">Emetti fattura</label>
+                <input type="checkbox" name="emettiFattura" id="emettiFattura">
             </div>
             <div class="field">
                 <button type="button" id="createCode">Genera Codice</button>

@@ -12,6 +12,7 @@ const formatoEmail = require('./../Db/formatoEmail');
 const sendEmail = require('./../utils/emailsUtils');
 
 async function addFattura(student, paymentUrl, type, price){
+    if(paymentUrl == 'Codice') return;
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0'); 
     const mm = String(today.getMonth() + 1).padStart(2, '0'); 
@@ -28,7 +29,7 @@ async function addFattura(student, paymentUrl, type, price){
             }
         },
         {new: true}
-    ); 
+    );
 }
 
 //PAYPAL CHECKOUT
