@@ -63,7 +63,7 @@
                 </select>
             </div>
             <div class="field">
-                <label for="totaleCodici" style="font-size: .9rem;">Numero di codici (selezionare 1 per il pacchetto):</label>
+                <label for="totaleCodici" style="font-size: .9rem;">Numero di codici <br> (selezionare 1 per il pacchetto):</label>
                 <input type="number" name="totaleCodici" id="totaleCodici" min="1">
             </div>
             <div class="field">
@@ -397,12 +397,13 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
                 const codici = JSON.parse(name.dataset.codici);
                 codici.forEach(codice => {
                     const row = document.createElement('tr');
+                    if(!codice.active) row.classList.add('activeCode');
                     
+
                     const codiceCell = document.createElement('td');
                     codiceCell.setAttribute('data-label', 'Codice');
                     codiceCell.textContent = codice.codice;
                     row.appendChild(codiceCell);
-                    
                     const dataCell = document.createElement('td');
                     dataCell.setAttribute('data-label', 'Data');
                     dataCell.textContent = codice.data;

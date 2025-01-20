@@ -172,6 +172,11 @@ const LoginSchema = new mongoose.Schema({
             importo: {
                 type: Number,
                 required: false
+            },
+            active: {
+                type: Boolean,
+                required: true,
+                default: true
             }
         }
     ],

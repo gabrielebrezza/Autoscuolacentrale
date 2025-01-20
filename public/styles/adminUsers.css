@@ -321,6 +321,9 @@ button > a{
 .archiviaTable th, .archiviaTable td,.panoramicaCodiciTable th, .panoramicaCodiciTable td{
     text-align: center;
 }
+.activeCode td{
+    background: rgb(198, 191, 47);
+}
 .nameCell{
     display: flex;
     align-items: center;

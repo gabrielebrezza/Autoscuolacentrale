@@ -20,7 +20,11 @@
         <img id="desktopLogo" src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
         <div class="actions" style="display: flex; justify-content: space-around; gap: 10px;">
             <button class="storico" <%= storicoGuide.lessonList.length > 0 ? '' : 'disabled' %>">Storico Guide</button>
-            <button class="pacchetti">Pacchetti Guide</button>
+            <% for(esame of esami.exams) { %>
+                <% if (esame.paid && !esame.bocciato) { %>
+                    <button class="pacchetti">Pacchetti Guide</button>
+                <% } %>
+            <% } %>
             <a style="color: red;" href="/userLogout" >LogOut</a>
         </div>
         <script>
@@ -118,9 +122,9 @@
         </form>
     </div>
     <% if ((trascinamento.attivo && trascinamento.pagato) || !trascinamento.attivo) { %>
-    <% if(!esami.exams[0].paid){ %>
-        <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>
-    <% } %>
+        <% if(!esami.exams[0].paid){ %>
+            <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>
+        <% } %>
     <aside>     
             <% const esame = esami.exams; %>
             <% let toPay = 0 %>

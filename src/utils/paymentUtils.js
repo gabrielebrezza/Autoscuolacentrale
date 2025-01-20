@@ -196,8 +196,17 @@ async function retriveSatispay(paymentId, username, type) {
 
 //CODE CHECKOUT
 async function checkCode(code, price, username, type) {
-    const result = await credentials.findOne({"userName": username, "codicePagamento": {$elemMatch: {"codice": code,"importo": price}}});
-    await credentials.updateOne({"userName": username},{ $pull: { "codicePagamento": { "codice": code, "importo": price }}});
+    const result = await credentials.findOne({"userName": username, "codicePagamento": {$elemMatch: {"codice": code,"importo": price, "active": true}}});
+    if(result){
+        await credentials.updateOne({"userName": username},    
+            { 
+                $set: { "codicePagamento.$[elem].active": false }
+            },
+            {
+                arrayFilters: [{ "elem.codice": code, "elem.importo": price }]
+            }
+        );
+    }
     if(!!result) await addFattura(username, 'Codice', type, price);
     return !!result;
 }
