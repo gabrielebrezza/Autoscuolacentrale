@@ -10,6 +10,7 @@ const guide = require('./../Db/Guide');
 const formatoEmail = require('./../Db/formatoEmail');
 
 const sendEmail = require('./../utils/emailsUtils');
+const { createInvoice } = require('../utils/invoiceUtils');
 
 async function addFattura(student, paymentUrl, type, price){
     if(paymentUrl == 'Codice') return;
@@ -30,6 +31,21 @@ async function addFattura(student, paymentUrl, type, price){
         },
         {new: true}
     );
+    const user = await credentials.findOne({"userName": student})
+    const dati = {
+        codiceFiscaleCliente: user.billingInfo[0].codiceFiscale,
+        nomeCliente: user.billingInfo[0].cognome,
+        cognomeCliente: user.billingInfo[0].nome,
+        indirizzoSedeCliente: `${user.billingInfo[0].via} ${user.billingInfo[0].nCivico}`,
+        capSedeCliente: user.billingInfo[0].CAP,
+        comuneSedeCliente: user.billingInfo[0].citta,
+        provinciaSedeCliente: user.billingInfo[0].provincia,
+        nazioneSedeCliente: user.billingInfo[0].stato,
+        importo: price,
+        descrizione: type,
+        userName: student
+    }
+    await createInvoice(dati);
 }
 
 //PAYPAL CHECKOUT

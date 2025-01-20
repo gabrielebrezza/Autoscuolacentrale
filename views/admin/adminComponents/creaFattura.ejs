@@ -99,61 +99,7 @@
     <form id="fatturaForm" method="POST" action="/createFattura">
         <input type="hidden" name="userName" value="<%= userName %>">
         <input type="hidden" name="tipologiaFattura" value="<%= tipo %>">
-        <fieldset>
-            <legend>Dati Trasmissione</legend>
-            <label for="IdPaese">IdCodice</label>
-            <input type="text" name="IdPaese" id="IdPaese" value="IT">
-            <label for="IdCodice">IdCodice</label>
-            <input type="text" name="IdCodice" id="IdCodice" value="06498290011">
-            <label for="progressivoInvio">Progressivo Invio:</label><br>
-            <input type="text" id="progressivoInvio" name="progressivoInvio" value="g00<%= nFattura[0].numero %>"><br><br>
-            
-            <label for="formatoTrasmissione">Formato Trasmissione:</label><br>
-            <input type="text" id="formatoTrasmissione" name="formatoTrasmissione" value="FPR12"><br><br>
-
-            <label for="codiceDestinatario">Codice Destinatario:</label><br>
-            <input type="text" id="codiceDestinatario" name="codiceDestinatario" value="0000000"><br><br>
-
-            <fieldset>
-                <legend>Contatti Trasmittente</legend>
-                <label for="telefonoTrasmittente">Telefono:</label><br>
-                <input type="text" id="telefonoTrasmittente" name="telefonoTrasmittente" value="0116507136"><br><br>
-                
-                <label for="emailTrasmittente">Email:</label><br>
-                <input type="email" id="emailTrasmittente" name="emailTrasmittente" value="autoscuola.centrale@libero.it"><br><br>
-            </fieldset>
-        </fieldset>
-
-        <fieldset>
-            <legend>Dati Cedente/Prestatore</legend>
-            <label for="codiceFiscaleCedente">Codice Fiscale Cedente:</label><br>
-            <input type="text" id="codiceFiscaleCedente" name="codiceFiscaleCedente" value="DMLNTN67S12L738X"><br><br>
-            
-            <label for="denominazioneCedente">Denominazione Cedente:</label><br>
-            <input type="text" id="denominazioneCedente" name="denominazioneCedente" value="D'Amelio Antonio"><br><br>
-
-            <label for="regimeFiscaleCedente">Regime Fiscale Cedente:</label><br>
-            <input type="text" id="regimeFiscaleCedente" name="regimeFiscaleCedente" value="RF01"><br><br>
-
-            <fieldset>
-                <legend>Sede Cedente/Prestatore</legend>
-                <label for="indirizzoSedeCedente">Indirizzo:</label><br>
-                <input type="text" id="indirizzoSedeCedente" name="indirizzoSedeCedente" value="Corso Guglielmo Marconi, 33"><br><br>
-
-                <label for="capSedeCedente">CAP:</label><br>
-                <input type="text" id="capSedeCedente" name="capSedeCedente" value="10125"><br><br>
-
-                <label for="comuneSedeCedente">Comune:</label><br>
-                <input type="text" id="comuneSedeCedente" name="comuneSedeCedente" value="TORINO"><br><br>
-
-                <label for="provinciaSedeCedente">Provincia:</label><br>
-                <input type="text" id="provinciaSedeCedente" name="provinciaSedeCedente" value="TO"><br><br>
-
-                <label for="nazioneSedeCedente">Nazione:</label><br>
-                <input type="text" id="nazioneSedeCedente" name="nazioneSedeCedente" value="IT"><br><br>
-            </fieldset>
-        </fieldset>
-
+        <input type="hidden" name="importo" value="<%= importo %>">
         <fieldset>
             <legend>Dati Cessionario/Committente</legend>
 
@@ -185,23 +131,6 @@
         </fieldset>
 
         <fieldset>
-            <legend>Dati Generici Documento</legend>
-            <label for="tipoDocumento">Tipo Documento:</label><br>
-            <input type="text" id="tipoDocumento" name="tipoDocumento" value="TD01"><br><br>
-
-            <label for="divisa">Divisa:</label><br>
-            <input type="text" id="divisa" name="divisa" value="EUR"><br><br>
-
-            <label for="data">Data:</label><br>
-            <input type="text" id="data" name="data" value="<%= data %>"><br><br>
-
-            <label for="numeroDocumento">Numero Documento:</label><br>
-            <input type="text" id="numeroDocumento" name="numeroDocumento" value="g00<%= nFattura[0].numero %>"><br><br>
-            <label for="ImportoTotaleDocumento">ImportoTotaleDocumento</label>
-            <input type="text" id="ImportoTotaleDocumento" name="ImportoTotaleDocumento" value="<%= Number(importo).toFixed(2) %>">
-        </fieldset>
-
-        <fieldset>
             <legend>Dati Beni e Servizi</legend>
             <fieldset>
                 <legend>Dettaglio Linee</legend>
@@ -209,13 +138,7 @@
                 <input type="text" id="numeroLinea" name="numeroLinea1" value="1"><br><br>
 
                 <label for="descrizione">Descrizione:</label><br>
-                <input type="text" id="descrizione" name="descrizione1" value="<%= tipo %>"><br><br>
-
-                <label for="prezzoUnitario">Prezzo Unitario:</label><br>
-                <input type="text" id="prezzoUnitario" name="prezzoUnitario1" value="<%= Number(importo/1.22).toFixed(2) %>"><br><br>
-
-                <label for="prezzoTotale">Prezzo Totale:</label><br>
-                <input type="text" id="prezzoTotale" name="prezzoTotale1" value="<%= Number(importo/1.22).toFixed(2) %>"><br><br>
+                <input type="text" id="descrizione" name="descrizione" value="<%= tipo %>"><br><br>
 
                 <label for="aliquotaIVA">Aliquota IVA:</label><br>
                 <input type="text" id="aliquotaIVA" name="aliquotaIVA1" value="22.00"><br><br>

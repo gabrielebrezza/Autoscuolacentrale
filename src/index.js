@@ -409,7 +409,7 @@ app.post('/book', isAuthenticated, async (req, res) => {
         const {price, location} = lesson;
         const custom = {scheduleId: lesson._id, bookId: guides.book[0]._id, instructor, day, hour, location}
         if(paymentMethod == 'paypal'){
-            const url = await createPaypal(price, username, returnPath, custom);
+            const url = await createPaypal(Number(price).toFixed(2), username, returnPath, custom);
             return res.redirect(url);
         }
         if(paymentMethod == 'satispay'){
