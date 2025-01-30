@@ -295,14 +295,29 @@ $(function() {
 });
 
 function selectFirstGreenDate() {
-    var firstGreenDateStr = $('.greenDate > a').data("date");
-    if (firstGreenDateStr) {       
-        $("#data").datepicker("setDate", firstGreenDateStr);
-        updateSectionsVisibility(firstGreenDateStr); // Aggiorniamo la visibilità delle sezioni quando viene selezionata la prima data verde
-    } else {
-        console.log("Nessuna data greenDate trovata.");
+        var today = new Date();
+        var day = today.getDate();
+        var month = today.getMonth() + 1;
+        var year = today.getFullYear();
+        var todayString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+
+        var todayIsGreen = $('.day-card[data-date="' + todayString + '"]').length > 0;
+
+        if (todayIsGreen) {
+            $("#data").datepicker("setDate", todayString);
+            updateSectionsVisibility(todayString);
+        } else {
+            // Cerca la prima data verde futura
+            $(".day-card").each(function() {
+                var availableDate = $(this).data("date");
+                if (availableDate) {
+                    $("#data").datepicker("setDate", availableDate);
+                    updateSectionsVisibility(availableDate);
+                    return false; // Interrompe il ciclo dopo aver trovato la prima data disponibile
+                }
+            });
+        }
     }
-}
 
 function updateSectionsVisibility(selectedDate) {
     var sections = document.querySelectorAll('.day-card');
