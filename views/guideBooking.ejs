@@ -264,10 +264,11 @@
                             
                             <% for( const schedule of filteredSchedules ) {
                                 //se io ho già prenotato una guida nascondo la card
-                                if(schedule.student == nome){
-                                    booked = true;
-                                    break;
-                                }
+                                //non più necessario ma lasciamolo in caso di cambio logica
+                                // if(schedule.student == nome){
+                                //     booked = true;
+                                //     break;
+                                // }
                                 //guardo se la prima guida è occupata
                                 if(schedule.student && !previousSchedule && !booked) booked = true;
 
