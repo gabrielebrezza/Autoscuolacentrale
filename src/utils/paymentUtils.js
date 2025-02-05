@@ -247,7 +247,7 @@ async function setLessonPaid(username, userId, custom){
     }
     await guide.findOneAndUpdate(
         { "instructor": custom.instructor, "book._id": custom.bookId, "book.schedule._id": custom.scheduleId, "book.schedule.student": null },
-        { $set: { "book.$[outer].schedule.$[inner].student": username, "book.$[outer].schedule.$[inner].completed": true }},
+        { $set: { "book.$[outer].schedule.$[inner].student": username, "book.$[outer].schedule.$[inner].completed": true, "book.$[outer].schedule.$[inner].pending": false }},
         {arrayFilters: [{ "outer._id": custom.bookId }, { "inner._id": custom.scheduleId }]});
 
     const {email, billingInfo} = await credentials.findOne({"_id": userId});
