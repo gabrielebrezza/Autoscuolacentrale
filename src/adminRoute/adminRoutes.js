@@ -106,6 +106,10 @@ router.post('/admin/api/newUser', authenticateIscrizioneAPI, async (req, res) =>
         for (let i = 0; i < length; i++) {
             password+=chars[randomInt(0, 22)];
         }
+        let expirationFoglioRosa = new Date(dati.teoria.filter(el => el.esito)[0].data.split('/').reverse().join('-'));
+        expirationFoglioRosa.setFullYear(expirationFoglioRosa.getFullYear() + 1);
+        expirationFoglioRosa.setDate(expirationFoglioRosa.getDate() + 1);
+
         const saveUser = new credentials({
             email: dati.email,
             cell: dati.tel,
@@ -113,6 +117,8 @@ router.post('/admin/api/newUser', authenticateIscrizioneAPI, async (req, res) =>
             password: await bcrypt.hash(password, 10),
             approved: true,
             exams: [{paid: false, bocciato: false}],
+            licenseNumber: dati.numeroPatente,
+            expirationFoglioRosa: expirationFoglioRosa,
             billingInfo: [
                 {
                     nome: dati.nome,

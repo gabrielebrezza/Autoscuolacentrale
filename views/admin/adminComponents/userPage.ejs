@@ -120,6 +120,14 @@
                     <td>Cellulare</td>
                     <td><input type="tel" id="cell" name="cell" value="<%= user.cell %>"></td>
                 </tr>
+                <tr>
+                    <td>Numero Patente</td>
+                    <td><input type="text" id="licenseNumber" name="licenseNumber" value="<%= user.licenseNumber %>"></td>
+                </tr>
+                <tr>
+                    <td>Scadenza Foglio Rosa</td>
+                    <td><input type="date" id="expFoglioRosa" name="expFoglioRosa" value="<%= user.expirationFoglioRosa %>"></td>
+                </tr>
             </tbody>
             <tfoot>
                 <td colspan="2"><button id="submitFormBtn" type="submit">Salva</button></td>
