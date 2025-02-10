@@ -108,9 +108,15 @@ router.post('/admin/api/newUser', authenticateIscrizioneAPI, async (req, res) =>
         }
         console.log(dati)
         
-        let expirationFoglioRosa = new Date(dati.teoria.filter(el => el.esito)[0].data.split('/').reverse().join('-'));
-        expirationFoglioRosa.setFullYear(expirationFoglioRosa.getFullYear() + 1);
-        expirationFoglioRosa.setDate(expirationFoglioRosa.getDate() + 1);
+        const examIndex = (Number(dati.teoriaLength) - Number(dati.countTeoriaAssente)) - 1;
+        let expirationFoglioRosa;
+        if(dati[`esitoEsame${examIndex}`] == 'idoneo'){
+            expirationFoglioRosa = new Date(dati[`dataEsame${examIndex}`]);
+            expirationFoglioRosa.setFullYear(expirationFoglioRosa.getFullYear() + 1);
+            expirationFoglioRosa.setDate(expirationFoglioRosa.getDate() + 1);
+        }
+        
+
         console.log(expirationFoglioRosa)
         const saveUser = new credentials({
             email: dati.email,
