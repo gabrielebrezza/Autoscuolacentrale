@@ -93,6 +93,7 @@ const authenticateIscrizioneAPI = (req, res, next) => {
 router.post('/admin/api/newUser', authenticateIscrizioneAPI, async (req, res) => {
     try {
         const dati = req.body;
+        if(!(await credentials.findOne({"email": dati.email}))) return res.status(404).json({success: false});
         let username = dati.email.split('@')[0];
         let usernameChecked;
         while(!usernameChecked){
