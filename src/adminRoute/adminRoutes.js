@@ -125,7 +125,7 @@ router.post('/admin/api/newUser', authenticateIscrizioneAPI, async (req, res) =>
             password: await bcrypt.hash(password, 10),
             approved: true,
             exams: [{paid: false, bocciato: false}],
-            licenseNumber: dati.numeroPatente,
+            licenseNumber: dati.nPatente,
             expirationFoglioRosa: expirationFoglioRosa,
             billingInfo: [
                 {
