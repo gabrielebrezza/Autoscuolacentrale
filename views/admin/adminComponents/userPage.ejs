@@ -56,6 +56,17 @@
         #submitFormBtn:hover{
             opacity: .7;
         }
+        .tableBtn{
+            background: #5681a9;
+            color: #f1f1f1;
+            padding: 5px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+        .activeCode td{
+            background: rgba(255, 255, 0, 0.623);
+        }
     </style>
     <!-- icone -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -128,6 +139,79 @@
                     <td>Scadenza Foglio Rosa</td>
                     <td><input type="date" id="expFoglioRosa" name="expFoglioRosa" value="<%= user.expirationFoglioRosa %>"></td>
                 </tr>
+                    
+                <% let examCounter = 1 %>
+                    <% for (const exam of user.exams) { %>
+                        <% if(exam.paid){ %>
+                            <tr>
+                                <td><%= examCounter %>° Esame</td>
+                                <td>
+                                    <% const examDateId = `examDate${examCounter}` %>
+                                    <label for="<%= examDateId %>">Data:</label>
+                                    <input type="date" name="<%= examDateId %>" id="<%= examDateId %>" value="<%= exam.date? new Date(exam.date).toISOString().split('T')[0] : '' %>" <%= exam.bocciato || exam.promosso ? 'disabled' : ''  %>>
+                                    <span><%= exam.bocciato ? 'bocciato': exam.promosso ? 'promosso' : '' %></span>
+                                    <% if (!exam.bocciato && !exam.promosso) { %>
+                                        <% const examActionClass = `examAction${examCounter}` %>
+                                        <input type="button" class="<%= examActionClass %> tableBtn" data-examdateid="<%= examDateId %>" data-userid="<%= user._id %>" onclick="updateExam(this)" value="fissa data">
+                                        <input type="button" class="<%= examActionClass %> tableBtn" data-userid="<%= user._id %>" onclick="updateExam(this)" value="boccia">
+                                        <input type="button" class="<%= examActionClass %> tableBtn" data-userid="<%= user._id %>" onclick="updateExam(this)" value="promuovi">
+                                    <% } %>
+                                </td>
+                            </tr>
+                            <% examCounter++ %>
+                        <% } %>
+                    <% } %>
+                    <tr>
+                        <td colspan="2">
+
+                            <details style="width: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                <summary>Codici (<%= user.codicePagamento.filter(c => c.active || c.active == null).length %>/<%= user.totalCodes %>)</summary>
+                                <table style="max-width: 625px !important;">
+                                    <% for (const code of user.codicePagamento) { %>
+                                        <tr class="<%= code.active || code.active == null ? 'activeCode' : ''%>">
+                                            <td><%= code.codice %></td>
+                                            <td><%= code.data %></td>
+                                            <td><%= code.importo %></td>
+                                        </tr>
+                                    <% } %>
+                                </table>
+                            </details>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Perfezionamento</td>
+                        <td>
+                            <% if (user.perfezionamento) { %>
+                                <span>attivo</span>
+                            <% }else{ %>
+                                <form action="/perfezionamento" method="POST">
+                                    <input type="hidden" name="email" id="emailPerfezionamento" value="<%= user.email %>">
+                                    <button class="tableBtn" id="perfezionamentoSubmit" type="submit">Perfezionamento</button>
+                                </form>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Trascinamento</td>
+                        <td>
+                            <% if (user.trascinamento.attivo) { %>
+                                <span>attivo (<%= user.trascinamento.pagato ? 'pagato' : 'non pagato' %>)</span>
+                            <% }else{ %>
+                                <form action="/admin/trascinamento" id="trascinamentoForm" method="POST">
+                                    <input type="hidden" name="email" id="emailTrascinamento" value="<%= user.email %>">
+                                    <button class="tableBtn" type="submit">Trascinamento</button>
+                                </form>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <form action="/ArchiviaUtente" id="trascinamentoForm" method="POST">
+                                <input type="hidden" name="email" id="emailTrascinamento" value="<%= user.email %>">
+                                <button class="tableBtn" type="submit"><%= !user.archiviato ? 'Archivia' : 'Disarchivia' %></button>
+                            </form>
+                        </td>
+                    </tr>
             </tbody>
             <tfoot>
                 <td colspan="2"><button id="submitFormBtn" type="submit">Salva</button></td>
@@ -161,6 +245,46 @@
                     opt.appendChild(option);
                 }
             });
+        });
+    </script>
+
+    <script>
+        async function updateExam(btn){
+            const action = btn.value;
+            const examDate = action == 'fissa data' ? document.getElementById(btn.dataset.examdateid).value : null;
+            const response = await fetch('/admin/updateExam', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: btn.dataset.userid,
+                    examDate: examDate,
+                    action: action
+                })
+            });
+
+            if (!response.ok) {
+                console.error('Errore durante l\'aggiornamento:', response.statusText);
+            } else {
+                const data = await response.json();
+                alert('Esame aggiornato con successo:', data);
+            }
+
+        }
+    </script>
+    <script>
+        document.getElementById('perfezionamentoForm').addEventListener('submit', function(event) {
+            const confirmSubmission = confirm("Sei sicuro di voler procedere con il perfezionamento?");
+            if (!confirmSubmission) {
+                event.preventDefault();
+            }
+        });
+        document.getElementById('trascinamentoForm').addEventListener('submit', function(event) {
+            const confirmSubmission = confirm("Sei sicuro di voler procedere con il trascinamento?");
+            if (!confirmSubmission) {
+                event.preventDefault();
+            }
         });
     </script>
 </body>

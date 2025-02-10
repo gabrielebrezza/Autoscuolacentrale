@@ -149,7 +149,6 @@
                 <th>Esami pagati</th>
                 <th>Guide</th>
                 <th>Limitazioni</th>
-                <th>Boccia</th>
                 <th>Fatture</th>
             </tr>
         </thead>
@@ -173,12 +172,12 @@
                                     </span>
                                 <% } %>
 
-                                <a class="nameModal" data-nomeallievo="<%= nomeAllievo %>" data-email="<%= utenti[i].email %>" data-codici="<%= JSON.stringify(utenti[i].codicePagamento) %>" data-codes="<%= codice %>" href="">
+                                <a href="/admin/user/<%= utenti[i]._id %>">
                                     <span><%= nomeAllievo %></span>
                                 </a>
                             </div>
                         </td>
-                        <td data-label="Email" data-email="<%= utenti[i].email %>"><span><a href="/admin/user/<%= utenti[i]._id %>"><%= utenti[i].email %></a></span></td>
+                        <td data-label="Email" data-email="<%= utenti[i].email %>"><span><%= utenti[i].email %></span></td>
                         <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
                             <td data-label="Esami pagati"> 
                                 <span>
@@ -192,7 +191,6 @@
                             </td>
                             <td data-label="Guide"> <button class="tableBtn"><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
                             <td data-label="Limitazioni"> <button class="limitation tableBtn" data-student="<%= utenti[i].userName %>" data-exclude="<%= JSON.stringify(utenti[i].exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
-                            <td data-label="Boccia"> <button class="boccia tableBtn" data-student="<%= utenti[i].userName %>" data-esame="<%= JSON.stringify(utenti[i].exams) %>">Boccia</button></td>
                             <td data-label="Fatture">
                                 <% let noFatture = true %>
                                 <% for(const fattura of utenti[i].fatturaDaFare) { %>
@@ -297,165 +295,6 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
 
 
     </div>
-    <div class="containerModal">
-    <div class="actionsModal">
-        <a href=" " class="close">
-            <span class="material-symbols-outlined">
-                cancel
-            </span>
-        </a>
-        <table class="panoramicaCodiciTable">
-            <thead>
-                <tr>
-                    <th id="codiciTh">Codici</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td data-label="Codici" id="codiciRimanenti"></td>
-                </tr>
-            </tbody>
-        </table>
-        <table>
-            <thead>
-                <tr>
-                    <th>Codice</th>
-                    <th>Data</th>
-                    <th>Importo</th>
-                </tr>
-            </thead>
-            <tbody class="codiciBody">
-
-            </tbody>
-        </table>
-        <table class="archiviaTable">
-            <thead>
-                <tr>
-                    <th>Archivia</th>
-                    <th>Perfezionamento</th>
-                    <th>Trascinamento</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td data-label="Archivia" >
-                        <a href="" id="archivia">
-                            <span class="material-symbols-outlined">
-                                archive
-                            </span>
-                        </a>
-                    </td>
-                    <td>
-                        <form action="/perfezionamento" id="perfezionamentoForm" method="POST">
-                            <input type="hidden" name="email" id="emailPerfezionamento" value="">
-                            <button class="tableBtn" id="perfezionamentoSubmit" type="submit">Perfezionamento</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form action="/admin/trascinamento" id="trascinamentoForm" method="POST">
-                            <input type="hidden" name="email" id="emailTrascinamento" value="">
-                            <button class="tableBtn" type="submit">Trascinamento</button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-<script>
-    document.getElementById('perfezionamentoForm').addEventListener('submit', function(event) {
-        const confirmSubmission = confirm("Sei sicuro di voler procedere con il perfezionamento?");
-        if (!confirmSubmission) {
-            event.preventDefault();
-        }
-    });
-    document.getElementById('trascinamentoForm').addEventListener('submit', function(event) {
-        const confirmSubmission = confirm("Sei sicuro di voler procedere con il trascinamento?");
-        if (!confirmSubmission) {
-            event.preventDefault();
-        }
-    });
-</script>
-
-    <script>
-        const nameModal = document.querySelectorAll('.nameModal');
-        const codiciRimanentiLabel = document.getElementById('codiciRimanenti');
-        const codiciTh = document.getElementById('codiciTh');
-        const containerModal = document.querySelector('.containerModal');
-        const archivia = document.getElementById('archivia');
-        const emailPerfezionamento = document.getElementById('emailPerfezionamento');
-        const emailTrascinamento = document.getElementById('emailTrascinamento');
-        const codiciBody = document.querySelector('.codiciBody');
-        nameModal.forEach((name)=>{
-            name.addEventListener('click', (event) =>{
-                event.preventDefault();
-                codiciBody.innerHTML = '';
-                containerModal.style.display = 'block';
-                const codes = name.dataset.codes;
-                const nome = name.dataset.nomeallievo;
-                const email = name.dataset.email;
-                const codici = JSON.parse(name.dataset.codici);
-                codici.forEach(codice => {
-                    const row = document.createElement('tr');
-                    if(!codice.active) row.classList.add('activeCode');
-                    
-
-                    const codiceCell = document.createElement('td');
-                    codiceCell.setAttribute('data-label', 'Codice');
-                    codiceCell.textContent = codice.codice;
-                    row.appendChild(codiceCell);
-                    const dataCell = document.createElement('td');
-                    dataCell.setAttribute('data-label', 'Data');
-                    dataCell.textContent = codice.data;
-                    row.appendChild(dataCell);
-
-                    const importoCell = document.createElement('td');
-                    importoCell.setAttribute('data-label', 'Importo');
-                    importoCell.textContent = (codice.importo).toFixed(2) + '€';
-                    row.appendChild(importoCell);
-                    
-                    codiciBody.appendChild(row);
-                });
-                codiciRimanentiLabel.dataset.label = 'Codici di ' + nome;
-                codiciTh.innerText = 'Codici di ' + nome;
-                codiciRimanentiLabel.innerText = (codes == '0/0' ? 'Nessun Codice Attivo' : codes);
-                archivia.dataset.email = email;
-                emailPerfezionamento.value = email;
-                emailTrascinamento.value = email;
-                
-            });
-        });
-        archivia.addEventListener('click', function(event) {
-            event.preventDefault();
-            if(confirm(`Sei sicuro di voler archiviare questo allievo?`)){
-                const email = archivia.dataset.email;
-                fetch('/ArchiviaUtente', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({email: email})
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Errore durante la richiesta POST');
-                    }
-
-                    return response.json();
-                })
-                .then(data => {
-                    alert(data);
-                    window.location.reload();
-                })
-                .catch(error => {
-                    console.error('Si è verificato un errore:', error);
-                });
-            }
-        });
-
-
-    </script>
-
         <div id="formContainer" style="display: none;">
             <a href=" ">
                 <span class="material-symbols-outlined">
@@ -507,9 +346,7 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
                     excludedInstructors = JSON.parse(btn.dataset.exclude);
                     includeStudentInput.value = student;
                     excludeStudentInput.value = student;
-                    container.style.display = "flex";
-                    // Preseleziona i checkbox degli istruttori esclusi
-                    
+                    container.style.display = "flex";                    
                 });
             });
 
@@ -547,47 +384,6 @@ document.getElementById('copiaEmail').addEventListener('click', function() {
                     }
                 }); 
             });
-
-
-            document.querySelectorAll('.boccia').forEach(button => {
-    button.addEventListener('click', () => {
-        const dataEsame = button.dataset.esame;
-        const esami = JSON.parse(dataEsame);
-        let posizioneBocciato;
-
-        for (let i = 0; i < esami.length; i++) {
-            const esame = esami[i];
-            if (esame.paid && !esame.bocciato) {
-                posizioneBocciato = i;
-                break;
-            }
-        }
-        const studente = button.dataset.student;
-        if (confirm(`Sei sicuro di voler bocciare ${studente}?`)) {
-            fetch('/boccia', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ studente, posizioneBocciato })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Errore nella richiesta');
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert(data);
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Si è verificato un errore:', error);
-            });
-        }
-        
-    });
-});
-        </script>
+</script>
 </body>
 </html>

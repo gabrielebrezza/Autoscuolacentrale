@@ -40,9 +40,19 @@ const LoginSchema = new mongoose.Schema({
             type: Boolean,
             required: true
         },
+        date: {
+            type: Date,
+            required: false,
+            default: null
+        },
         bocciato: {
             type: Boolean,
             required: true
+        },
+        promosso: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     }],
     exclude: [{

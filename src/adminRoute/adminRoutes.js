@@ -340,6 +340,70 @@ router.post('/admin/updateUser', authenticateJWT, async (req, res) => {
         res.render('errorPage', { error: 'errore nell\'aggiornamento dell utente' });
     }
 })
+router.post('/admin/updateExam', authenticateJWT, async (req, res) => {
+    try {
+        const dati = req.body;
+        const {action} = dati;
+        switch (action) {
+            case 'promuovi':
+                await credentials.findOneAndUpdate(
+                    { 
+                      "_id": dati.userId, 
+                      "exams": { $elemMatch: { "paid": true, "bocciato": false, $or: [ 
+                        { "promosso": false }, 
+                        { "promosso": { $exists: false } } 
+                      ] } } 
+                    },
+                    { 
+                        "archiviato": true,
+                        $set: { "exams.$.promosso": true} 
+                    }
+                );
+                break;
+            case 'boccia':
+                await credentials.findOneAndUpdate(
+                    { 
+                      "_id": dati.userId, 
+                      "exams": { $elemMatch: { "paid": true, "bocciato": false, $or: [ 
+                        { "promosso": false }, 
+                        { "promosso": { $exists: false } } 
+                      ] } } 
+                    },
+                    { 
+                      $set: { "exams.$.bocciato": true},
+                      $push: {
+                        "exams": {
+                          "paid": false,
+                          "bocciato": false
+                        }
+                      }
+                    }
+                );
+                break;
+            case 'fissa data':
+                await credentials.findOneAndUpdate(
+                    { 
+                      "_id": dati.userId, 
+                      "exams": { $elemMatch: { "paid": true, "bocciato": false, $or: [ 
+                        { "promosso": false }, 
+                        { "promosso": { $exists: false } } 
+                      ] } } 
+                    },
+                    { 
+                        $set: { "exams.$.date": new Date(dati.examDate)} 
+                    },
+                    {new: true}
+                );
+                break;
+            default:
+                break;
+        }
+        res.status(200).json({success: true});
+    } catch (error) {
+        console.log(`Errore nell'update dell'esame, errore: ${error}`);
+        res.status(500).json({success: false});
+    }
+});
 router.post('/createCode', authenticateJWT, async (req, res)=>{
     try {
         const code = (req.body.code).split(',');
@@ -423,7 +487,7 @@ router.post('/ArchiviaUtente', authenticateJWT, async (req, res) =>{
             {"email": email},
             {$set: {"archiviato": nuovoArchiviato}}
         );
-        res.json(nuovoArchiviato ? 'Utente Archiviato Con Successo' : 'Utente Rimosso Dall\'Archivio Con Successo');
+        res.redirect(req.get('Referer') || '/admin/users')
     } else {
         res.json('Si è verificato un errore nell\'archiviazione dell\'Allievo');
     }
