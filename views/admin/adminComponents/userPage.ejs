@@ -125,7 +125,7 @@
                 </tr>
                 <tr>
                     <td>Email</td>
-                    <td><input type="email" id="email" name="email" value="<%= user.email %>" autocomplete="false"></td>
+                    <td><input type="email" id="userEemail" name="userEemail" value="<%= user.email %>" autocomplete="false"></td>
                 </tr>
                 <tr>
                     <td>Cellulare</td>
@@ -137,7 +137,7 @@
                 </tr>
                 <tr>
                     <td>Scadenza Foglio Rosa</td>
-                    <td><input type="date" id="expFoglioRosa" name="expFoglioRosa" value="<%= user.expirationFoglioRosa %>"></td>
+                    <td><input type="date" id="expFoglioRosa" name="expFoglioRosa" value="<%= user.expirationFoglioRosa ? new Date(user.expirationFoglioRosa).toISOString().split('T')[0] : '' %>"></td>
                 </tr>
                     
                 <% let examCounter = 1 %>
@@ -206,7 +206,7 @@
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <form action="/ArchiviaUtente" id="trascinamentoForm" method="POST">
+                            <form action="/ArchiviaUtente" id="trascinamentoForm" method="POST" style="display: flex; align-items: center; justify-content: center;">
                                 <input type="hidden" name="email" id="emailTrascinamento" value="<%= user.email %>">
                                 <button class="tableBtn" type="submit"><%= !user.archiviato ? 'Archivia' : 'Disarchivia' %></button>
                             </form>
