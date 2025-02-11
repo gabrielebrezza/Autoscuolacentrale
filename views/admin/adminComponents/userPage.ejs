@@ -62,7 +62,7 @@
         .tableBtn{
             background: #5681a9;
             color: #f1f1f1;
-            padding: 5px;
+            padding: 8px 15px;
             border-radius: 5px;
             border: none;
             outline: none;
@@ -185,7 +185,12 @@
 
                             <details style="width: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
                                 <summary>Codici (<%= user.codicePagamento.filter(c => c.active || c.active == null).length %>/<%= user.totalCodes || '0' %>)</summary>
-                                <table style="max-width: 625px !important;">
+                                <table style="display: block; width: 100% !important; all: unset;">
+                                    <tr>
+                                        <th>Codice</th>
+                                        <th>Emissione</th>
+                                        <th>Importo</th>
+                                    </tr>
                                     <% for (const code of user.codicePagamento) { %>
                                         <tr class="<%= code.active || code.active == null ? 'activeCode' : ''%>">
                                             <td><%= code.codice %></td>
@@ -219,10 +224,7 @@
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <form action="/ArchiviaUtente" id="trascinamentoForm" method="POST" style="display: flex; align-items: center; justify-content: center;">
-                                <input type="hidden" name="email" id="emailTrascinamento" value="<%= user.email %>">
-                                <button class="tableBtn" type="submit"><%= !user.archiviato ? 'Archivia' : 'Disarchivia' %></button>
-                            </form>
+                            <input type="button" style="margin-left: 50%; transform: translateX(-50%);" data-email="<%= user.email %>" data-archivestate="<%= user.archiviato %>" onclick="archive(this)" class="tableBtn" id="trascinamentoSubmit" value="<%= !user.archiviato ? 'Archivia' : 'Disarchivia' %>">
                         </td>
                     </tr>
             </tbody>
@@ -262,7 +264,9 @@
     </script>
     <script>
         async function perfezionamento(btn) {
-            const email = btn.dataset.email;
+            const confirmSubmission = confirm("Sei sicuro di voler procedere con il perfezionamento?");
+            if (!confirmSubmission) return;
+            const { email } = btn.dataset;
             const response = await fetch('/admin/perfezionamento', {
                 method: 'POST',
                 headers: {
@@ -281,7 +285,9 @@
     </script>
     <script>
         async function trascinamento(btn) {
-            const email = btn.dataset.email;
+            const confirmSubmission = confirm("Sei sicuro di voler procedere con il trascinamento?");
+            if (!confirmSubmission) return;
+            const { email } = btn.dataset;
             const response = await fetch('/admin/trascinamento', {
                 method: 'POST',
                 headers: {
@@ -295,6 +301,28 @@
             } else {
                 const data = await response.json();
                 alert('Trascinamento attivato con successo:');
+            }
+        }
+    </script>
+    <script>
+        async function archive(btn) {
+            const { email, archivestate } = btn.dataset;
+            console.log(archivestate, email)
+            const response = await fetch('/admin/archive', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({email: email})
+            });
+
+            if (!response.ok) {
+                console.error('Errore durante l\'archiviamento:', response.statusText);
+            } else {
+                const data = await response.json();
+                alert(`Utente ${Boolean(archivestate) ? 'disarchiviato' : 'archiviato'} con successo`);
+                btn.value = !Boolean(archivestate) ? 'Archivia' : 'Disarchivia';
+                btn.dataset.archivestate = !Boolean(archivestate);
             }
         }
     </script>
@@ -322,20 +350,6 @@
             }
 
         }
-    </script>
-    <script>
-        document.getElementById('perfezionamentoForm').addEventListener('submit', function(event) {
-            const confirmSubmission = confirm("Sei sicuro di voler procedere con il perfezionamento?");
-            if (!confirmSubmission) {
-                event.preventDefault();
-            }
-        });
-        document.getElementById('trascinamentoForm').addEventListener('submit', function(event) {
-            const confirmSubmission = confirm("Sei sicuro di voler procedere con il trascinamento?");
-            if (!confirmSubmission) {
-                event.preventDefault();
-            }
-        });
     </script>
 </body>
 </html>

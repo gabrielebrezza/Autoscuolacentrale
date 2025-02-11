@@ -479,18 +479,24 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
 }
     res.redirect('/admin/users');
 });
-router.post('/ArchiviaUtente', authenticateJWT, async (req, res) =>{
-    const email = req.body.email;
-    const user = await credentials.findOne({"email": email});
-    if (user) {
-        const nuovoArchiviato = !user.archiviato;
-        await credentials.findOneAndUpdate(
-            {"email": email},
-            {$set: {"archiviato": nuovoArchiviato}}
-        );
-        res.redirect(req.get('Referer') || '/admin/users')
-    } else {
-        res.json('Si è verificato un errore nell\'archiviazione dell\'Allievo');
+router.post('/admin/archive', authenticateJWT, async (req, res) =>{
+    try {
+        const { email } = req.body;
+        const user = await credentials.findOne({"email": email});
+        if (user) {
+            const nuovoArchiviato = !user.archiviato;
+            await credentials.findOneAndUpdate(
+                {"email": email},
+                {$set: {"archiviato": nuovoArchiviato}}
+            );
+            res.status(200).json({success: true})
+        } else {
+            console.log('utente non trovato durante l\'archiviazione')
+            res.status(404).json({success: false})
+        }
+    } catch (error) {
+        console.error(`Si è verificato un'errore durante l'archiviazione: ${error}`);
+        res.status(500).json({success: false});
     }
 });
 router.post('/excludeInstructor', authenticateJWT, async (req, res) =>{
