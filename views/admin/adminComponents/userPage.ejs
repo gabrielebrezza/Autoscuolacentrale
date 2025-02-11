@@ -170,9 +170,9 @@
                                     <div class="btnsContainer">
                                         <% if (!exam.bocciato && !exam.promosso) { %>
                                             <% const examActionClass = `examAction${examCounter}` %>
-                                            <input type="button" class="<%= examActionClass %> tableBtn" data-examdateid="<%= examDateId %>" data-userid="<%= user._id %>" onclick="updateExam(this)" value="fissa data">
-                                            <input type="button" class="<%= examActionClass %> tableBtn" data-userid="<%= user._id %>" onclick="updateExam(this)" value="boccia">
-                                            <input type="button" class="<%= examActionClass %> tableBtn" data-userid="<%= user._id %>" onclick="updateExam(this)" value="promuovi">
+                                            <input type="button" style="text-transform: capitalize;" class="<%= examActionClass %> tableBtn" data-examdateid="<%= examDateId %>" data-userid="<%= user._id %>" onclick="updateExam(this)" value="fissa data">
+                                            <input type="button" style="text-transform: capitalize;" class="<%= examActionClass %> tableBtn" data-userid="<%= user._id %>" onclick="updateExam(this)" value="boccia">
+                                            <input type="button" style="text-transform: capitalize;" class="<%= examActionClass %> tableBtn" data-userid="<%= user._id %>" onclick="updateExam(this)" value="promuovi">
                                         <% } %>
                                     </div>
                                 </td>
