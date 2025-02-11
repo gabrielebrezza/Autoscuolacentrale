@@ -535,7 +535,7 @@ router.post('/boccia', authenticateJWT, async (req, res) =>{
     );
     res.json('Utente Bocciato con successo');
 });
-router.post('/perfezionamento', authenticateJWT, async (req, res) =>{
+router.post('/admin/perfezionamento', authenticateJWT, async (req, res) =>{
     const {email} = req.body;
     try{
         await credentials.findOneAndUpdate(

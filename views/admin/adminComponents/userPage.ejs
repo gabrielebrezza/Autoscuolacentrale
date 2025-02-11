@@ -263,7 +263,7 @@
     <script>
         async function perfezionamento(btn) {
             const email = btn.dataset.email;
-            const response = await fetch('/perfezionamento', {
+            const response = await fetch('/admin/perfezionamento', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
