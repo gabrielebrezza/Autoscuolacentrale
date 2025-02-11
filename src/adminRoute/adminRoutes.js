@@ -371,15 +371,21 @@ router.post('/admin/updateExam', authenticateJWT, async (req, res) => {
                       ] } } 
                     },
                     { 
-                      $set: { "exams.$.bocciato": true},
-                      $push: {
-                        "exams": {
-                          "paid": false,
-                          "bocciato": false
-                        }
-                      }
+                      $set: { "exams.$.bocciato": true}
                     }
                 );
+                await credentials.findOneAndUpdate(
+                    {"_id": dati.userId},
+                    {
+                        $push: {
+                            "exams": {
+                              "paid": false,
+                              "bocciato": false,
+                              "promosso": false
+                            }
+                          }
+                    }
+                )
                 break;
             case 'fissa data':
                 await credentials.findOneAndUpdate(

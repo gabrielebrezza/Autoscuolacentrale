@@ -32,8 +32,12 @@
                 <input type="email" id="searchEmail" name="searchEmail">
             </div>
             <div class="field">
-                <label for="searchExams">Cerca per numero di esami:</label>
-                <input type="number" id="searchExams" name="searchExams" min="0">
+                <label for="searchExamsFromDate">Data esame Da:</label>
+                <input type="date" id="searchExamsFromDate" name="searchExamsFromDate">
+            </div>
+            <div class="field">
+                <label for="searchExamsToDate">Data esame a:</label>
+                <input type="date" id="searchExamsToDate" name="searchExamsToDate">
             </div>
             <div class="field">
                 <label for="searchArchived">Archiviati:</label>
@@ -163,7 +167,7 @@
                 <th>Allievo</th>
                 <th>Email</th>
                 <th>Cellulare</th>
-                <th>Esami pagati</th>
+                <th>Data Esame</th>
                 <th>Guide</th>
                 <th>Limitazioni</th>
                 <th>Fatture</th>
@@ -196,13 +200,11 @@
                         </td>
                         <td data-label="Email" data-email="<%= utenti[i].email %>"><span><%= utenti[i].email %></span></td>
                         <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
-                            <td data-label="Esami pagati"> 
+                            <td data-label="Data Esame"> 
                                 <span>
                                     <% let totEsami = utenti[i].exams.length; %>
-                                    <% if (utenti[i].exams[totEsami-1] == true) { %>
-                                        <%= totEsami %>
-                                    <% }else{%>
-                                        <%= totEsami - 1 %>
+                                    <% if (utenti[i].exams[totEsami-1]) { %>
+                                        <%= utenti[i].exams[totEsami-1].date ? utenti[i].exams[totEsami-1].date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A' %>
                                     <% } %>
                                 </span>
                             </td>
@@ -242,7 +244,8 @@
     const nameFilter = document.getElementById('searchName');
     const phoneFilter = document.getElementById('searchPhone');
     const emailFilter = document.getElementById('searchEmail');
-    const examsFilter = document.getElementById('searchExams');
+    const searchExamsFromDateFilter = document.getElementById('searchExamsFromDate');
+    const searchExamsToDateFilter = document.getElementById('searchExamsToDate');
     const archivedFilter = document.getElementById('searchArchived');
     const tableBody = document.getElementById('usersTableBody');
     const rows = tableBody.getElementsByTagName('tr');
@@ -252,7 +255,8 @@
         const name = nameFilter.value.toLowerCase();
         const email = emailFilter.value.toLowerCase();
         const phone = phoneFilter.value.toLowerCase();
-        const exams = examsFilter.value;
+        const examFromDate = new Date(searchExamsFromDateFilter.value);
+        const examtoDate = new Date(searchExamsToDateFilter.value);
         const archived = archivedFilter.checked;
         let enumeration = 1;
         for (let i = 0; i < rows.length; i++) {
@@ -261,13 +265,16 @@
             const nomeTd = row.getElementsByTagName('td')[1].textContent.toLowerCase().trim();
             const emailTd = row.getElementsByTagName('td')[2].textContent.toLowerCase();
             const phoneTd = row.getElementsByTagName('td')[3].textContent.toLowerCase();
-            const examsTd = row.getElementsByTagName('td')[4].textContent.toLowerCase().trim();
+            let examDateTd = row.getElementsByTagName('td')[4].textContent.toLowerCase().trim();
+            if(examDateTd != 'N/A'){
+                examDateTd = new Date(examDateTd.split('/').reverse().join('-'));
+            }
             const isArchived = row.dataset.archiviato == 'true';
             if (
                 (name === '' || nomeTd.includes(name)) &&
                 (email === '' || emailTd.includes(email)) &&
                 (phone === '' || phoneTd.includes(phone)) &&
-                (exams === '' || examsTd == exams) &&
+                ((!searchExamsFromDateFilter.value || !searchExamsToDateFilter.value) || ((examFromDate <= examDateTd) && (examDateTd <= examtoDate))) &&
                 ((archived && isArchived) || (!archived && !isArchived))
             ) {
                 row.getElementsByTagName('td')[0].innerText = enumeration++;
@@ -281,7 +288,8 @@
     nameFilter.addEventListener('input', filterTable);
     phoneFilter.addEventListener('input', filterTable);
     emailFilter.addEventListener('input', filterTable);
-    examsFilter.addEventListener('input', filterTable);
+    searchExamsFromDateFilter.addEventListener('input', filterTable);
+    searchExamsToDateFilter.addEventListener('input', filterTable);
     archivedFilter.addEventListener('input', filterTable); 
 });
 </script>
