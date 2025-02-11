@@ -203,10 +203,7 @@
                             <% if (user.perfezionamento) { %>
                                 <span>attivo</span>
                             <% }else{ %>
-                                <form action="/perfezionamento" method="POST">
-                                    <input type="hidden" name="email" id="emailPerfezionamento" value="<%= user.email %>">
-                                    <button class="tableBtn" id="perfezionamentoSubmit" type="submit">Perfezionamento</button>
-                                </form>
+                                    <input type="button" data-email="<%= user.email %>" onclick="perfezionamento(this)" class="tableBtn" id="perfezionamentoSubmit" value="Perfezionamento">
                             <% } %>
                         </td>
                     </tr>
@@ -216,10 +213,7 @@
                             <% if (user.trascinamento.attivo) { %>
                                 <span>attivo (<%= user.trascinamento.pagato ? 'pagato' : 'non pagato' %>)</span>
                             <% }else{ %>
-                                <form action="/admin/trascinamento" id="trascinamentoForm" method="POST">
-                                    <input type="hidden" name="email" id="emailTrascinamento" value="<%= user.email %>">
-                                    <button class="tableBtn" type="submit">Trascinamento</button>
-                                </form>
+                                <input type="button" data-email="<%= user.email %>" onclick="trascinamento(this)" class="tableBtn" id="trascinamentoSubmit" value="Trascinamento">
                             <% } %>
                         </td>
                     </tr>
@@ -266,7 +260,44 @@
             });
         });
     </script>
+    <script>
+        async function perfezionamento(btn) {
+            const email = btn.dataset.email;
+            const response = await fetch('/perfezionamento', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({email: email})
+            });
 
+            if (!response.ok) {
+                console.error('Errore durante il perfezionamento:', response.statusText);
+            } else {
+                const data = await response.json();
+                alert('Perfezionamento attivato con successo:');
+            }
+        }
+    </script>
+    <script>
+        async function trascinamento(btn) {
+            const email = btn.dataset.email;
+            const response = await fetch('/admin/trascinamento', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({email: email})
+            });
+
+            if (!response.ok) {
+                console.error('Errore durante il trascinamento:', response.statusText);
+            } else {
+                const data = await response.json();
+                alert('Trascinamento attivato con successo:');
+            }
+        }
+    </script>
     <script>
         async function updateExam(btn){
             const action = btn.value;
