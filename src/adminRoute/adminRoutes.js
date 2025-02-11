@@ -690,7 +690,7 @@ router.post('/deleteAllGuides', authenticateJWT, async (req, res) => {
             { "book": 1 }
         );
         for (const lesson of book[0].schedule) {
-            if((lesson.pending && (new Date() - new Date(lesson.paymentCreatedAt) < (30 * 60 * 1000))) || lesson.completed) {
+            if((lesson.pending && ((new Date() - new Date(lesson.paymentCreatedAt) ) > (30 * 60 * 1000))) || lesson.completed) {
                 return res.status(301).json({error: 'Non è possibile eliminare le lezioni perchè qualcuno ha iniziato la sessione di pagamento'});
             }
         }
@@ -723,20 +723,29 @@ router.post('/adminRemovebooking', authenticateJWT, async (req, res) => {
         const lesson = await guide.findOne(
             { 
                 "instructor": instructor,
-                "book.day": day,
-                "book.schedule.hour": hour
+                "book": { 
+                    $elemMatch: { 
+                        "day": day, 
+                        "schedule.hour": hour 
+                    } 
+                }
             },
             { "book.schedule.$": 1 }
         );
-        const scheduleObject = lesson?.book?.[0]?.schedule?.[0] || null;
-        
-        if((scheduleObject.pending && (new Date() - new Date(scheduleObject.paymentCreatedAt) < (30 * 60 * 1000))) || scheduleObject.completed) {
+        const scheduleObject = lesson.book[0].schedule.filter(el => el.hour == hour) || null;
+        if((scheduleObject.pending && (new Date() - new Date(scheduleObject.paymentCreatedAt) > (30 * 60 * 1000))) || scheduleObject.completed) {
             return res.status(301).json({error: 'Non è possibile eliminare la lezione perchè qualcuno ha iniziato la sessione di pagamento'});
         }
         
 
-        await guide.findOneAndUpdate(
-            { "instructor": instructor, "book.day": day },
+        await guide.findOneAndUpdate({
+                "instructor": instructor,
+                "book": { 
+                    $elemMatch: { 
+                        "day": day
+                    } 
+                }
+            },
             { 
                 $pull: { 
                     "book.$.schedule": { "hour": hour } 
