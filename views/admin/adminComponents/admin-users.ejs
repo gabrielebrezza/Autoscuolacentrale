@@ -11,34 +11,50 @@
 <body>
     <%- include('header.ejs') %>
     <div class="headerFormsContainer">
-    <div class="headerForms filterSection">
-        <div class="field">
-            <label for="searchName">Cerca per nome:</label>
-            <input type="text" id="searchName" name="searchName">
+        <details>
+            <summary>
+                <span class="material-symbols-outlined">
+                    filter_alt
+                </span>
+                Filtri
+            </summary>
+            <div class="headerForms filterSection">
+                <div class="field">
+                <label for="searchName">Cerca per nome:</label>
+                <input type="text" id="searchName" name="searchName">
+            </div>
+            <div class="field">
+                <label for="searchPhone">Cerca per numero di telefono:</label>
+                <input type="tel" id="searchPhone" name="searchPhone">
+            </div>
+            <div class="field">
+                <label for="searchEmail">Cerca per Email:</label>
+                <input type="email" id="searchEmail" name="searchEmail">
+            </div>
+            <div class="field">
+                <label for="searchExams">Cerca per numero di esami:</label>
+                <input type="number" id="searchExams" name="searchExams" min="0">
+            </div>
+            <div class="field">
+                <label for="searchArchived">Archiviati:</label>
+                <input type="checkbox" id="searchArchived" name="searchArchived">
+            </div>
+            <div class="field">
+                <button id="copiaEmail" name="copiaEmail">Copia Email</button>
+            </div>
         </div>
-        <div class="field">
-            <label for="searchPhone">Cerca per numero di telefono:</label>
-            <input type="tel" id="searchPhone" name="searchPhone">
-        </div>
-        <div class="field">
-            <label for="searchEmail">Cerca per Email:</label>
-            <input type="email" id="searchEmail" name="searchEmail">
-        </div>
-        <div class="field">
-            <label for="searchExams">Cerca per numero di esami:</label>
-            <input type="number" id="searchExams" name="searchExams" min="0">
-        </div>
-        <div class="field">
-            <label for="searchArchived">Archiviati:</label>
-            <input type="checkbox" id="searchArchived" name="searchArchived">
-        </div>
-        <div class="field">
-            <button id="copiaEmail" name="copiaEmail">Copia Email</button>
-        </div>
-    </div>
+    </details>
+    <details>
+        <summary>
+            <span class="material-symbols-outlined">
+                vpn_key
+            </span>
+            Crea Codice
+
+        </summary>
         <form class="headerForms" id="createCodeForm" action="/createCode" method="POST">
             <div class="field">
-            <label for="utenti">Utenti:</label>
+                <label for="utenti">Utenti:</label>
                 <select id="utenti" name="utenti" required>
                     <% const utentiFiltrati = [] %>
                     <% for (let i = 0; i < utenti.length; i++) {
@@ -52,22 +68,22 @@
                         }
                     } %>
                     <% function ordineAlfabeticoCognome(a, b) { 
-                            if (a.cognome < b.cognome) { return -1; } 
-                            if (a.cognome > b.cognome) { return 1; } 
-                            return 0;
+                        if (a.cognome < b.cognome) { return -1; } 
+                        if (a.cognome > b.cognome) { return 1; } 
+                        return 0;
                     } %>
                     <% utentiFiltrati.sort(ordineAlfabeticoCognome) %>
                     <% for (let i = 0; i < utentiFiltrati.length; i++) { %>
                         <option value="<%= utentiFiltrati[i].email %>"><%= utentiFiltrati[i].cognome %> <%= utentiFiltrati[i].nome %></option>
-                    <% } %>
-                </select>
-            </div>
-            <div class="field">
-                <label for="totaleCodici" style="font-size: .9rem;">Numero di codici <br> (selezionare 1 per il pacchetto):</label>
-                <input type="number" name="totaleCodici" id="totaleCodici" min="1">
-            </div>
-            <div class="field">
-                <label for="durata">Durata:</label>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="totaleCodici" style="font-size: .9rem;">Numero di codici <br> (selezionare 1 per il pacchetto):</label>
+                    <input type="number" name="totaleCodici" id="totaleCodici" min="1">
+                </div>
+                <div class="field">
+                    <label for="durata">Durata:</label>
                 <select id="durata" name="durata" required>
                         <option value="30">30 minuti</option>
                         <option value="40">40 minuti</option>
@@ -76,24 +92,25 @@
                         <option value="esame">esame</option>
                         <option value="trascinamento">trascinamento</option>
                         <option value="pacchetto">pacchetto da 10 guide</option>
-                </select>
-            </div>
-            <div class="field">
-                <label for="emettiFattura">Emetti fattura</label>
-                <input type="checkbox" name="emettiFattura" id="emettiFattura">
-            </div>
-            <div class="field">
-                <button type="button" id="createCode">Genera Codice</button>
-            </div>
-            <div class="field">
-                <label for="code">Codice:</label>
-                <input type="text" name="code" id="code" readonly required>
-            </div>
-            <div class="field">
-                <button type="submit" >Attiva codici</button>
-            </div>
-            <label style="color: #fff;" id="prezzoTotale" data-drivingprice="<%= prices.prezzo %>" data-examprice="<%= prices.prezzoEsame %>" data-packprice="<%= prices.prezzoPacchettoFisico %>"></label>
-        </form>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="emettiFattura">Emetti fattura</label>
+                    <input type="checkbox" name="emettiFattura" id="emettiFattura">
+                </div>
+                <div class="field">
+                    <button type="button" id="createCode">Genera Codice</button>
+                </div>
+                <div class="field">
+                    <label for="code">Codice:</label>
+                    <input type="text" name="code" id="code" readonly required>
+                </div>
+                <div class="field">
+                    <button type="submit" >Attiva codici</button>
+                </div>
+                <label style="color: #fff;" id="prezzoTotale" data-drivingprice="<%= prices.prezzo %>" data-examprice="<%= prices.prezzoEsame %>" data-packprice="<%= prices.prezzoPacchettoFisico %>"></label>
+            </form>
+        </details>
     </div>
     <script>
         document.getElementById("createCode").addEventListener("click", function() {

@@ -130,14 +130,27 @@ button > a{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-around;
+    align-items: start;
+    margin-top: 150px;
 }
-
+.headerFormsContainer details{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.headerFormsContainer details summary{
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 800;
+    cursor: pointer;
+    color: #f4f4f4;
+}
 .headerForms {
-    
     margin: 0 auto;
-    margin-top: 200px;
     max-width: 400px;
     width: 100%;
     background: #5681a9;
