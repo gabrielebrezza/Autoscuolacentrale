@@ -155,7 +155,7 @@
                     <td><input type="date" id="expFoglioRosa" name="expFoglioRosa" value="<%= user.expirationFoglioRosa ? new Date(user.expirationFoglioRosa).toISOString().split('T')[0] : '' %>"></td>
                 </tr>
                     
-                <% let examCounter = 1 %>
+                <% let prevExamDate, examCounter = 1 %>
                     <% for (const exam of user.exams) { %>
                         <% if(exam.paid){ %>
                             <tr>
@@ -164,8 +164,12 @@
                                     <% const examDateId = `examDate${examCounter}` %>
                                     <div class="dateInputContainer">
                                         <label for="<%= examDateId %>">Data:</label>
-                                        <input type="date" name="<%= examDateId %>" id="<%= examDateId %>" value="<%= exam.date? new Date(exam.date).toISOString().split('T')[0] : '' %>" <%= exam.bocciato || exam.promosso ? 'disabled' : ''  %>>
+                                        <input type="date" name="<%= examDateId %>" id="<%= examDateId %>" value="<%= exam.date? new Date(exam.date).toISOString().split('T')[0] : '' %>" <%= exam.bocciato || exam.promosso ? 'disabled' : ''  %> min="<%= prevExamDate ? prevExamDate.toISOString().split('T')[0] : '' %>">
                                         <span><%= exam.bocciato ? 'bocciato': exam.promosso ? 'promosso' : '' %></span>
+                                        <% if (exam.bocciato){
+                                            prevExamDate = new Date(exam.date);
+                                            prevExamDate.setMonth(prevExamDate.getMonth() + 1)
+                                        } %>
                                     </div>
                                     <div class="btnsContainer">
                                         <% if (!exam.bocciato && !exam.promosso) { %>

@@ -374,6 +374,7 @@ router.post('/admin/updateExam', authenticateJWT, async (req, res) => {
                       $set: { "exams.$.bocciato": true}
                     }
                 );
+                console.log('ciao' , user.exams)
                 if(user.exams.length == 3){
                     await credentials.findOneAndUpdate(
                         {"_id": dati.userId},

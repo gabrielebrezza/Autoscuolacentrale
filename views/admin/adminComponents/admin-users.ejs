@@ -39,9 +39,23 @@
                 <label for="searchExamsToDate">Data esame a:</label>
                 <input type="date" id="searchExamsToDate" name="searchExamsToDate">
             </div>
-            <div class="field">
+            <!-- <div class="field">
                 <label for="searchArchived">Archiviati:</label>
                 <input type="checkbox" id="searchArchived" name="searchArchived">
+            </div> -->
+            <div class="field">
+                <div class="checkboxField">
+                    <label for="tutti">Tutti</label>
+                    <input type="radio" name="filterStatus" id="tutti" value="all" checked>
+                </div>
+                <div class="checkboxField">
+                    <label for="archiviati">Archiviati</label>
+                    <input type="radio" name="filterStatus" id="archiviati" value="archived">
+                </div>
+                <div class="checkboxField">
+                    <label for="attivi">Attivi</label>
+                    <input type="radio" name="filterStatus" id="attivi" value="active">
+                </div>
             </div>
             <div class="field">
                 <button id="copiaEmail" name="copiaEmail">Copia Email</button>
@@ -162,6 +176,32 @@
     <div class="tableContainer">
     <table>
         <thead>
+            <tr class="legenda">
+                <th colspan="2">
+                    <span>
+                        <span class="material-symbols-outlined trascNonPagato">
+                            drag_click
+                        </span>
+                        trascinamento non pagato
+                    </span>
+                </th>
+                <th colspan="2">
+                    <span>
+                        <span class="material-symbols-outlined trascPagato">
+                            drag_click
+                        </span>
+                        trascinamento pagato
+                    </span>
+                </th>
+                <th colspan="4">
+                    <span>
+                        <span class="material-symbols-outlined perfezionamento">
+                            upgrade
+                        </span>
+                        perfezionamento
+                    </span>
+                </th>
+            </tr>
             <tr>
                 <th>N.</th>
                 <th>Allievo</th>
@@ -176,10 +216,10 @@
         <tbody id="usersTableBody">
                 <% let enumeration = 1; %>
                 <% for (let i = 0; i < utenti.length; i++) { %>
-                    <tr class="allievi <%= utenti[i].archiviato ? 'archiviato' : '' %>" data-archiviato="<%= utenti[i].archiviato %>">
+                    <tr class="allievi" data-archiviato="<%= utenti[i].archiviato %>" >
                         <% let nomeAllievo = utenti[i].billingInfo[0].cognome + ' ' + utenti[i].billingInfo[0].nome %>
                         <% let codice = utenti[i].codicePagamento.length + '/' + (!utenti[i].totalCodes ? 0 : utenti[i].totalCodes)  %>
-                        <td data-label="N"><span><%= !utenti[i].archiviato ? enumeration++ : ''  %></span></td>
+                        <td data-label="N"><span><%= enumeration++ %></span></td>
                         <td data-label="Allievo" >
                             <div class="nameCell" data-idutente="<%= utenti[i]._id %>">
                                 <% if (utenti[i].trascinamento.attivo) { %>
@@ -203,9 +243,7 @@
                             <td data-label="Data Esame"> 
                                 <span>
                                     <% let totEsami = utenti[i].exams.length; %>
-                                    <% if (utenti[i].exams[totEsami-1]) { %>
-                                        <%= utenti[i].exams[totEsami-1].date ? utenti[i].exams[totEsami-1].date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A' %>
-                                    <% } %>
+                                    <%= utenti[i]?.exams[totEsami-2]?.date ? utenti[i].exams[totEsami-2].date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : utenti[i]?.exams[totEsami-1]?.date ?  utenti[i].exams[totEsami-1].date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A' %>
                                 </span>
                             </td>
                             <td data-label="Guide"> <button class="tableBtn"><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
@@ -246,7 +284,7 @@
     const emailFilter = document.getElementById('searchEmail');
     const searchExamsFromDateFilter = document.getElementById('searchExamsFromDate');
     const searchExamsToDateFilter = document.getElementById('searchExamsToDate');
-    const archivedFilter = document.getElementById('searchArchived');
+    const statusFilters = document.querySelectorAll('[name="filterStatus"]');
     const tableBody = document.getElementById('usersTableBody');
     const rows = tableBody.getElementsByTagName('tr');
 
@@ -257,7 +295,7 @@
         const phone = phoneFilter.value.toLowerCase();
         const examFromDate = new Date(searchExamsFromDateFilter.value);
         const examtoDate = new Date(searchExamsToDateFilter.value);
-        const archived = archivedFilter.checked;
+        const status = document.querySelector('input[name="filterStatus"]:checked').value;
         let enumeration = 1;
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
@@ -275,7 +313,7 @@
                 (email === '' || emailTd.includes(email)) &&
                 (phone === '' || phoneTd.includes(phone)) &&
                 ((!searchExamsFromDateFilter.value || !searchExamsToDateFilter.value) || ((examFromDate <= examDateTd) && (examDateTd <= examtoDate))) &&
-                ((archived && isArchived) || (!archived && !isArchived))
+                ((status == 'archived' && isArchived) || status == 'all' || (status == 'active' && !isArchived))
             ) {
                 row.getElementsByTagName('td')[0].innerText = enumeration++;
                 row.style.display = 'table-row';
@@ -290,7 +328,7 @@
     emailFilter.addEventListener('input', filterTable);
     searchExamsFromDateFilter.addEventListener('input', filterTable);
     searchExamsToDateFilter.addEventListener('input', filterTable);
-    archivedFilter.addEventListener('input', filterTable); 
+    statusFilters.forEach(el => el.addEventListener('input', filterTable)); 
 });
 </script>
 

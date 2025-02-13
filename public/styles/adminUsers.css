@@ -204,8 +204,18 @@ button > a{
     outline: none;
     border-color: #66afe9;
 }
-
-
+.field:has(.checkboxField){
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.checkboxField{
+    padding-block: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
 @media (max-width:1085px) and (min-width: 690px) {
     .tableContainer{
@@ -227,6 +237,12 @@ button > a{
             
         }
     }
+}
+
+.legenda th span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 @media (max-width:689px) {
