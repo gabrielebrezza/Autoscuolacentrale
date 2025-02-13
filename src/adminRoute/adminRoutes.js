@@ -362,7 +362,7 @@ router.post('/admin/updateExam', authenticateJWT, async (req, res) => {
                 );
                 break;
             case 'boccia':
-                await credentials.findOneAndUpdate(
+                const user = await credentials.findOneAndUpdate(
                     { 
                       "_id": dati.userId, 
                       "exams": { $elemMatch: { "paid": true, "bocciato": false, $or: [ 
@@ -374,6 +374,12 @@ router.post('/admin/updateExam', authenticateJWT, async (req, res) => {
                       $set: { "exams.$.bocciato": true}
                     }
                 );
+                if(user.exams.length == 3){
+                    await credentials.findOneAndUpdate(
+                        {"_id": dati.userId},
+                        {"archiviato": true}
+                    );
+                }
                 await credentials.findOneAndUpdate(
                     {"_id": dati.userId},
                     {
@@ -539,14 +545,7 @@ router.post('/includeInstructor', authenticateJWT, async (req, res) =>{
         res.status(500).json({ message: 'Errore durante l\'inclusione degli istruttori' });
     }
 });
-router.post('/boccia', authenticateJWT, async (req, res) =>{
-    const {studente, posizioneBocciato} = req.body;
-    const esameBocciato = await credentials.findOneAndUpdate(
-        {"userName" : studente},
-        {$set: { ["exams." + posizioneBocciato + ".bocciato"] : true}}
-    );
-    res.json('Utente Bocciato con successo');
-});
+
 router.post('/admin/perfezionamento', authenticateJWT, async (req, res) =>{
     const {email} = req.body;
     try{
