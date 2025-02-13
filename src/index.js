@@ -736,6 +736,30 @@ app.get('/cancel', async (req, res) =>{
     res.render('payments/cancel');
 });
 
+async function archiveExpiredUsers() {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const result = await credentials.updateMany(
+            {expirationFoglioRosa: { $lte: today, $ne: null }, archiviato: { $ne:true } },
+            { $set: { archiviato: true } }
+        );
+
+        console.log(`${result.modifiedCount} updated users.`);
+    } catch (error) {
+        console.error("Errore nell'archiviazione dei fogli rosa scaduti:", error);
+    }
+}
+
+const cron = require("node-cron");
+
+cron.schedule("0 1 * * *", async () => {
+    console.log("🔄 Controllo foglio rosa scaduti");
+    await archiveExpiredUsers();
+});
+
+
 const PORT = process.env.PORT || 80;
 
 app.listen(PORT, () => {
