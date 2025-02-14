@@ -46,7 +46,7 @@
             <div class="field">
                 <div class="checkboxField">
                     <label for="tutti">Tutti</label>
-                    <input type="radio" name="filterStatus" id="tutti" value="all" checked>
+                    <input type="radio" name="filterStatus" id="tutti" value="all">
                 </div>
                 <div class="checkboxField">
                     <label for="archiviati">Archiviati</label>
@@ -54,7 +54,7 @@
                 </div>
                 <div class="checkboxField">
                     <label for="attivi">Attivi</label>
-                    <input type="radio" name="filterStatus" id="attivi" value="active">
+                    <input type="radio" name="filterStatus" id="attivi" value="active" checked>
                 </div>
             </div>
             <div class="field">
@@ -216,10 +216,10 @@
         <tbody id="usersTableBody">
                 <% let enumeration = 1; %>
                 <% for (let i = 0; i < utenti.length; i++) { %>
-                    <tr class="allievi" data-archiviato="<%= utenti[i].archiviato %>" >
+                    <tr class="allievi <%= utenti[i].archiviato ? 'archiviato' : '' %>" data-archiviato="<%= utenti[i].archiviato %>" >
                         <% let nomeAllievo = utenti[i].billingInfo[0].cognome + ' ' + utenti[i].billingInfo[0].nome %>
                         <% let codice = utenti[i].codicePagamento.length + '/' + (!utenti[i].totalCodes ? 0 : utenti[i].totalCodes)  %>
-                        <td data-label="N"><span><%= enumeration++ %></span></td>
+                        <td data-label="N"><span><%= !utenti[i].archiviato ? enumeration++ : '' %></span></td>
                         <td data-label="Allievo" >
                             <div class="nameCell" data-idutente="<%= utenti[i]._id %>">
                                 <% if (utenti[i].trascinamento.attivo) { %>
