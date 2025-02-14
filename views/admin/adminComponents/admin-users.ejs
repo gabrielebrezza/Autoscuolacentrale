@@ -242,8 +242,19 @@
                         <td data-label="Cellulare"><span><%= utenti[i].cell %></span></td>
                             <td data-label="Data Esame"> 
                                 <span>
-                                    <% let totEsami = utenti[i].exams.length; %>
-                                    <%= utenti[i]?.exams[totEsami-2]?.date ? utenti[i].exams[totEsami-2].date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : utenti[i]?.exams[totEsami-1]?.date ?  utenti[i].exams[totEsami-1].date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A' %>
+                                    <% 
+                                        let ultimaData = 'N/A';
+                                        for (let j = utenti[i].exams.length - 1; j >= 0; j--) {
+                                            let exam = utenti[i].exams[j];
+                                            if (exam.paid && exam.date) {
+                                                ultimaData = new Date(exam.date).toLocaleDateString('it-IT', { 
+                                                    day: '2-digit', month: '2-digit', year: 'numeric' 
+                                                });
+                                                break;
+                                            }
+                                        }
+                                    %>
+                                    <%= ultimaData %>
                                 </span>
                             </td>
                             <td data-label="Guide"> <button class="tableBtn"><a href=" <%=`/admin/guideSvolte/:${utenti[i].userName}` %>" >Ore lezioni</a></button></td>
