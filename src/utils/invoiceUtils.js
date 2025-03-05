@@ -72,7 +72,7 @@ async function createInvoice(dati) {
     .ele('CAP').txt((dati.capSedeCliente).replace(/\s+/g, ' ').trim()).up()
     .ele('Comune').txt((dati.comuneSedeCliente).replace(/\s+/g, ' ').trim()).up()
     .ele('Provincia').txt((dati.provinciaSedeCliente).replace(/\s+/g, ' ').trim()).up()
-    .ele('Nazione').txt((dati.nazioneSedeCliente).replace(/\s+/g, ' ').trim()).up()
+    .ele('Nazione').txt('IT').up()
     .up()
     .up()
     .up()
