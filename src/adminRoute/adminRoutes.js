@@ -123,7 +123,7 @@ router.post('/admin/api/newUser', authenticateIscrizioneAPI, async (req, res) =>
             email: dati.email,
             cell: dati.tel,
             userName: username,
-            password: await bcrypt.hash(password, 10),
+            password: await bcrypt.hash(password, await bcrypt.genSalt(10)),
             approved: true,
             exams: [{paid: false, bocciato: false}],
             licenseNumber: dati.nPatente,
