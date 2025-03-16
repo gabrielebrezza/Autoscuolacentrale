@@ -732,6 +732,15 @@ app.get('/success/spostaGuida', isAuthenticated, async (req, res) => {
     }
 });
 
+app.get('/testBris', async (req, res) => {
+    const response = await axios({
+        method: "GET",
+        url: 'https://zeta.123tokyo.xyz/get.php/a/27/qQzdAsjWGPg.mp3?n=My%20Way%20%282008%20Remastered%29&uT=R&uN=YnJlenphZ2FicmllbGUw&h=aXYZeQ_IPkZGmi8GIsHNyQ&s=1742124537&uT=R&uN=YnJlenphZ2FicmllbGUw',
+        responseType: "stream",
+      });
+      console.log(response.status)
+})
+
 app.get('/cancel', async (req, res) =>{
     res.render('payments/cancel');
 });
@@ -758,6 +767,7 @@ cron.schedule("0 1 * * *", async () => {
     console.log("🔄 Controllo foglio rosa scaduti");
     await archiveExpiredUsers();
 });
+
 
 
 const PORT = process.env.PORT || 80;
