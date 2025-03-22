@@ -20,9 +20,13 @@
         <img id="desktopLogo" src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
         <div class="actions" style="display: flex; justify-content: space-around; gap: 10px;">
             <button class="storico" <%= storicoGuide.lessonList.length > 0 ? '' : 'disabled' %>">Storico Guide</button>
+            <% let isBocciato = true; %>
             <% for(esame of esami.exams) { %>
                 <% if (esame.paid && !esame.bocciato) { %>
                     <button class="pacchetti">Pacchetti Guide</button>
+                    <% 
+                        isBocciato = false;
+                    %>
                 <% } %>
             <% } %>
             <a style="color: red;" href="/userLogout" >LogOut</a>
@@ -122,7 +126,7 @@
         </form>
     </div>
     <% if ((trascinamento.attivo && trascinamento.pagato) || !trascinamento.attivo) { %>
-        <% if(!esami.exams[0].paid){ %>
+        <% if(isBocciato){ %>
             <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>
         <% } %>
     <aside>     
@@ -141,7 +145,8 @@
                     <% totExams++ %>
                 <% } %>
                 <% let bocciato; %>
-                <% if (!esame[0].paid || (toPay <= bocciati && toPay+bocciati==totExams) ) { %> 
+                <%# if (!esame[0].paid || (toPay <= bocciati && toPay+bocciati==totExams) ) { %> 
+                <% if (!esame[0].paid || isBocciato ) { %> 
                     <div class="esami">
                         <nav>Prenotazione esami di guida</nav>
                         
@@ -222,7 +227,7 @@
             </table>
         </div>
 
-        <% if(esame[0].paid && !bocciato){ %>
+        <% if(esame[0].paid && !isBocciato){ %>
             <div class="container">
                 <% for(const lezione of lezioni) { %>
                     <% const instructor = lezione.instructor; %>
