@@ -1022,8 +1022,15 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             user.fatturaDaFare[userFattureLastIndex].fileCortesia = fileName;
             const oldPath = path.join(fattureDir, inv);
             const newPath = path.join(fattureCortesiaDir, fileName)
-            console.log(`${oldPath}\n ${newPath}`);
-            // await user.save();
+            // console.log(`${oldPath}\n ${newPath}`);
+            try {
+                await fs.promises.rename(oldPath, newPath);
+                console.log('File spostato e rinominato con successo!');
+                await user.save();
+              } catch (err) {
+                console.error('Errore durante lo spostamento:', err);
+              }
+            
         }
     }
 })();
