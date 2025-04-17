@@ -59,9 +59,10 @@
     <main>
         <table>
             <thead>
-                <th>data</th>
-                <th>importo</th>
-                <th>metodo</th>
+                <th>Data</th>
+                <th>Importo</th>
+                <th>Metodo</th>
+                <th>Fattura di cortesia</th>
             </thead>
             <tbody>
                 <tr>
@@ -89,6 +90,15 @@
                                     <% } %>
                                 <% }else{ %>
                                     La traccia dei pagamenti è tenuta dall'11/09/2024
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (pagamento.fileCortesia) { %>
+                                    <button class="downloadFatturaCortesia" title="fattura di cortesia" data-file="<%= pagamento.fileCortesia %>" type="button" style="background: none; border: none; outline: none; cursor: pointer;">
+                                        <span class="material-symbols-outlined pagamenti">
+                                            receipt
+                                        </span>
+                                    </button>
                                 <% } %>
                             </td>
                         </tr>

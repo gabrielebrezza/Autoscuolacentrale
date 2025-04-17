@@ -134,6 +134,10 @@ const LoginSchema = new mongoose.Schema({
             type: Number,
             required: false
         },
+        fileCortesia: {
+            type: String,
+            required: false
+        },
         paymentUrl: {
             type: String,
             required: false

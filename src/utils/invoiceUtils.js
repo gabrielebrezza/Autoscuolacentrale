@@ -125,10 +125,15 @@ async function createInvoice(dati) {
             console.error('Errore durante il salvataggio del file:', err);
             return {success: false}
         } else {
+            const user = await credentials.findOne({"userName": dati.userName});
+            let date = new Date();
+            date.setHours(date.getHours() + 2);
+            date = date.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
+            const fileName = `fattura_${dati.descrizione.split(' ')[0]}${user._id}_${date}.pdf`;
             const dataFatturazione = data.split('-').reverse().join('/');
             await credentials.findOneAndUpdate(
                 {
-                    "userName": dati.userName,
+                    "_id": user._id,
                     "fatturaDaFare": {
                         $elemMatch: {
                             "data": dataFatturazione,
@@ -140,6 +145,7 @@ async function createInvoice(dati) {
                 },
                 {
                     $set: {
+                        "fatturaDaFare.$.fileCortesia": fileName,
                         "fatturaDaFare.$.emessa": true
                     }
                 }
@@ -188,13 +194,13 @@ async function createInvoice(dati) {
             doc.text(`${Number(dati.importo).toFixed(2)} €`);
             doc.moveDown();
             
-            doc.pipe(fs.createWriteStream(`./fatture/fattura_${dati.nomeCliente}_${dati.cognomeCliente}.pdf`));
+            doc.pipe(fs.createWriteStream(`./fatture/cortesia/${fileName}`));
             doc.end();
             
             const {email} = await credentials.findOne({"userName": dati.userName});
             const subject = 'Fattura di cortesia';
             const text = `Gentile ${dati.cognomeCliente} ${dati.nomeCliente} ti inviamo la fattura di cortesia per il pagamento che hai effettuato.`;
-            const filename = `./fatture/fattura_${dati.nomeCliente}_${dati.cognomeCliente}.pdf`;
+            const filename = `./fatture/cortesia/${fileName}`;
             try{
                 const result = await sendEmail(email, subject, text, filename);
                 console.log('fattura cortesia');
@@ -210,6 +216,7 @@ async function createInvoice(dati) {
                 importo: dati.importo,
                 user:`${dati.nomeCliente} ${dati.cognomeCliente}`,
                 data: dataFatturazione,
+                fileCortesia: fileName,
                 nomeFile: nomeFile,
             });
             await nuovaFattura.save()

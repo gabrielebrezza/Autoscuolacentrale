@@ -25,6 +25,10 @@ const storicoFattureSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    fileCortesia: {
+        type: String,
+        required: false
+    },
     nomeFile: {
         type: String,
         required: true
