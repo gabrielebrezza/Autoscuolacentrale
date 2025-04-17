@@ -1013,6 +1013,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             const user = await credentials.findOne({ "billingInfo.nome": nome, "billingInfo.cognome": cognome });
             let date = new Date();
             date.setHours(date.getHours() + 2);
+            console.log(user)
             date = date.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
             const userFattureLastIndex = user.fatturaDaFare.length - 1;
             const lastFattura = user.fatturaDaFare[userFattureLastIndex];
