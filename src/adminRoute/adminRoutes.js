@@ -1013,7 +1013,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             const user = await credentials.findOne({ "billingInfo.nome": nome, "billingInfo.cognome": cognome });
             if(!user) continue;
             // let date = new Date();
-            const stats = await fs.promises.stat(inv);
+            const stats = await fs.promises.stat(path.join(fattureDir, inv));
             const date = new Date(stats.birthtime);
             date.setHours(date.getHours() + 2);
             date = date.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
