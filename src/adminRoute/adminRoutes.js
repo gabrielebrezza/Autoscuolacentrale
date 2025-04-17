@@ -971,6 +971,44 @@ router.post('/admin/spostaLezione', authenticateJWT, async (req, res) => {
         res.render('errorPage', { error: `errore nello spostamento della guida` });
     }
 });
+async function normalizzaNomiCognomi() {
+  try {
+    const utenti = await credentials.find({});
+
+    for (const user of utenti) {
+      let modificato = false;
+
+      // Aggiorna i billingInfo
+      user.billingInfo = user.billingInfo.map(info => {
+        let nuovoInfo = { ...info };
+
+        if (info.nome && info.nome !== info.nome.toLowerCase()) {
+          nuovoInfo.nome = info.nome.toLowerCase();
+          modificato = true;
+        }
+
+        if (info.cognome && info.cognome !== info.cognome.toLowerCase()) {
+          nuovoInfo.cognome = info.cognome.toLowerCase();
+          modificato = true;
+        }
+
+        return nuovoInfo;
+      });
+
+      // Salva solo se è stato modificato
+      if (modificato) {
+        await user.save();
+        console.log(`Aggiornato utente ${user._id}`);
+      }
+    }
+
+    console.log('Normalizzazione completata.');
+  } catch (err) {
+    console.error('Errore durante la normalizzazione:', err);
+  }
+}
+
+// normalizzaNomiCognomi();
 
 router.get('/admin/emettiFattura/:utente/:tipo/:data/:importo',authenticateJWT , async (req, res)=>{
     const instructor = req.user.username;
@@ -1012,7 +1050,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
         if(inv.startsWith('fattura') && inv.endsWith('.pdf')){
             const [nome, cognome] = inv.toLowerCase().replace('fattura_', '').replace('.pdf', '').split('_');
             const user = await credentials.findOne({ "billingInfo.nome": nome, "billingInfo.cognome": cognome });
-            if(!user) console.log('porcodio');
+            if(!user) console.log('porcodio', nome, cognome);
             if(!user) continue;
             // let date = new Date();
             const stats = await fs.promises.stat(path.join(fattureDir, inv));
