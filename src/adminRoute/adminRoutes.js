@@ -1033,6 +1033,6 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             
         }
     }
-})();
+});
 
 module.exports = router;
