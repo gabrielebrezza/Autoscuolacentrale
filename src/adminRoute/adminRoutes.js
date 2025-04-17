@@ -334,7 +334,7 @@ router.post('/admin/updateUser', authenticateJWT, async (req, res) => {
             citta: dati.citta,
             provincia: dati.provincia 
         }];
-        await credentials.findOneAndUpdate({ "_id": dati.id }, { "email": dati.userEemail, "cell": dati.cell,"billingInfo": billingInfo, "licenseNumber": dati.licenseNumber , "expirationFoglioRosa": new Date(dati.expFoglioRosa)});
+        await credentials.findOneAndUpdate({ "_id": dati.id }, { "email": dati.userEemail, "cell": dati.cell,"billingInfo": billingInfo, "licenseNumber": dati.licenseNumber , "expirationFoglioRosa": new Date(dati.expFoglioRosa) || null});
         res.redirect(`/admin/user/${dati.id}`);
     } catch (error) {
         console.error('errore nell\'aggiornamento dell\'utente', error);
