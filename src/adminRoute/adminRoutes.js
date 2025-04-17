@@ -1009,7 +1009,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
     const invoices = await fs.promises.readdir(fattureDir);
     for (const inv of invoices) {
         if(inv.startsWith('fattura') && inv.endsWith('.pdf')){
-            const [cognome, nome] = inv.replace('fattura_', '').replace('.pdf', '').split('_');
+            const [cognome, nome] = inv.toLowerCase().replace('fattura_', '').replace('.pdf', '').split('_');
             const user = await credentials.findOne({ "billingInfo.nome": nome, "billingInfo.cognome": cognome });
             if(!user) console.log('porcodio');
             if(!user) continue;
