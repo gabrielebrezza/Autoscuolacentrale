@@ -33,7 +33,7 @@ function generateToken(username) {
 
 const cartellaFatture = path.join('fatture');
 
-// router.use('/fatture', express.static(cartellaFatture));
+// router.use('/fatture', authenticateJWT, express.static(cartellaFatture));
 
 router.use(bodyParser.urlencoded({ extended: false }));
 
