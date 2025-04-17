@@ -1010,7 +1010,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
     for (const inv of invoices) {
         if(inv.startsWith('fattura') && inv.endsWith('.pdf')){
             const {nome, cognome} = inv.replace('fattura_', '').replace('.pdf', '').split('_');
-            console.log(nome, cognome)
+            console.log(inv)
             const user = await credentials.findOne({ "billingInfo.nome": nome, "billingInfo.cognome": cognome });
             if(!user) continue;
             let date = new Date();
