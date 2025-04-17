@@ -1020,9 +1020,10 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             const lastFattura = user.fatturaDaFare[userFattureLastIndex];
             const fileName = `fattura_${lastFattura.tipo.split(' ')[0]}_${user._id}_${date}.pdf`;
             user.fatturaDaFare[userFattureLastIndex].fileCortesia = fileName;
-
-            console.log(user.modifiedPaths()); // Mostra i path modificati
-            console.log(user)
+            const oldPath = path.join(fattureDir, inv);
+            const newPath = path.join(fattureCortesiaDir, fileName)
+            console.log(`${oldPath}\n ${newPath}`);
+            // await user.save();
         }
     }
 })();
