@@ -48,7 +48,7 @@ const authenticateIscrizioneAPI = (req, res, next) => {
     if (token === process.env.API_KEY_AGENDA) {
         next();
     } else {
-        console.log(`Accesso non autorizzato tentato alle fatture da IP: ${req.ip}, URL: ${req.originalUrl}`);
+        console.log(`Tentativo di accesso non autorizzato  alle fatture da IP: ${req.ip}, URL: ${req.originalUrl}`);
         res.status(403).send('Forbidden');
     }
 };

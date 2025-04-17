@@ -31,7 +31,7 @@ function generateToken(username) {
     return jwt.sign({ username }, JWT_SECRET, { expiresIn: '3d' });
 }
 
-const cartellaFatture = path.join(__dirname, 'fatture');
+const cartellaFatture = path.join('fatture');
 
 router.use('/fatture', express.static(cartellaFatture));
 
