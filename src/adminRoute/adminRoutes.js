@@ -1022,7 +1022,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             user.fatturaDaFare[userFattureLastIndex].fileCortesia = fileName;
 
             console.log(user.modifiedPaths()); // Mostra i path modificati
-
+            console.log(user)
         }
     }
 })();
