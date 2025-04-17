@@ -1011,6 +1011,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
         if(inv.startsWith('fattura') && inv.endsWith('.pdf')){
             const [cognome, nome] = inv.replace('fattura_', '').replace('.pdf', '').split('_');
             const user = await credentials.findOne({ "billingInfo.nome": nome, "billingInfo.cognome": cognome });
+            if(!user) console.log('porcodio');
             if(!user) continue;
             // let date = new Date();
             const stats = await fs.promises.stat(path.join(fattureDir, inv));
@@ -1033,6 +1034,6 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             
         }
     }
-});
+})();
 
 module.exports = router;
