@@ -1016,11 +1016,13 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             const stats = await fs.promises.stat(path.join(fattureDir, inv));
             let date = stats.birthtime;
             date = date.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
-            // console.log(date)
             const userFattureLastIndex = user.fatturaDaFare.length - 1;
             const lastFattura = user.fatturaDaFare[userFattureLastIndex];
             const fileName = `fattura_${lastFattura.tipo.split(' ')[0]}_${user._id}_${date}.pdf`;
-            console.log(fileName)
+            user.fatturaDaFare[userFattureLastIndex].fileCortesia = fileName;
+
+            console.log(user.modifiedPaths()); // Mostra i path modificati
+
         }
     }
 })();
