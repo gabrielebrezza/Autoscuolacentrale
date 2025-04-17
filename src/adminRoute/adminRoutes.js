@@ -1015,9 +1015,8 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             // let date = new Date();
             const stats = await fs.promises.stat(path.join(fattureDir, inv));
             const date = stats.birthtime;
-            console.log(date)
-            date.setHours(date.getHours() + 2);
             date = date.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
+            console.log(date)
             const userFattureLastIndex = user.fatturaDaFare.length - 1;
             const lastFattura = user.fatturaDaFare[userFattureLastIndex];
             const fileName = `fattura_${lastFattura.tipo.split(' ')[0]}${user._id}_${date}.pdf`;
