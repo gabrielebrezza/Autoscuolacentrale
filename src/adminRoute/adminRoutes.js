@@ -1014,7 +1014,7 @@ router.post('/createFattura', authenticateJWT, async (req, res) =>{
             if(!user) continue;
             // let date = new Date();
             const stats = await fs.promises.stat(path.join(fattureDir, inv));
-            const date = stats.birthtime;
+            let date = stats.birthtime;
             date = date.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
             console.log(date)
             const userFattureLastIndex = user.fatturaDaFare.length - 1;
