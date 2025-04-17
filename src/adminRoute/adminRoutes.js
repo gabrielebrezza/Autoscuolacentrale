@@ -90,6 +90,31 @@ const authenticateIscrizioneAPI = (req, res, next) => {
     }
 };
 
+router.post('/admin/downloadFatturaCortesia', authenticateJWT, async (req, res)=> {
+    try {
+        const fileName = req.body.file;
+        if (fileName) {
+            const filePath = path.join('fatture', 'cortesia', fileName);
+            if (fs.existsSync(filePath)) {
+                res.set('Content-Type', 'application/pdf');
+                res.set('Content-Disposition', `attachment; filename="${fileName}"`);
+        
+                const fileStream = fs.createReadStream(filePath);
+                fileStream.pipe(res);
+            } else {
+                console.warn(`Il file ${fileName} non esiste nella cartella fatture.`);
+                res.status(404).send('File not found');
+            }
+        } else {
+            console.warn(`Nessuna fattura specificata.`);
+            res.status(404).send('Fattura non specificata');
+        }
+    } catch (error) {
+        console.error('Si è verificato un errore durante il download della fattura di cortesia:', error);
+    res.render('errorPage', {error: 'Si è verificato un errore durante il download della fattura di cortesia'});
+    }
+});
+
 router.post('/admin/api/newUser', authenticateIscrizioneAPI, async (req, res) => {
     try {
         const dati = req.body;

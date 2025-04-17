@@ -107,5 +107,46 @@
             </tbody>
         </table>
     </main>
+    <script>
+        document.querySelectorAll('.downloadFatturaCortesia').forEach(btn => {
+            btn.addEventListener('click', async (event) => {
+                try {
+                    const response = await fetch('/admin/downloadFatturaCortesia', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ file: btn.dataset.file })
+                    });
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const contentDisposition = response.headers.get('Content-Disposition');
+                        let fileName;
+
+                        if (contentDisposition && contentDisposition.indexOf('filename=') !== -1) {
+                            const matches = /filename="([^"]+)"/.exec(contentDisposition);
+                            if (matches && matches[1]) {
+                                fileName = matches[1];
+                            }
+                        }
+                    
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        a.remove();
+                    } else {
+                        throw new Error('Errore durante il download della fattura di cortesia');
+                    }
+                } catch (error) {
+                    alert('Errore durante il download della fattura di cortesia');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
