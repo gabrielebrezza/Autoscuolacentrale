@@ -107,7 +107,19 @@ app.get('/condizioni-uso.pdf', (req, res) => {
     res.sendFile(path.join(__dirname, 'condizioni-uso.pdf'));
 });
 
-app.post('/verification', async (req, res) => {
+
+const rateLimit = require('express-rate-limit');
+
+const otpLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  message: 'Hai superato il numero massimo di tentativi. Riprova più tardi.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+
+app.post('/verification', otpLimiter, async (req, res) => {
     try {
         const userEmail = req.body.email.replace(/\s/g, "");
         const userCell = req.body.phone.replace(/\s/g, "");
@@ -225,7 +237,9 @@ app.post('/verification', async (req, res) => {
                 }
                 res.redirect(`/verificationCode/:${userName.trim()}`);
             }
-        }
+        }else {
+            return res.status(400).render('errorPage', { error: 'Intent non valido' });
+        }        
     } catch (error) {
         console.error('Si è verificato un errore:', error);
         return res.render('errorPage', {error: 'Errore interno del server'});
