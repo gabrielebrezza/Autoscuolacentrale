@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><%= title %></title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #71a1cb;
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                max-width: 800px;
+                margin: 20px auto;
+                margin-top: 150px;
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            h2 {
+                font-size: 24px;
+                margin-bottom: 20px;
+                color: #4075b2;
+            }
+            label {
+                display: block;
+                margin-bottom: 10px;
+                color: #666;
+            }
+            input[type="date"],input[type="number"],
+            select {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+            button {
+                padding: 10px 20px;
+                background: #4075b2;
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            button:hover {
+                background: #1a6dcb;
+            }
+            #oreContainer {
+                margin-top: 20px;
+                padding: 20px;
+                background-color: #f9f9f9;
+                border-radius: 4px;
+            }
+        </style>
+    </head>
+    <body>
+        <%- include('header.ejs') %>
+
+        <div class="container">
+            <h2>Ore svolte dagli istruttori</h2>
+            <select id="instructor">
+                <% for (const i of instructors) { %>
+                    <option value="<%= i._id %>"><%= i.nome %> <%= i.cognome %></option>
+                <% } %>
+            </select>
+            <label for="fromDate">Da data:</label>
+            <input type="date" id="fromDate" name="fromDate">
+
+            <label for="toDate">A data:</label>
+            <input type="date" id="toDate" name="toDate">
+
+            <label for="price">Pagamento all'ora:</label>
+            <input type="number" id="price" name="price" placeholder="€">
+            <button id="visualizzaOreBtn">Visualizza ore</button>
+
+            <div id="oreContainer"></div>
+        </div>
+
+        <script>
+            document.getElementById('visualizzaOreBtn').addEventListener('click', async () => {
+                const instructorId = document.getElementById('instructor').value;
+                const fromDate = document.getElementById('fromDate').value;
+                const toDate = document.getElementById('toDate').value;
+
+                if(!instructorId || !fromDate || !toDate) return alert('Inserisci tutti i campi per vedere il pagamento dovuto!!');
+
+                const response = await fetch(`/admin/oreIstruttori/${instructorId}/${fromDate}/${toDate}`)
+                if(!response.ok) return alert('Si è verificato un\'errore durante il calcolo!');
+                const data = await response.json();
+                const totalMinutes = data.minutes;
+
+                const price = parseFloat(document.getElementById('price').value);
+                const finalPrice = totalMinutes * (price / 60);
+
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+
+                document.getElementById('oreContainer').innerText = `Totale ore svolte: ${hours} ore e ${minutes} minuti. Il pagamento dovrà essere di ${finalPrice.toFixed(2)}€.`;
+            });
+        </script>
+    </body>
+</html>

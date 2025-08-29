@@ -364,69 +364,190 @@ aside .esami p{
     pointer-events: none;
 }
 
-.paymentModal {
-    opacity: 0;
+#paymentModal {
+    z-index: 11;
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #71a1cb;
-    filter: drop-shadow(15px 15px 2px #32327f1f);
-    border-radius: 5px;
-    padding: 20px;
-    width: 300px;
-    margin: 0 auto;
-    transition: 1s opacity;
-}
-.paymentModal a{
-    top: 0;
-    right: 0;
-    position: absolute;
-    color: #fff;
-    transition: .5s;
-}
-.paymentModal a:hover{
-    color: red;
-}
-.paymentModal label {
-    color: #fff;
-    display: block;
-    font-size: 1.1rem;
-    font-weight: bold;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(10px 10px 10px #0000007d);
+    max-width: 420px;
+    width: 100%;
+    margin: 0 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: fadeInScale 0.3s ease-out;
 }
 
-.paymentModal .form-group {
-    margin-bottom: 15px;
+#paymentModal::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
 }
-.paymentModal input[type="text"]{
-    margin-block: 10px;
-    outline: none;
-    border: none;
-    border-radius: 5px;
-    padding: 5px;
-    color: #5681a9;
-}
-.paymentModal .btn {
-    background:#fff ;
-    font-size: 1rem;
-    font-weight: bold;
-    border: none;
-    color: #5681a9;
-    padding: 10px 20px;
-    margin-block: 10px;
-    border-radius: 5px;
+
+#paymentModal p {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #64748b;
+    font-size: 24px;
     cursor: pointer;
-    transition: .5s;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: 6px;
+    z-index: 12;
+    margin: 0;
 }
-.paymentModal .btn i{
-    font-size: 1.2rem;
+
+#paymentModal p:hover {
+    color: #ef4444;
+    background: #fef2f2;
 }
-.paymentModal .btn:hover {
-    background: #5681a9;
-    color: #fff;
+
+#paymentModal form {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e2e8f0;
+    position: relative;
+}
+
+#paymentModal .form-group {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+#paymentModal #priceLabel {
+    font-weight: 500;
+    text-align: center;
+    color: #334155;
+    margin: 0 0 24px 0;
+    font-size: 18px;
+    line-height: 1.5;
+    display: block;
+}
+
+#paymentModal label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+#paymentModal input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    color: #374151;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    margin: 8px 0 16px 0;
+}
+
+#paymentModal input[type="text"]:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#paymentModal .btn {
+    width: 100%;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-family: inherit;
+}
+
+#paymentModal .btn:last-child {
+    margin-bottom: 0;
+}
+
+#paymentModal .btn i {
+    font-size: 16px;
+}
+
+#paymentModal .btn:hover {
+    transform: translateY(-1px);
+}
+
+#paymentModal .btn:active {
+    transform: translateY(0);
+}
+
+#paymentModal #payPalButton {
+    background: #0070ba;
+}
+
+#paymentModal #payPalButton:hover {
+    background: #005ea6;
+    box-shadow: 0 4px 12px rgba(0, 112, 186, 0.4);
+}
+
+#paymentModal #satispayButton {
+    background: #e53e3e;
+}
+
+#paymentModal #satispayButton:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4);
+}
+
+#paymentModal #codiceButton {
+    background: #059669;
+}
+
+#paymentModal #codiceButton:hover {
+    background: #047857;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50) scale(1);
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    #paymentModal {
+        max-width: none;
+        margin: 0 16px;
+    }
+    
+    #paymentModal form {
+        padding: 24px 20px;
+    }
+    
+    #paymentModal #priceLabel {
+        font-size: 16px;
+    }
 }
 main{
     display: flex;
@@ -435,143 +556,298 @@ main{
     flex-wrap: wrap;
 }
 
-.storicoGuide{
-    margin-top:20px;
-    position: relative;
-    border-radius: 5px;
-    padding: 15px;
-    width: fit-content;
-    background-color: #f8f9fa;
-    border: 1px solid #0056b3;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.storicoGuide {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 10;
+    border-radius: 20px;
+    padding: 24px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: white;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid #e5e7eb;
 }
 
-.storicoGuide th{
+.storicoGuide .closeSpostaGuidaForm {
+    color: #6b7280;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    transition: all 0.2s ease;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
+.storicoGuide .closeSpostaGuidaForm:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.storicoGuide h2 {
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 24px;
+    font-size: 24px;
+}
+
+.storicoGuide th {
     color: #fff;
     background: #5681a9;
 }
-.storicoGuide a{
-    color: #000;
-    position: absolute;
-    right: 0px;
-    top: 0px;
-    transition: .5s;
-}
-.storicoGuide a:hover{
-    color: red;
-}
-.storicoGuide h2{
-    text-transform: uppercase;
-    font-weight: 600;
-}
 
-.storicoGuide tr{
-    border: 2px solid #343a40;
+.storicoGuide tr {
+    border: 2px solid #e5e7eb;
     border-width: 0 2px 0 2px;
 }
-.storicoGuide table thead{
-    border-top: 2px solid #343a40;
+
+.storicoGuide table thead {
+    border-top: 2px solid #e5e7eb;
 }
-.storicoGuide table tbody:last-child{
-    border-bottom: 2px solid #343a40;
+
+.storicoGuide table tbody:last-child {
+    border-bottom: 2px solid #e5e7eb;
 }
 
 @media (max-width:500px) {
     .storicoGuide table {
         display: block;
     }
-      
-    .storicoGuide  thead {
+
+    .storicoGuide thead {
         display: none;
     }
-      
+
     .storicoGuide td {
         display: block;
         width: 100%;
     }
-      
+
     .storicoGuide td:before {
         width: 100%;
         height: 100%;
         color: #fff;
         background: #71a1cb;
-        content: attr(data-label)':  ';
+        content: attr(data-label)': ';
         float: left;
         margin-right: 10px;
         font-weight: bold;
     }
-    .storicoGuide tr{
-        border: 5px solid #343a40;
+
+    .storicoGuide tr {
+        border: 5px solid #e5e7eb;
     }
 }
-button.SpostaGuida  {
+
+button.SpostaGuida {
     background: #5681a9;
     color: #fff;
     outline: none;
     border: none;
-    padding: 5px;
-    border-radius: 5px;
+    padding: 8px 16px;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
-#spostaGuidaFormContainer{
+
+button.SpostaGuida:hover {
+    background: #5f97cb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(86, 129, 169, 0.3);
+}
+#spostaGuidaFormContainer {
     z-index: 11;
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    max-width: 300px;
+    transform: translate(-50%, -50%);
+    max-width: 420px;
     width: 100%;
+    margin: 0 20px;
 }
-#spostaGuidaFormContainer a{
-    color: #fff;
-    font-weight: 1000;
-    text-align: right;
-    transition: .5s;
-}
-#spostaGuidaFormContainer a:hover{
-    color: red;
-}
-#spostaGuidaFormContainer p{
-    font-weight: 600;
-    text-align: center;
-}
-#spostaGuidaFormContainer form{
-    padding: 25px;
-    background: #71a1cb;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    filter: drop-shadow(15px 15px 2px #32327f1f);
-    border-radius: 5px;
-}
-#spostaGuidaFormContainer .field{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    margin-block: 10px;
-    border-radius: 5px;
-}
-#spostaGuidaFormContainer .field select:focus{
-    border-radius: 5px;
-    outline: 3px solid #5681a9;
-}
-#spostaGuidaFormContainer form button{
-    background:#fff ;
-    font-size: 1rem;
-    font-weight: bold;
-    border: none;
-    color: #5681a9;
-    padding: 10px 20px;
-    border-radius: 5px;
+
+#spostaGuidaFormContainer .closeSpostaGuidaForm {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    color: #64748b;
+    font-size: 24px;
     cursor: pointer;
-    transition: .5s;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: 6px;
+    z-index: 12;
 }
-#spostaGuidaFormContainer form button i{
-    font-size: 1.2rem;
+
+#spostaGuidaFormContainer .closeSpostaGuidaForm:hover {
+    color: #ef4444;
+    background: #fef2f2;
 }
+
+#spostaGuidaFormContainer p {
+    font-weight: 500;
+    text-align: center;
+    color: #334155;
+    margin: 0 0 24px 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+#spostaGuidaFormContainer form {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px;
+    border: 1px solid #e2e8f0;
+    filter: drop-shadow(10px 10px 10px #0000007d);
+    position: relative;
+}
+
+#spostaGuidaFormContainer .field {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+#spostaGuidaFormContainer .field label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+#spostaGuidaFormContainer .field select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    color: #374151;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+}
+
+#spostaGuidaFormContainer .field select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#spostaGuidaFormContainer form button {
+    width: 100%;
+    background: #3b82f6;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-family: inherit;
+}
+
+#spostaGuidaFormContainer form button:last-child {
+    margin-bottom: 0;
+}
+
+#spostaGuidaFormContainer form button i {
+    font-size: 16px;
+}
+
 #spostaGuidaFormContainer form button:hover {
-    background: #5681a9;
-    color: #fff;
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+#spostaGuidaFormContainer form button:active {
+    transform: translateY(0);
+}
+
+#spostaGuidaFormContainer #paypalButton {
+    background: #0070ba;
+}
+
+#spostaGuidaFormContainer #paypalButton:hover {
+    background: #005ea6;
+    box-shadow: 0 4px 12px rgba(0, 112, 186, 0.4);
+}
+
+#spostaGuidaFormContainer #satispayButton {
+    background: #e53e3e;
+}
+
+#spostaGuidaFormContainer #satispayButton:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4);
+}
+
+/* Overlay backdrop */
+#spostaGuidaFormContainer::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(4px);
+    z-index: -1;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    #spostaGuidaFormContainer {
+        max-width: none;
+        margin: 0 16px;
+    }
+    
+    #spostaGuidaFormContainer form {
+        padding: 24px 20px;
+    }
+    
+    #spostaGuidaFormContainer p {
+        font-size: 15px;
+    }
+}
+
+/* Animation per apertura form */
+#spostaGuidaFormContainer {
+    animation: fadeInScale 0.3s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }

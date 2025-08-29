@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/adminguides.css">
+    <!-- icone -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <title><%= title %></title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #71a1cb;
+            color: #333;
+        }
+
+        main {
+            margin-top: 200px;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .total-time-card {
+            width: fit-content;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            background: #4075b2;
+            color: white;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .total-time-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .total-time-value {
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            padding: 0;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e5e5;
+        }
+
+        .instructor-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+            text-transform: capitalize;
+        }
+
+        .lesson-detail {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .lesson-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #333;
+            display: inline-block;
+            min-width: 60px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                margin-top: 120px;
+                padding: 16px;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .total-time-card {
+                width: 100%;
+                margin-bottom: 24px;
+                padding: 16px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .total-time-card {
+                font-size: 1rem;
+            }
+            
+            .instructor-name {
+                font-size: 1rem;
+            }
+            
+            .lesson-detail {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <main>
+        <% 
+            const totalDuration = lessons.reduce((a, lesson) => a + lesson.duration, 0);
+            const min = (totalDuration) % 60; 
+            const hour = (totalDuration - min) / 60;
+        %>
+        
+        <div class="total-time-card">
+            <div class="total-time-title">Tempo totale:</div>
+            <div class="total-time-value">
+                <%= (hour > 1) ? hour + ' ore' : (hour == 1) ? hour + ' ora' : '' %> 
+                <%= (hour > 0 && min > 0) ? ' e ' : (hour == 0 && min == 0) ? 'Non ha ancora svolto guide' : '' %> 
+                <%= min > 0 ? min + ' minuti' : '' %>
+            </div>
+        </div>
+
+        <div class="container">
+            <% for (const lesson of lessons) { %>
+                <div class="card">
+                    <div class="instructor-name">
+                        Istruttore: <%= lesson.instructor.nome.toLowerCase() %> <%= lesson.instructor.cognome.toLowerCase() %>
+                    </div>
+                    <div class="lesson-detail">
+                        <span class="detail-label">Giorno:</span>
+                        <%= lesson.day.toLocaleDateString('it-IT', { day: "2-digit", month: "2-digit", year: "numeric" }) %>
+                    </div>
+                    <div class="lesson-detail">
+                        <span class="detail-label">Ora:</span>
+                        <%= lesson.startTime %>-<%= lesson.endTime %>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </main>
+</body>
+</html>

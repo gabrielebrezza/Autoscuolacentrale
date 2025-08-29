@@ -94,14 +94,18 @@ h2 {
     text-transform: capitalize;
     border-radius: 8px 8px 0 0;
 }
-#infosContainer h2 a{
+#infosContainer h2 button{
+    background: none;
+    outline: none;
+    border: none;
+    cursor: pointer;
     position: absolute;
     top: 0;
     right: -2px;
     color: #fff;
     transition: .5s;
 }
-#infosContainer h2 a:hover{
+#infosContainer h2 button:hover{
     color: red;
 }
 .field {
@@ -232,12 +236,14 @@ h2 {
     border-bottom: 1px solid #ddd;
 }
 .deleteAllGuides{
-    background: red;
+    width: 100%;
+    background: rgb(212, 9, 9);
     padding: 10px;
-    color: #ccc;
+    color: #f1f1f1;
     border-radius: 5px;
     border: none;
     outline: none;
+    font-weight: 900;
 }
 .si {
     max-width: 50px;

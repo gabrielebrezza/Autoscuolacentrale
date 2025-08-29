@@ -13,6 +13,22 @@ const prezzoGuideSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    userPriceFromDate: {
+        fromDate: {
+            type: Date,
+            required: true
+        },
+        price: {
+            type: Number,
+            required: true
+        }
+    },
+    reschedulingFee: {
+        type: Number
+    },
+    trascinamento: {
+        type: Number
+    },
     prezzoEsame: {
         type: Number,
         required: true

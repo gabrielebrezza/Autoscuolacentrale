@@ -1,0 +1,628 @@
+<!-- admin-guides.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/adminguides.css">
+    <!-- icone -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <title>
+        <%= title %>
+    </title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+</head>
+
+<body>
+    <%- include('header.ejs') %>
+        <main>
+            <div id="data" name="data"></div>
+
+            <% const notBookedLessons = []; %>
+            <div id="lezioni-disponibili">
+                <% for(const lesson of guides) { %>
+                    <% for(const instructorLessons of lesson.instructors) { %>
+                        <% const lessonInstructor = `${instructorLessons.instructor.nome} ${instructorLessons.instructor.cognome}`; %>
+                        <% const hasPermission = role == 'Super' || lessonInstructor === istruttore %>
+                        <div class="day-card" data-date="<%= lesson.day %>" style="display: none;">
+                            <h2 class="day-title">
+                                Giorno: <%= lesson.day %>
+                            </h2>
+                            <div class="guide-info">
+                                <h3 class="guide-name">
+                                    Istruttore: <%= lessonInstructor %>
+                                </h3>
+                                <table class="guide-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Ora</th>
+                                            <th>Prenotata</th>
+                                            <% if (hasPermission) { %>
+                                                <th>Azioni</th>
+                                            <% } %>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% let anyBooking = false; %>
+                                        <% for(const lezione of instructorLessons.lezioni) { %>
+                                            <% const isBooked = lezione.student; %>
+                                            <% const timeString = `${lezione.startTime}-${lezione.endTime}` %>
+                                            <tr>
+                                                <td>
+                                                    <%= timeString %>
+                                                </td>
+                                                <td>
+                                                    <% if (isBooked) { %>
+                                                        <% if (hasPermission) { %>
+                                                            <% console.log(lezione.student.billingInfo[0]) %>
+                                                            <% const utente = lezione.student.billingInfo[0].cognome + ' ' + lezione.student.billingInfo[0].nome %>
+                                                            <a href="/admin/pagamenti?id=<%= lezione.student._id %>" class="si" title="<%= utente %>">
+                                                                <%= utente %>
+                                                            </a>
+                                                        <% }else{ %>
+                                                            <span class="si">Prenotata</span>
+                                                        <% } %>
+                                                    <% } else { %>
+                                                        <% if (lessonInstructor != 'Esame Guida') { %>
+                                                            <% notBookedLessons.push(`${lesson.day} - ${timeString} - ${lessonInstructor} | ${lezione._id}`) %>
+                                                        <% } %>
+                                                        <span class="no">Non Prenotata</span>
+                                                    <% } %>
+                                                </td>
+                                                <% if (hasPermission) { %>
+                                                    <td>
+                                                        <% if (!isBooked) { %>
+                                                            <span class="material-symbols-outlined deleteGuide" data-lessonid="<%= lezione._id %>">delete</span>
+                                                        <% } else { %>
+                                                            <span class="material-symbols-outlined userInfo" data-student="<%= lezione.student.userName %>" data-email="<%= lezione.student.email %>" data-cell="<%= lezione.student.cell %>">info</span>
+                                                            <span style="cursor: pointer; color: rgb(45, 45, 189);" data-lessonid="<%= lezione._id %>" data-day="<%= lesson.day %>" data-duration="<%= lezione.duration %>"
+                                                                class="material-symbols-outlined move_date"
+                                                            >
+                                                                edit_calendar
+                                                            </span>
+                                                            <% anyBooking = true; %>
+                                                        <% } %>
+                                                    </td>
+                                                <% } %>
+                                            </tr>
+                                        <% } %>
+                                        <% if (hasPermission) { %>
+                                            <tr>
+                                                <td colspan="3">
+                                                    <% if (!anyBooking) { %>
+                                                        <button style="cursor: pointer;" class="deleteAllGuides" data-instructorId="<%= instructorLessons.instructor._id %>" data-day="<%= lesson.day %>">Elimina tutte</button>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    <% } %>
+                <% } %>
+            </div>
+
+            <div id="notBookedLessons" style="display: none;">
+                <%= notBookedLessons.join(', ') %>
+            </div>
+            
+            <style>
+                #moveLessonForm {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translateY(-50%) translateX(-50%);
+                    width: 500px;
+                    padding: 25px;
+                    pointer-events: none;
+                    opacity: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-direction: column;
+                    gap: 50px;
+                    background: #5681a9;
+                    color: #fff;
+                    border-radius: 25px;
+                    transition: .25s ease-in-out;
+                }
+                
+                #moveLessonForm.active {
+                    pointer-events: all;
+                    opacity: 1;
+                }
+                
+                .closeMoveLessonModal {
+                    position: absolute;
+                    right: 5px;
+                    top: 5px;
+                    cursor: pointer;
+                }
+                
+                .field {
+                    display: flex;
+                    gap: 10px;
+                }
+                
+                #moveLessonForm button {
+                    padding: 10px;
+                    cursor: pointer;
+                    outline: none;
+                    border: none;
+                    background: #71a1cb;
+                    color: #fff;
+                    transition: .25s ease-in-out;
+                }
+                
+                #moveLessonForm button:hover {
+                    transform: scale(1.2);
+                }
+            </style>
+            
+            <form id="moveLessonForm" action="/admin/spostaLezione" method="POST">
+                <span class="material-symbols-outlined closeMoveLessonModal">
+                    cancel
+                </span>
+                <h1>Sposta Lezione</h1>
+                <h3>Data Lezione Attuale: <span id="moveLessonFormDate"></span></h3>
+                <input type="hidden" name="duration">
+                <input type="hidden" name="oldLessonId">
+                <div class="field">
+                    <label for="date">Nuova Lezione:</label>
+                    <select name="newLessonId" id="moveDateinputDate"></select>
+                </div>
+                <button type="submit">Conferma</button>
+            </form>
+
+            <div id="infosContainer" style="display: none;">
+                <h2>
+                    info allievo
+                    <button onclick="this.closest('#infosContainer').style.display = 'none'">
+                        <span class="material-symbols-outlined">
+                            cancel
+                        </span>
+                    </button>
+                </h2>
+                <div class="field">
+                    <h3>Email:</h3>
+                    <p id="inputEmail"></p>
+                </div>
+                <div class="field">
+                    <h3>Cell:</h3>
+                    <p id="inputCell"></p>
+                </div>
+            </div>
+
+            <!-- Variabili server-side rese disponibili al client -->
+            <script>
+                window.serverData = {
+                    role: '<%= role %>',
+                    istruttore: '<%= istruttore %>'
+                };
+            </script>
+
+            <script>
+                const now = new Date();
+                // Cache per tenere traccia di tutti i mesi caricati e delle loro lezioni
+                const monthCache = new Map();
+                // Inizializza la cache con i dati del mese corrente
+                const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                const nextMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 2).padStart(2, '0')}`;
+                
+                // FUNZIONI PER GESTIRE GLI EVENT LISTENERS
+                function setupDeleteGuideListeners() {
+                    document.querySelectorAll('.deleteGuide').forEach((btn) => {
+                        btn.addEventListener('click', async () => {
+                            const lessonId = btn.dataset.lessonid;
+                            const row = btn.closest('tr');
+                            row.remove();
+                            const response = await fetch(`/admin/lessons/${lessonId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    "Content-Type": 'application/json'
+                                }
+                            });
+                            if(!response.ok) return alert('Si è verificato un errore durante l\'eliminazione della guida selezionata!');
+                        });
+                    });
+                }
+
+                function setupDeleteAllGuidesListeners() {
+                    document.querySelectorAll(".deleteAllGuides").forEach((btn) => {
+                        btn.addEventListener("click", async () => {
+                            const card = btn.closest('.day-card');
+                            card.remove();
+                            const instructorId = btn.dataset.instructorid;
+                            const day = btn.dataset.day.split('/').reverse().join('-');
+                            const response = await fetch(`/admin/lessons/${instructorId}/${day}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    "Content-Type": 'application/json'
+                                }
+                            });
+                            if(!response.ok) return alert('Si è verificato un errore durante l\'eliminazione delle guide selezionate');
+                        });
+                    });
+                }
+
+                function setupUserInfoListeners() {
+                    const infosContainer = document.getElementById('infosContainer');
+                    const inputEmail = document.getElementById('inputEmail');
+                    const inputCell = document.getElementById('inputCell');
+                    
+                    document.querySelectorAll('.userInfo').forEach((btn) => {
+                        btn.addEventListener('click', () => {
+                            const email = btn.dataset.email;
+                            const cell = btn.dataset.cell;
+                            inputEmail.innerText = email;
+                            inputCell.innerText = cell;
+                            infosContainer.style.display = 'flex';
+                        });
+                    });
+                }
+
+                function setupMoveDateListeners() {
+                    const moveLessonForm = document.getElementById('moveLessonForm');
+                    document.querySelectorAll('.move_date').forEach((btn) => {
+                        btn.addEventListener('click', () => {
+                            console.log('premuto', btn.dataset)
+                            const date = btn.dataset.day;
+                            const duration = btn.dataset.duration;
+                            document.querySelector('[name="oldLessonId"]').value = btn.dataset.lessonid;
+                            document.querySelector('[name="duration"]').value = duration;
+                            document.getElementById('moveLessonFormDate').innerText = `${date} - ${duration}min`;
+                            populateDate(parseInt(duration));
+                            moveLessonForm.classList.add('active');
+                        });
+                    });
+                }
+
+                function truncateNames() {
+                    document.querySelectorAll('.si').forEach((nome) => {
+                        if (nome.textContent.trim().length > 21) {
+                            nome.textContent = nome.textContent.trim().slice(0, 19) + '..';
+                        }
+                    });
+                }
+
+                function setupAllEventListeners() {
+                    setupDeleteGuideListeners();
+                    setupDeleteAllGuidesListeners();
+                    setupUserInfoListeners();
+                    setupMoveDateListeners();
+                    truncateNames();
+                }
+
+                function populateDate(duration) {
+                    const dates = document.getElementById('notBookedLessons').innerText.split(',').filter(d => d.trim());
+                    const validDates = [];
+                    
+                    for (let dateStr of dates) {
+                        dateStr = dateStr.trim();
+                        if (!dateStr) continue;
+                        
+                        const parts = dateStr.split(' - ');
+                        if (parts.length < 3) continue;
+                        
+                        const day = parts[0].split('/').reverse().join('-');
+                        if (new Date(day) < new Date()) continue;
+                        
+                        const hour = parts[1];
+                        const today = new Date().toISOString().split('T')[0];
+                        const startHour = new Date(`${today}T${hour.split('-')[0]}:00`);
+                        const endHour = new Date(`${today}T${hour.split('-')[1]}:00`);
+                        const elDuration = (endHour - startHour) / 1000 / 60;
+                        
+                        if (duration === elDuration) {
+                            validDates.push(dateStr);
+                        }
+                    }
+                    
+                    let dateOptions = '';
+                    for (const date of validDates) {
+                        const [lessonData, lessonId] = date.split(' | ');
+                        dateOptions += `<option value="${lessonId}">${lessonData}</option>`;
+                    }
+                    document.getElementById('moveDateinputDate').innerHTML = dateOptions;
+                }
+
+                function getMonthKeyFromDate(year, month) {
+                    return `${year}-${String(month).padStart(2, '0')}`;
+                }
+
+                function addLessonsToCache(monthKey, lessons) {
+                    if (!monthCache.has(monthKey)) {
+                        monthCache.set(monthKey, []);
+                    }
+                    
+                    const existingLessons = monthCache.get(monthKey);
+                    // Aggiungi solo le lezioni che non sono già presenti
+                    for (const lesson of lessons) {
+                        const exists = existingLessons.some(existing => existing.day === lesson.day);
+                        if (!exists) {
+                            existingLessons.push(lesson);
+                        }
+                    }
+                }
+
+                function getAllCachedLessons() {
+                    const allLessons = [];
+                    for (const lessons of monthCache.values()) {
+                        allLessons.push(...lessons);
+                    }
+                    return allLessons;
+                }
+
+                // SETUP INIZIALE
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Inizializza la cache con i dati del server
+                    const initialLessons = [];
+                    document.querySelectorAll('.day-card').forEach(card => {
+                        const date = card.dataset.date;
+                        const [day, month, year] = date.split('/');
+                        const monthKey = getMonthKeyFromDate(year, month);
+                        
+                        // Estrai i dati della lezione dal DOM esistente
+                        const lesson = {
+                            day: date,
+                            instructors: [] // Questo sarà popolato dal server
+                        };
+                        
+                        initialLessons.push(lesson);
+                    });
+                    
+                    // Raggruppa per mese e aggiungi alla cache
+                    const lessonsByMonth = {};
+                    initialLessons.forEach(lesson => {
+                        const [day, month, year] = lesson.day.split('/');
+                        const monthKey = getMonthKeyFromDate(year, month);
+                        if (!lessonsByMonth[monthKey]) {
+                            lessonsByMonth[monthKey] = [];
+                        }
+                        lessonsByMonth[monthKey].push(lesson);
+                    });
+                    
+                    Object.entries(lessonsByMonth).forEach(([monthKey, lessons]) => {
+                        addLessonsToCache(monthKey, lessons);
+                    });
+                    
+                    setupAllEventListeners();
+                    
+                    // Setup del form di spostamento lezione
+                    const moveLessonForm = document.getElementById('moveLessonForm');
+                    document.querySelector('.closeMoveLessonModal').addEventListener('click', () => {
+                        moveLessonForm.classList.remove('active');
+                    });
+                });
+
+                // DATEPICKER SETUP
+                $(function() {
+                    $("#data").datepicker({
+                        dateFormat: 'dd/mm/yy',
+                        beforeShowDay: function(date) {
+                            var day = date.getDate();
+                            var month = date.getMonth() + 1;
+                            var year = date.getFullYear();
+                            var dateString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+                            var sectionExists = $('.day-card[data-date="' + dateString + '"]').length > 0;
+                            if (sectionExists) {
+                                return [true, "greenDate", "Ci sono guide libere"];
+                            } else {
+                                return [true, "redDate disabled", "Non ci sono guide libere"];
+                            }
+                        },
+                        onSelect: function(dateText, inst) {
+                            updateSectionsVisibility(dateText);
+                        },
+                        onChangeMonthYear: async function(year, month, inst) {
+                            const monthKey = getMonthKeyFromDate(year, month);
+                            
+                            // Controlla se il mese è già stato caricato
+                            if (monthCache.has(monthKey)) {
+                                console.log(`Mese ${monthKey} già in cache`);
+                                return;
+                            }
+                            
+                            const fromDate = new Date(year, month - 1, 1).toLocaleDateString('sv-SE');
+                            const toDate = new Date(year, month, 0).toLocaleDateString('sv-SE');
+                            
+                            console.log("Caricamento mese:", monthKey, "Range:", fromDate, "→", toDate);
+                            
+                            try {
+                                const response = await fetch(`/admin/lessons/${fromDate}/${toDate}`);
+                                if (!response.ok) {
+                                    throw new Error('Errore nella risposta del server');
+                                }
+
+                                const { lessons } = await response.json();
+                                
+                                // Aggiungi le lezioni alla cache
+                                addLessonsToCache(monthKey, lessons);
+                                
+                                // Renderizza le nuove lezioni
+                                renderLessons(lessons, false); // false = non pulire il DOM esistente
+                                
+                            } catch (error) {
+                                console.error('Errore durante il caricamento:', error);
+                                alert('Errore durante il caricamento delle lezioni nel mese selezionato');
+                            }
+                        }
+                    });
+
+                    selectTodayOrFirstGreenDate();
+
+                    function selectTodayOrFirstGreenDate() {
+                        var today = new Date();
+                        var day = today.getDate();
+                        var month = today.getMonth() + 1;
+                        var year = today.getFullYear();
+                        var todayString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+
+                        var todayExists = $('.day-card[data-date="' + todayString + '"]').length > 0;
+
+                        if (todayExists) {
+                            $("#data").datepicker("setDate", todayString);
+                            updateSectionsVisibility(todayString);
+                        } else {
+                            setTimeout(function() {
+                                $(".greenDate:first").trigger("click");
+                            }, 100);
+                        }
+                    }
+                });
+
+                function updateSectionsVisibility(selectedDate) {
+                    var sections = document.querySelectorAll('.day-card');
+                    sections.forEach(function(section) {
+                        if (section.getAttribute('data-date') === selectedDate) {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
+                }
+
+                function renderLessons(guides, clearExisting = true) {
+                    const lezioniDisponibili = document.getElementById('lezioni-disponibili');
+                    const notBookedLessonsDiv = document.getElementById('notBookedLessons');
+                    
+                    const { role, istruttore } = window.serverData;
+                    
+                    // Se clearExisting è false, non pulire il DOM esistente
+                    if (clearExisting) {
+                        lezioniDisponibili.innerHTML = '';
+                        notBookedLessonsDiv.textContent = '';
+                    }
+                    
+                    const currentNotBookedLessons = notBookedLessonsDiv.textContent ? 
+                        notBookedLessonsDiv.textContent.split(',').map(s => s.trim()).filter(s => s) : [];
+                    
+                    for (const lesson of guides) {
+                        // Controlla se questa lezione esiste già nel DOM
+                        const existingCard = document.querySelector(`.day-card[data-date="${lesson.day}"]`);
+                        if (existingCard && !clearExisting) {
+                            continue; // Salta se la carta esiste già
+                        }
+                        
+                        for (const instructorLessons of lesson.instructors) {
+                            const lessonInstructor = `${instructorLessons.instructor.nome} ${instructorLessons.instructor.cognome}`;
+                            const hasPermission = role === 'Super' || lessonInstructor === istruttore;
+                            
+                            const dayCard = document.createElement('div');
+                            dayCard.className = 'day-card';
+                            dayCard.setAttribute('data-date', lesson.day);
+                            dayCard.style.display = 'none';
+                            
+                            let anyBooking = false;
+                            let tableRows = '';
+                            
+                            for (const lezione of instructorLessons.lezioni) {
+                                const isBooked = lezione.student;
+                                const timeString = `${lezione.startTime}-${lezione.endTime}`;
+                                
+                                let bookingCell = '';
+                                let actionsCell = '';
+                                
+                                if (isBooked) {
+                                    if (hasPermission) {
+                                        const utente = lezione.student.billingInfo[0].cognome + ' ' + lezione.student.billingInfo[0].nome;
+                                        bookingCell = `<a href="/admin/pagamenti?id=${lezione.student._id}" class="si" title="${utente}">${utente}</a>`;
+                                        
+                                        actionsCell = `
+                                            <span class="material-symbols-outlined userInfo" 
+                                                  data-student="${lezione.student.userName}" 
+                                                  data-email="${lezione.student.email}" 
+                                                  data-cell="${lezione.student.cell}">info</span>
+                                            <span style="cursor: pointer; color: rgb(45, 45, 189);" 
+                                                  data-lessonid="${lezione._id}" 
+                                                  data-day="${lesson.day}" 
+                                                  data-duration="${lezione.duration}"
+                                                  class="material-symbols-outlined move_date">edit_calendar</span>
+                                        `;
+                                    } else {
+                                        bookingCell = '<span class="si">Prenotata</span>';
+                                        actionsCell = '';
+                                    }
+                                    anyBooking = true;
+                                } else {
+                                    if (lessonInstructor !== 'Esame Guida') {
+                                        const lessonEntry = `${lesson.day} - ${timeString} - ${lessonInstructor} | ${lezione._id}`;
+                                        if (!currentNotBookedLessons.includes(lessonEntry)) {
+                                            currentNotBookedLessons.push(lessonEntry);
+                                        }
+                                    }
+                                    bookingCell = '<span class="no">Non Prenotata</span>';
+                                    
+                                    if (hasPermission) {
+                                        actionsCell = `<span class="material-symbols-outlined deleteGuide" data-lessonid="${lezione._id}">delete</span>`;
+                                    } else {
+                                        actionsCell = '';
+                                    }
+                                }
+                                
+                                tableRows += `
+                                    <tr>
+                                        <td>${timeString}</td>
+                                        <td>${bookingCell}</td>
+                                        ${hasPermission ? `<td>${actionsCell}</td>` : ''}
+                                    </tr>
+                                `;
+                            }
+                            
+                            const deleteAllRow = !anyBooking && hasPermission ? 
+                                `<button style="cursor: pointer;" class="deleteAllGuides" data-instructorId="${instructorLessons.instructor._id}" data-day="${lesson.day}">Elimina tutte</button>` : '';
+                            
+                            if (hasPermission) {
+                                tableRows += `
+                                    <tr>
+                                        <td colspan="3">
+                                            ${deleteAllRow}
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+                            
+                            dayCard.innerHTML = `
+                                <h2 class="day-title">Giorno: ${lesson.day}</h2>
+                                <div class="guide-info">
+                                    <h3 class="guide-name">Istruttore: ${lessonInstructor}</h3>
+                                    <table class="guide-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Ora</th>
+                                                <th>Prenotata</th>
+                                                ${hasPermission ? '<th>Azioni</th>' : ''}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${tableRows}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                            
+                            lezioniDisponibili.appendChild(dayCard);
+                        }
+                    }
+                    
+                    // Aggiorna il contenuto delle lezioni non prenotate
+                    notBookedLessonsDiv.textContent = currentNotBookedLessons.join(', ');
+                    
+                    // Riapplica tutti gli event listeners dopo il rendering
+                    setupAllEventListeners();
+                    
+                    // Forza il refresh del datepicker per aggiornare i colori
+                    $("#data").datepicker("refresh");
+                }
+            </script>
+
+        </main>
+</body>
+
+</html>

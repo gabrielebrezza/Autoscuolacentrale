@@ -5,82 +5,287 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #71a1cb;
+            background: linear-gradient(135deg, #71a1cb 0%, #5a8bb5 100%);
             color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 30px;
         }
-        main{
-            display: flex;
-            flex-wrap: wrap;
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 60px;
         }
-        form {
-            background-color: #f1f1f1;
-            padding: 20px;
-            margin: 20px auto;
-            margin-top: 200px;
-            max-width: 250px;
-            width: 100%;
-            border-radius: 8px; 
-            display: flex;
-            align-items: center;
-            flex-direction: column;
+
+        .page-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-    
-        label {
-            color: #000;
+
+        .forms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #71a1cb, #5a8bb5);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-label {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
             display: block;
-            margin-bottom: 10px;
         }
-    
-        input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            margin-block: 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #71a1cb;
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .form-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            background: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .form-input:focus {
             outline: none;
-            color: white;
+            border-color: #71a1cb;
+            background: rgba(113, 161, 203, 0.05);
+            transform: scale(1.02);
         }
-    
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+
+        .date-input {
+            min-width: 140px;
+        }
+
+        .number-input {
+            text-align: right;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
             color: white;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-    
-        button:hover {
-            background-color: #45a049;
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding-top: 20px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .forms-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .form-card {
+                padding: 1.5rem;
+            }
+
+            .input-wrapper {
+                flex-direction: column;
+            }
+
+            .date-input {
+                min-width: auto;
+            }
+        }
+
+        /* Animazioni di caricamento */
+        .form-card {
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .form-card:nth-child(1) { animation-delay: 0.1s; }
+        .form-card:nth-child(2) { animation-delay: 0.2s; }
+        .form-card:nth-child(3) { animation-delay: 0.3s; }
+        .form-card:nth-child(4) { animation-delay: 0.4s; }
+        .form-card:nth-child(5) { animation-delay: 0.5s; }
+        .form-card:nth-child(6) { animation-delay: 0.6s; }
+        .form-card:nth-child(7) { animation-delay: 0.7s; }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Effetto glassmorphism per i form */
+        .form-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-label {
+            color: white;
+        }
+
+        .form-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .form-input:focus {
+            background: white;
+            border-color: rgba(255, 255, 255, 0.8);
         }
     </style>
-    
 </head>
 <body>
     <%- include('header.ejs') %>
-    <main>
-        <form action="/admin/editPrezzi" method="POST">
-            <label for="drivingLessonPrice">Prezzo 1 ora di guida: </label>
-            <input type="number" name="drivingLessonPrice" id="drivingLessonPrice" min="1" value="<%= prices[0].prezzo %>">
-            <button type="submit">Aggiorna</button>
-        </form>
-        <form action="/admin/editPrezzi" method="POST">
-            <label for="examPrice">Prezzo Esame: </label>
-            <input type="number" name="examPrice" id="examPrice" min="1" value="<%= prices[0].prezzoEsame %>">
-            <button type="submit">Aggiorna</button>
-        </form>
-        <form action="/admin/editPrezzi" method="POST">
-            <label for="pacchettoPrice">Prezzo Pacchetto Guide: </label>
-            <input type="number" name="pacchettoPrice" id="pacchettoPrice" min="1" value="<%= prices[0].prezzoPacchetto %>">
-            <button type="submit">Aggiorna</button>
-        </form>
-        <form action="/admin/editPrezzi" method="POST">
-            <label for="prezzoPacchettoFisico">Prezzo Pacchetto Guide in Autoscuola: </label>
-            <input type="number" name="prezzoPacchettoFisico" id="prezzoPacchettoFisico" min="1" value="<%= prices[0].prezzoPacchettoFisico %>">
-            <button type="submit">Aggiorna</button>
-        </form>
-    </main>
+    <div class="container">
+        <h1 class="page-title">Gestione Prezzi</h1>
+        
+        <div class="forms-grid">
+            <form class="form-card" action="/admin/editPrezzi" method="POST">
+                <div class="input-group">
+                    <label class="form-label" for="prezzo">Prezzo 1 ora di guida</label>
+                    <div class="input-wrapper">
+                        <input class="form-input number-input" type="number" name="prezzo" id="prezzo" min="1" value="<%= prices.prezzo %>">
+                    </div>
+                </div>
+                <button class="submit-btn" type="submit">Aggiorna</button>
+            </form>
+
+            <form class="form-card" action="/admin/editPrezzi" method="POST">
+                <div class="input-group">
+                    <label class="form-label" for="prezzoEsame">Prezzo Esame</label>
+                    <div class="input-wrapper">
+                        <input class="form-input number-input" type="number" name="prezzoEsame" id="prezzoEsame" min="1" value="<%= prices.prezzoEsame %>">
+                    </div>
+                </div>
+                <button class="submit-btn" type="submit">Aggiorna</button>
+            </form>
+
+            <form class="form-card" action="/admin/editPrezzi" method="POST">
+                <div class="input-group">
+                    <label class="form-label" for="prezzoPacchetto">Prezzo Pacchetto Guide</label>
+                    <div class="input-wrapper">
+                        <input class="form-input number-input" type="number" name="prezzoPacchetto" id="prezzoPacchetto" min="1" value="<%= prices.prezzoPacchetto %>">
+                    </div>
+                </div>
+                <button class="submit-btn" type="submit">Aggiorna</button>
+            </form>
+
+            <form class="form-card" action="/admin/editPrezzi" method="POST">
+                <div class="input-group">
+                    <label class="form-label" for="prezzoPacchettoFisico">Prezzo Pacchetto Guide in Autoscuola</label>
+                    <div class="input-wrapper">
+                        <input class="form-input number-input" type="number" name="prezzoPacchettoFisico" id="prezzoPacchettoFisico" min="1" value="<%= prices.prezzoPacchettoFisico %>">
+                    </div>
+                </div>
+                <button class="submit-btn" type="submit">Aggiorna</button>
+            </form>
+
+            <form class="form-card" action="/admin/editPrezzi" method="POST">
+                <div class="input-group">
+                    <label class="form-label" for="userPriceFromDate[fromDate]">Prezzo Guida per gli utenti dal</label>
+                    <div class="input-wrapper">
+                        <input class="form-input date-input" type="date" name="userPriceFromDate[fromDate]" id="userPriceFromDate[fromDate]" value="<%= prices.userPriceFromDate.fromDate.toISOString().split('T')[0] %>">
+                        <input class="form-input number-input" type="number" name="userPriceFromDate[price]" id="userPriceFromDate[price]" min="1" value="<%= prices.userPriceFromDate.price %>">
+                    </div>
+                </div>
+                <button class="submit-btn" type="submit">Aggiorna</button>
+            </form>
+
+            <form class="form-card" action="/admin/editPrezzi" method="POST">
+                <div class="input-group">
+                    <label class="form-label" for="reschedulingFee">Prezzo spostamento guida</label>
+                    <div class="input-wrapper">
+                        <input class="form-input number-input" type="number" name="reschedulingFee" id="reschedulingFee" min="1" value="<%= prices.reschedulingFee %>">
+                    </div>
+                </div>
+                <button class="submit-btn" type="submit">Aggiorna</button>
+            </form>
+
+            <form class="form-card" action="/admin/editPrezzi" method="POST">
+                <div class="input-group">
+                    <label class="form-label" for="trascinamento">Prezzo trascinamento</label>
+                    <div class="input-wrapper">
+                        <input class="form-input number-input" type="number" name="trascinamento" id="trascinamento" min="1" value="<%= prices.trascinamento %>">
+                    </div>
+                </div>
+                <button class="submit-btn" type="submit">Aggiorna</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

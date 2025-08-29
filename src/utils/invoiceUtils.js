@@ -10,7 +10,7 @@ const storicoFatture = require('../Db/StoricoFatture');
 const sendEmail = require('./emailsUtils');
 
 async function createInvoice(dati) {
-    const {numero} = await numeroFattura.findOne();
+    const { numero } = await numeroFattura.findOne();
     dati.progressivoInvio = `g00${numero}`;
     dati.numeroDocumento = `g00${numero}`;
     const today = new Date();

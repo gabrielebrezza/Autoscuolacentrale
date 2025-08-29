@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenota Guide</title>
+    <link rel="icon" href="/styles/img/image.png" type="image/x-icon">
+    <link rel="stylesheet" href="/styles/guideBooking.css">
+    <!-- icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <!-- calendario -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+</head>
+<body>
+    <header class="header">
+        <img id="mobileLogo" src="/styles/img/image.png" alt="">
+        <img id="desktopLogo" src="https://autoscuolacentrale.com/templates/autoscuola/images/logo_autoscuola.svg" alt="" width="500px">
+        <div class="actions" style="display: flex; justify-content: space-around; gap: 10px;">
+            <button class="storico" <%= lessonList.length > 0 ? '' : 'disabled' %>">Storico Guide</button>
+            <% let isBocciato = true; %>
+            <% for(exam of exams) { %>
+                <% if (exam.paid && !exam.bocciato) { %>
+                    <button class="pacchetti">Pacchetti Guide</button>
+                    <% 
+                        isBocciato = false;
+                    %>
+                <% } %>
+            <% } %>
+            <a style="color: red;" href="/userLogout" >LogOut</a>
+        </div>
+        <script>
+            const storico = document.querySelector('.storico');
+            storico.addEventListener('click', () => {
+                document.querySelector('.storicoGuide').style.display = 'block';
+            });
+            const pacchetti = document.querySelector('.pacchetti');
+            if (pacchetti) {
+                pacchetti.addEventListener('click', () => {
+                    document.getElementById('pacchettiModal').classList.add('active');
+                });
+            }
+            function logout() {
+                browser.cookies.remove('userName');
+            }
+        </script> 
+
+    </header>
+    <style>
+        #pacchettiModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#pacchettiModal.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+#pacchettiModal.active article {
+    animation: fadeInScale 0.3s ease-out;
+}
+
+#pacchettiModal article {
+    position: relative;
+    background-color: #ffffff;
+    padding: 32px;
+    border-radius: 16px;
+    filter: drop-shadow(10px 10px 10px #0000007d);
+    border: 1px solid #e2e8f0;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    margin: 0 20px;
+}
+
+#pacchettiModal h3 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.4;
+}
+
+#pacchettiModal h4 {
+    margin: 0 0 32px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    line-height: 1.5;
+}
+
+#pacchettiModal h4 s {
+    color: #9ca3af;
+    text-decoration: line-through;
+    margin-right: 8px;
+}
+
+.material-symbols-outlined.closeModalBtn {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.2s ease;
+    padding: 4px;
+    border-radius: 6px;
+    background: none;
+    border: none;
+}
+
+.material-symbols-outlined.closeModalBtn:hover {
+    color: #ef4444;
+    background: #fef2f2;
+}
+
+#pacchettiModal form {
+    margin-bottom: 12px;
+}
+
+#pacchettiModal form:last-child {
+    margin-bottom: 0;
+}
+
+#pacchettiModal button {
+    width: 100%;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+}
+
+#pacchettiModal button:hover {
+    transform: translateY(-1px);
+}
+
+#pacchettiModal button:active {
+    transform: translateY(0);
+}
+
+/* Bottone Satispay */
+#pacchettiModal form:last-of-type button {
+    background: #e53e3e;
+}
+
+#pacchettiModal form:last-of-type button:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4);
+}
+
+/* Bottone PayPal */
+#pacchettiModal form:first-of-type button {
+    background: #0070ba;
+}
+
+#pacchettiModal form:first-of-type button:hover {
+    background: #005ea6;
+    box-shadow: 0 4px 12px rgba(0, 112, 186, 0.4);
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    #pacchettiModal article {
+        margin: 0 16px;
+        padding: 24px 20px;
+    }
+    
+    #pacchettiModal h3 {
+        font-size: 18px;
+    }
+    
+    #pacchettiModal h4 {
+        font-size: 15px;
+    }
+}
+    </style>
+    <div id="pacchettiModal">
+        <article>
+            <span class="material-symbols-outlined closeModalBtn"onclick="document.getElementById('pacchettiModal').classList.remove('active');">
+                cancel
+            </span>
+            <h3>Compra il pacchetto di 10 lezioni da 1 ora e risparmia!</h3>
+            <h4>Il costo del pacchetto è di <s><%= lessonPrice * 10 %>€</s> <%= prezzi.prezzoPacchetto %>€</h4>
+            <form action="/pacchetto" method="post">
+                <input type="hidden" name="paymentMethod" value="paypal">
+                <button><i class="fa fa-paypal"></i> Paga Con Paypal</button>
+            </form>
+            <form action="/pacchetto" method="post">
+                <input type="hidden" name="paymentMethod" value="satispay">
+                <button><i class="fa fa-qrcode"></i> Paga Con Satispay</button>
+            </form>
+        </article>
+    </div>
+    <% if ((trascinamento.attivo && trascinamento.pagato) || !trascinamento.attivo) { %>
+        <% if(isBocciato){ %>
+            <h1 class="warning">Per poter prenotare le lezioni di guida devi pagare l'esame</h1>
+        <% } %>
+    <aside>
+            <% let toPay = 0 %>
+            <% let bocciati = 0 %>
+            <% let totExams = 0 %>
+
+                <% for( let i = 0; i < exams.length; i++ ) { %>
+                    <% if (!exams[i].paid) {
+                        toPay++;
+                    } %>
+                    <% if (exams[i].bocciato) {
+                        bocciati++;
+                    } %>
+                    <% totExams++ %>
+                <% } %>
+                <% let bocciato; %>
+                <%# if (!esame[0].paid || (toPay <= bocciati && toPay+bocciati==totExams) ) { %> 
+                <% if (!exams[0].paid || isBocciato ) { %> 
+                    <div class="esami">
+                        <nav>Prenotazione esami di guida</nav>
+                        
+                        <% var print = true; %>
+                        <% for( let i = 0; i < exams.length; i++ ) { %>
+                            <% if (i<3) { %>
+                                <div class="esame">
+                                    <% if(print == true){ %>
+                                        <p>
+                                            <%= i+1 %>° Esame:  
+                                            <% if (exams[i].paid == true) { %>
+                                                <% if (exams[i].bocciato == true) { %>
+                                                    <% print = true %>
+                                                <% } else{
+                                                    print = false;
+                                                }%>
+                                                <strong class="pagato">PAGATO</strong>  
+                                            <% } else{ %> 
+                                                <% print = false %>
+                                                <% bocciato = true %>
+                                                <strong data-esame="<%= i %>" class="daPagare">DA PAGARE</strong>  
+                                            <% } %>
+                                        </p>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                        <% } %>
+                    </div>
+                <% } %>
+                <span style="display: none; opacity: 0; z-index: -100;" id="examPrice"><%= prezzi.prezzoEsame %></span>
+                <span  class="material-symbols-outlined" id="data" name="data" readonly></span>
+                <div class="bacheca">
+                    <nav>Bacheca</nav>
+                    <div class="bachecaText">
+                        <%- bachecaContent.content %>
+                    </div>
+                </div>
+                </span>
+    </aside>
+    <main>
+        <div class="storicoGuide" style="display: none;">
+            <p class="closeSpostaGuidaForm" style="border: none; outline: none; background: none; cursor: pointer;" onclick="this.closest('.storicoGuide').style.display = 'none'">
+                <span class="material-symbols-outlined">
+                    cancel
+                </span>
+            </p>
+            <h2>Storico Guide</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Istruttore</th>
+                        <th>Giorno</th>
+                        <th>Ora</th>
+                        <th>Durata</th>
+                        <th>Sposta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (let i = 0; i < lessonList.length; i++) { 
+                        const hour = `${lessonList[i].startTime}-${lessonList[i].endTime}`;
+                        const oggi = new Date();
+                        oggi.setHours(0, 0, 0, 0);
+
+                        const giornoLezione = new Date(lessonList[i].day);
+                        giornoLezione.setHours(0, 0, 0, 0);
+
+                        const differenzaGiorni = (giornoLezione - oggi) / (1000 * 60 * 60 * 24);
+                    %>
+                        <tr>
+                            <td class="first" data-label="Istruttore"><%= lessonList[i].instructor.nome %></td>
+                            <td data-label="Giorno"><%= lessonList[i].day.toLocaleDateString('it-IT', { "day": "2-digit", "month": "2-digit", "year": "numeric" }) %></td>
+                            <td data-label="Ora"><%= hour %></td>
+                            <td data-label="Durata">
+                                <%= lessonList[i].duration < 60 
+                                    ? `${lessonList[i].duration} min`
+                                    : `${(lessonList[i].duration / 60).toFixed(2)} h`
+                                %>
+                            </td>
+                        
+                            <% if (differenzaGiorni >= 2) { %>
+                                <td class="last" data-label="Sposta">
+                                    <button class="SpostaGuida"
+                                        data-durata="<%= lessonList[i].duration %>"
+                                        data-ora="<%= hour %>"
+                                        data-giorno="<%= lessonList[i].day.toISOString().split('T')[0] %>"
+                                        data-istruttore="<%= lessonList[i].instructor._id %>"
+                                        data-lessonid="<%= lessonList[i]._id %>">
+                                        Sposta Guida
+                                    </button>
+                                </td>
+                            <% } else { %>
+                                <td></td>
+                            <% } %>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <% if(exams[0].paid && !isBocciato){ %>
+            <div class="container">
+                <% for(const day of lezioniRaggruppate) { %>
+                    <% for (const lessons of day.instructors) { %>
+                        <section class="section" data-date="<%= day.day %>" data-instructorid="<%= lessons.instructor._id %>" data-instructorname="<%= lessons.instructor.nome %>">
+                            <h2 class="section-title"> 
+                                <span>Istruttore: <%= lessons.instructor.nome %></span> 
+                                <br> 
+                                Data: <%= day.day %>
+                            </h2>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Ora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for(l of lessons.lezioni){ %>
+                                        <tr>
+                                            <td class="hour"><%= l.startTime %>-<%= l.endTime %></td>
+                                            <td>
+                                                <button class="book"
+                                                  data-time="<%= day.day %> - <%= l.startTime %>-<%= l.endTime %>"
+                                                  data-instructorid="<%= lessons.instructor._id %>"
+                                                  data-date="<%= day.day %>"
+                                                  data-duration="<%= l.duration %>"
+                                                  data-starttime="<%= l.startTime %>"
+                                                  data-endtime="<%= l.endTime %>"
+                                                  data-price="<%= Number((l.duration/60)*lessonPrice).toFixed(2) %>"
+                                                  data-lessonid="<%= l._id %>">
+                                                    Costo: <%= Number((l.duration/60)*lessonPrice).toFixed(2) %>€
+                                                    <br>
+                                                    <strong>
+                                                        PRENOTA
+                                                    </strong>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </section>
+                    <% } %>
+                <% } %>
+            </div>
+        <% }%>
+    </main>
+    <div id="paymentModal" class="paymentModal modal" style="display: none;">
+        <form id="paymentForm" method="POST">
+            <p onclick="this.closest('#paymentModal').style.display = 'none'">
+                <span class="material-symbols-outlined">cancel</span>
+            </p>
+            
+            <input type="hidden" id="causeInput" name="cause" value="">
+            <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
+            <input type="hidden" id="instructorInput" name="instructor" value="">
+            <input type="hidden" id="timeInput" name="time" value="">
+            <input type="hidden" name="paymentMethod" id="paymentMethod">
+            
+            <div class="form-group">
+                <label for="price" id="priceLabel"></label>
+            </div>
+            
+            <button id="payPalButton" type="button" class="btn btn-primary">
+                <i class="fa fa-paypal"></i> Paga con PayPal
+            </button>
+            <button id="satispayButton" type="button" class="btn btn-primary">
+                <i class="fa fa-qrcode"></i> Paga con Satispay
+            </button>
+            
+            <label for="codicePagamento">O paga con codice</label>
+            <input type="text" id="codicePagamento" name="codicePagamento"> 
+            <button id="codiceButton" type="button" class="btn btn-primary">Paga con codice</button>
+        </form>
+        
+        <script>
+            const paymentForm = document.getElementById("paymentForm");
+            document.getElementById("payPalButton").addEventListener("click", function() {
+                paymentForm.querySelector('[name="paymentMethod"]').value = 'paypal';
+                const cause = paymentForm.querySelector('[name="cause"]').value;
+                if(cause == 'lesson'){
+                    paymentForm.action = "/book";
+                } 
+                if(cause == 'exam'){
+                    paymentForm.action = "/bookExam";
+                }
+                paymentForm.submit();
+            });
+            document.getElementById("satispayButton").addEventListener("click", function() {
+                paymentForm.querySelector('[name="paymentMethod"]').value = 'satispay';
+                const cause = paymentForm.querySelector('[name="cause"]').value;
+                if(cause == 'lesson'){
+                    paymentForm.action = "/book";
+                } 
+                if(cause == 'exam'){
+                    paymentForm.action = "/bookExam";
+                }
+                paymentForm.submit();
+            });
+            document.getElementById("codiceButton").addEventListener("click", function() {
+                paymentForm.querySelector('[name="paymentMethod"]').value = 'code';
+                const cause = paymentForm.querySelector('[name="cause"]').value;
+                if(cause == 'lesson'){
+                    paymentForm.action = "/book";
+                } 
+                if(cause == 'exam'){
+                    paymentForm.action = "/bookExam";
+                }
+                paymentForm.submit();
+            });
+        </script>
+    </div>
+    
+    <script>
+$(function() {
+    $("#data").datepicker({
+        
+        dateFormat: 'dd/mm/yy',
+        minDate: 0,
+        firstDay: 1,
+        beforeShowDay: function(date) {
+            var day = date.getDate();
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+        
+            // Formattazione data
+            var dateString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+
+            var sectionExists = $('.section[data-date="' + dateString + '"]').length > 0;
+            var hasReservedToOthersButNotBook = $('.section[data-date="' + dateString + '"] .reservedtoOthers').length > 0 && $('.section[data-date="' + dateString + '"] .book').length === 0;
+            if (sectionExists) {
+                if (hasReservedToOthersButNotBook) {
+                    return [true, "redDate disabled", "Non ci sono guide libere"];
+                } else {
+                    return [true, "greenDate", "Ci sono guide libere"];
+                }
+            } else {
+                return [true, "redDate disabled", "Non ci sono guide libere"];
+            }
+        },
+        onSelect: function(dateText, inst) {
+            updateSectionsVisibility(dateText);
+        }
+    });
+
+    selectFirstGreenDate();
+});
+
+function selectFirstGreenDate() {
+    var firstGreenDateStr = $('.greenDate > a').data("date");
+    if (firstGreenDateStr) {       
+        var today = (new Date()).getDate();
+        if(today == firstGreenDateStr){
+            $('.greenDate > a').datepicker("setDate", today);
+            updateSectionsVisibility($("#data").val());
+        }else{
+            $("#data").datepicker("setDate", firstGreenDateStr - today);
+            updateSectionsVisibility($("#data").val());
+        }
+    } else {
+        console.log("Nessuna data greenDate trovata.");
+    }
+}
+
+function updateSectionsVisibility(selectedDate) {
+    var sections = document.querySelectorAll('.section');
+    sections.forEach(function (section) {
+        var bookElement = section.querySelector('.book');
+        if (section.getAttribute('data-date') === selectedDate && bookElement) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    });
+}
+    </script>
+    
+    <!-- Modal per spostamento guida -->
+    <div id="spostaGuidaFormContainer" style="display: none;">
+        <form id="spostaGuidaForm" action="/spostaGuida" method="POST">
+            <p class="closeSpostaGuidaForm" onclick="this.closest('#spostaGuidaFormContainer').style.display = 'none'">
+                <span class="material-symbols-outlined">cancel</span>
+            </p>
+            <p>Per spostare la guida dovrai pagare <%= prezzi.reschedulingFee %>€</p>
+
+            <!-- Solo questi hidden servono al server -->
+            <input type="hidden" name="oldLessonId" id="oldLessonId" value="">
+            <input type="hidden" name="newLessonId" id="newLessonId" value="">
+            <input type="hidden" name="paymentMethod" value="paypal">
+
+            <!-- UI scelta -->
+            <div class="field">
+                <label for="newInstructor">Istruttore:</label>
+                <select id="newInstructor"></select>
+            </div>
+            <div class="field">
+                <label for="newDate">Data:</label>
+                <select id="newDate"></select>
+            </div>
+            <div class="field">
+                <label for="newHour">Fascia Oraria:</label>
+                <select id="newHour" required></select>
+            </div>
+
+            <!-- Bottoni pagamento -->
+            <button id="satispayButton" type="button" class="btn btn-primary">
+                <i class="fa fa-qrcode"></i> Paga con Satispay
+            </button>
+            <button id="paypalButton" type="button" class="btn btn-primary">
+                <i class="fa fa-paypal"></i> Paga con PayPal
+            </button>
+        </form>
+    </div>
+
+
+<script>
+/* ===============================
+   VARIABILI GLOBALI
+================================ */
+let disponibilitaDate = [];
+let durataVecchiaLezione = 0; // serve per filtrare fasce orarie
+
+const spostaGuidaForm = document.getElementById("spostaGuidaForm");
+const oldLessonIdField = document.getElementById("oldLessonId");
+const newLessonIdField = document.getElementById("newLessonId");
+
+const instructorSelect = document.getElementById("newInstructor");
+const dateSelect = document.getElementById("newDate");
+const hourSelect = document.getElementById("newHour");
+
+/* ===============================
+   RACCOLTA DISPONIBILITÀ DAL DOM
+================================ */
+const sections = document.querySelectorAll('.section');
+let availableInstructors = new Map();
+
+sections.forEach(section => {
+  const giorno = section.dataset.date;
+  const instructorId = section.dataset.instructorid;
+  const instructorName = section.dataset.instructorname;
+
+  const bookButtons = section.querySelectorAll('.book');
+  let fasce = [];
+
+  bookButtons.forEach(button => {
+    fasce.push({
+      ora: `${button.dataset.starttime}-${button.dataset.endtime}`,
+      duration: parseInt(button.dataset.duration),
+      newLessonId: button.dataset.lessonid
+    });
+  });
+
+  if (fasce.length > 0) {
+    disponibilitaDate.push({ giorno, instructorId, instructorName, fasce });
+    if (!availableInstructors.has(instructorId)) {
+      let opt = document.createElement("option");
+      opt.value = instructorId;
+      opt.textContent = instructorName;
+      instructorSelect.appendChild(opt);
+      availableInstructors.set(instructorId, instructorName);
+    }
+  }
+});
+
+/* ===============================
+   GESTIONE CLICK SU "SPOSTA GUIDA"
+================================ */
+document.querySelectorAll('.SpostaGuida').forEach(btn => {
+  btn.addEventListener('click', () => {
+    oldLessonIdField.value = btn.dataset.lessonid;
+    durataVecchiaLezione = parseInt(btn.dataset.durata);
+
+    spostaGuidaFormContainer.style.display = 'block';
+    popolaDate();
+    popolaFasceOrarie();
+  });
+});
+
+/* ===============================
+   POPOLAMENTO SELECT
+================================ */
+function popolaDate() {
+  dateSelect.innerHTML = "";
+  const selectedInstructor = instructorSelect.value;
+
+  disponibilitaDate.forEach(item => {
+    let dataItem = new Date(item.giorno.split("/").reverse().join("-"));
+    let limite = new Date();
+    limite.setDate(limite.getDate() + 2);
+
+    if (item.instructorId === selectedInstructor && dataItem >= limite) {
+      let opt = document.createElement("option");
+      opt.value = item.giorno;
+      opt.textContent = item.giorno;
+      dateSelect.appendChild(opt);
+    }
+  });
+
+  popolaFasceOrarie();
+}
+
+function popolaFasceOrarie() {
+  hourSelect.innerHTML = "";
+  const selectedInstructor = instructorSelect.value;
+  const giornoSelezionato = dateSelect.value;
+
+  disponibilitaDate.forEach(item => {
+    if (item.instructorId === selectedInstructor && item.giorno === giornoSelezionato) {
+      item.fasce.forEach(fascia => {
+        if (fascia.duration === durataVecchiaLezione) {
+          let opt = document.createElement("option");
+          opt.value = fascia.newLessonId;
+          opt.textContent = fascia.ora;
+          hourSelect.appendChild(opt);
+        }
+      });
+    }
+  });
+
+  // aggiorna hidden field newLessonId
+  if (hourSelect.value) {
+    newLessonIdField.value = hourSelect.value;
+  }
+}
+
+/* ===============================
+   EVENT LISTENERS
+================================ */
+instructorSelect.addEventListener('change', popolaDate);
+dateSelect.addEventListener('change', popolaFasceOrarie);
+hourSelect.addEventListener('change', () => {
+  newLessonIdField.value = hourSelect.value;
+});
+
+/* ===============================
+   BOTTONI PAGAMENTO
+================================ */
+document.getElementById("paypalButton").addEventListener("click", () => {
+  spostaGuidaForm.querySelector('[name="paymentMethod"]').value = 'paypal';
+  spostaGuidaForm.submit();
+});
+
+document.getElementById("satispayButton").addEventListener("click", () => {
+  spostaGuidaForm.querySelector('[name="paymentMethod"]').value = 'satispay';
+  spostaGuidaForm.submit();
+});
+</script>
+
+
+    <!-- Gestione prenotazione lezioni -->
+    <script>
+        const studente = '<%= nome %>';
+        const paymentModal = document.getElementById('paymentModal');
+        const instructorInput = document.getElementById('instructorInput');
+        const timeInput = document.getElementById('timeInput');
+        const priceLabel = document.getElementById('priceLabel');
+        const causeInput = document.getElementById('causeInput');
+        const bookButtons = document.querySelectorAll('.book');
+        
+        bookButtons.forEach(async(button) => {
+            button.addEventListener("click", bookHandler);
+        });
+
+        async function bookHandler(event) {
+            const button = event.currentTarget;
+            const instructor = button.dataset.instructorid;
+            const time = button.dataset.time;
+            const price = button.dataset.price;
+            causeInput.value = 'lesson';
+            instructorInput.value = instructor;
+            timeInput.value = time;
+            priceLabel.innerHTML = 'Procedi con il pagamento per la lezione di guida. <br> Il totale è di ' + price + '€';
+            paymentModal.style.display = 'flex';
+            setTimeout(() => {
+                paymentModal.style.opacity = 1;
+            }, 100)
+        }
+
+        const examBtn = document.querySelector('.daPagare');
+        if(examBtn){
+            const examPrice = document.getElementById('examPrice').innerText;
+            examBtn.addEventListener('click', () => {
+                causeInput.value = 'exam'; 
+                priceLabel.innerHTML = 'Procedi con il pagamento dell\'esame di guida. <br> Il totale è di ' + examPrice + '€';
+                paymentModal.style.display = 'flex';
+                setTimeout(() => {
+                    paymentModal.style.opacity = 1;
+                }, 100)
+            });
+        }
+    </script>
+    <% }else{ %>
+        <form id="paymentForm" class="paymentModal" style="display: block; opacity: 1;" action="/trascinamento"  method="POST">
+            <p style="color: #fff;">È stato attivato il trascinamento per poter continuare a prenotare dovrai pagare <%= prezzi.trascinamento %>€</p>
+            <div class="form-group">
+                <input type="hidden" id="causeInput" name="cause" value="trascinamento">
+                <input type="hidden" id="studentInput" name="student" value="<%= nome %>">
+            </div>
+            <input type="hidden" name="paymentMethod" id="paymentMethod">
+            <button id="payPalButton" type="button" class="btn btn-primary"><i class="fa fa-paypal"></i> Paga con PayPal</button>
+            <button id="satispayButton" type="button" class="btn btn-primary"><i class="fa fa-qrcode"></i> Paga con Satispay</button>
+            <label for="codicePagamento">O paga con codice</label>
+            <input type="text" id="codicePagamento" name="codicePagamento"> 
+            <button id="codiceButton" type="button" class="btn btn-primary">Paga con codice</button>
+        </form>
+        <script>
+            const paymentFormTrasc = document.getElementById('paymentForm');
+            document.getElementById("payPalButton").addEventListener("click", function() {
+                paymentFormTrasc.querySelector('[name="paymentMethod"]').value = 'paypal';
+                paymentFormTrasc.submit();
+            });
+            document.getElementById("satispayButton").addEventListener("click", function() {
+                paymentFormTrasc.querySelector('[name="paymentMethod"]').value = 'satispay';
+                paymentFormTrasc.submit();
+            });
+            document.getElementById("codiceButton").addEventListener("click", function() {
+                paymentFormTrasc.querySelector('[name="paymentMethod"]').value = 'code';
+                paymentFormTrasc.submit();
+            });
+        </script>
+    <% } %>
+</body>
+</html>

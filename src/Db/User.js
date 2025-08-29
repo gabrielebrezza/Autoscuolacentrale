@@ -214,7 +214,7 @@ const LoginSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-});
+}, { timestamps: true });
 
 const credentials = new mongoose.model('users', LoginSchema);
 

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Utente</title>
+    <style>
+        body{
+            background: #71a1cb;
+        }
+        #updateUserForm{
+            margin-top: 200px;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin: 50px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            background: #f1f1f1;
+        }
+
+        th {
+            color: #fff;
+            background: #5681a9;
+            text-transform: uppercase;
+        }
+        th:first-child{
+            border-radius: 5px 0 0  0;
+        }
+        th:last-child{
+            border-radius:  0 5px 0  0;
+        }
+        tfoot td{
+            padding: 0;
+            background: #0000;
+            border: none;
+        }
+        #submitFormBtn{
+            width: 100%;
+            /* margin-top: 5px; */
+            cursor: pointer;
+            padding: 10px 20px;
+            background: green;
+            color: #fff;
+            transition: .5s;
+            outline: none;
+            border: none;
+            border-radius: 0 0 5px 5px;
+        }
+        #submitFormBtn:hover{
+            opacity: .7;
+        }
+        .tableBtn{
+            background: #5681a9;
+            color: #f1f1f1;
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+        .activeCode td{
+            background: rgba(255, 255, 0, 0.623);
+        }
+        input, select{
+            background: none;
+            border: none;
+            border-bottom: 2px solid #5681a9;
+            padding: 5px;
+            outline: none;
+            transition: all .25s ease-in-out;
+        }
+        input:focus, select:focus{
+            background: #ddd;
+            border-radius: 3px;
+        }
+        input[type="button"]:hover{
+            opacity: .75;
+            transform: scale(1.05);
+        }
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <form id="updateUserForm" action="/admin/updateUser" method="post">
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Valore</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <input type="hidden" name="id" value="<%= user._id %>">
+                    <td>Username</td>
+                    <td><%= user.userName %></td>
+                </tr>
+                <tr>
+                    <td>Nome</td>
+                    <td><input type="text" id="nome" name="nome" value="<%= user.billingInfo[0].nome %>" style=" text-transform: capitalize;"></td>
+                </tr>
+                <tr>
+                    <td>Nome</td>
+                    <td><input type="text" id="cognome" name="cognome" value="<%= user.billingInfo[0].cognome %>" style=" text-transform: capitalize;"></td>
+                </tr>
+                <tr>
+                    <td>Codice Fiscale</td>
+                    <td><input type="text" id="codiceFiscale" name="codiceFiscale" value="<%= user.billingInfo[0].codiceFiscale %>"></td>
+                </tr>
+                <tr>
+                    <td>Via di Residenza</td>
+                    <td><input type="text" id="viaResidenza" name="via" value="<%= user.billingInfo[0].via %>"></td>
+                </tr>
+                <tr>
+                    <td>Numero Civico</td>
+                    <td><input type="text" id="civicoResidenza" name="nCivico" value="<%= user.billingInfo[0].nCivico %>"></td>
+                </tr>
+                <tr>
+                    <td>Cap</td>
+                    <td><input type="text" id="capResidenza" name="CAP" value="<%= user.billingInfo[0].CAP %>"></td>
+                </tr>
+                <tr>
+                    <td>Comune di Residenza</td>
+                    <td><input type="text" id="comuneResidenza" name="citta" value="<%= user.billingInfo[0].citta %>"></td>
+                </tr>
+                <tr>
+                    <td>Provincia di Residenza</td>
+                    <td>
+                        <select name="provincia" class="provincia">
+                            <option value="<%= user.billingInfo[0].provincia %>"><%= user.billingInfo[0].provincia %></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td><input type="email" id="userEemail" name="userEemail" value="<%= user.email %>" autocomplete="false"></td>
+                </tr>
+                <tr>
+                    <td>Cellulare</td>
+                    <td><input type="tel" id="cell" name="cell" value="<%= user.cell %>"></td>
+                </tr>
+                <tr>
+                    <td>Numero Patente</td>
+                    <td><input type="text" id="licenseNumber" name="licenseNumber" value="<%= user.licenseNumber %>"></td>
+                </tr>
+                <tr>
+                    <td>Scadenza Foglio Rosa</td>
+                    <td><input type="date" id="expFoglioRosa" name="expFoglioRosa" value="<%= user.expirationFoglioRosa ? new Date(user.expirationFoglioRosa).toISOString().split('T')[0] : '' %>"></td>
+                </tr>
+                    
+                <% let prevExamDate, examCounter = 1 %>
+                    <% for (const exam of user.exams) { %>
+                        <% if(exam.paid){ %>
+                            <tr>
+                                <td><%= examCounter %>° Esame</td>
+                                <td style="display: flex; flex-direction: column; gap: 10px;">
+                                    <% const examDateId = `examDate${examCounter}` %>
+                                    <div class="dateInputContainer">
+                                        <label for="<%= examDateId %>">Data:</label>
+                                        <input type="date" name="<%= examDateId %>" id="<%= examDateId %>" value="<%= exam.date? new Date(exam.date).toISOString().split('T')[0] : '' %>" <%= exam.bocciato || exam.promosso ? 'disabled' : ''  %> min="<%= prevExamDate ? prevExamDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0] %>">
+                                        <span><%= exam.bocciato ? 'bocciato': exam.promosso ? 'promosso' : '' %></span>
+                                        <% if (exam.bocciato){
+                                            prevExamDate = new Date(exam.date);
+                                            prevExamDate.setMonth(prevExamDate.getMonth() + 1)
+                                        } %>
+                                    </div>
+                                    <div class="btnsContainer">
+                                        <% if (!exam.bocciato && !exam.promosso) { %>
+                                            <% const examActionClass = `examAction${examCounter}` %>
+                                            <input type="button" style="text-transform: capitalize;" class="<%= examActionClass %> tableBtn" data-examdateid="<%= examDateId %>" data-userid="<%= user._id %>" onclick="updateExam(this)" value="fissa data">
+                                            <input type="button" style="text-transform: capitalize;" class="<%= examActionClass %> tableBtn" data-userid="<%= user._id %>" onclick="updateExam(this)" value="boccia">
+                                            <input type="button" style="text-transform: capitalize;" class="<%= examActionClass %> tableBtn" data-userid="<%= user._id %>" onclick="updateExam(this)" value="promuovi">
+                                        <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% examCounter++ %>
+                        <% } %>
+                    <% } %>
+                    <tr>
+                        <td colspan="2">
+
+                            <details style="width: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                <summary>Codici (<%= codes.filter(c => c.active || c.active == null).length %>/<%= codes.length || '0' %>)</summary>
+                                <table style="display: block; width: 100% !important; all: unset;">
+                                    <tr>
+                                        <th>Codice</th>
+                                        <th>Emissione</th>
+                                        <th>Importo</th>
+                                        <th>Usato il</th>
+                                    </tr>
+                                    <% for (const code of codes) { %>
+                                        <tr class="<%= code.active || code.active == null ? 'activeCode' : ''%>">
+                                            <td><%= code.code %></td>
+                                            <td><%= code.createdAt?.toLocaleDateString('it-IT', { day: "2-digit", month: "2-digit", year: "numeric" }) %></td>
+                                            <td><%= code.amount %></td>
+                                            <td><%= code.usedAt ? code.usedAt.toLocaleDateString('it-IT', { day: "2-digit", month: "2-digit", year: "numeric" }) : 'N/A' %></td>
+                                        </tr>
+                                    <% } %>
+                                </table>
+                            </details>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Perfezionamento</td>
+                        <td>
+                            <% if (user.perfezionamento) { %>
+                                <span>attivo</span>
+                            <% }else{ %>
+                                    <input type="button" data-email="<%= user.email %>" onclick="perfezionamento(this)" class="tableBtn" id="perfezionamentoSubmit" value="Perfezionamento">
+                            <% } %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Trascinamento</td>
+                        <td>
+                            <% if (user.trascinamento.attivo) { %>
+                                <span>attivo (<%= user.trascinamento.pagato ? 'pagato' : 'non pagato' %>)</span>
+                            <% }else{ %>
+                                <input type="button" data-email="<%= user.email %>" onclick="trascinamento(this)" class="tableBtn" id="trascinamentoSubmit" value="Trascinamento">
+                            <% } %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="button" style="margin-left: 50%; transform: translateX(-50%);" data-email="<%= user.email %>" data-archivestate="<%= user.archiviato %>" onclick="archive(this)" class="tableBtn" id="trascinamentoSubmit" value="<%= !user.archiviato ? 'Archivia' : 'Disarchivia' %>">
+                        </td>
+                    </tr>
+            </tbody>
+            <tfoot>
+                <td colspan="2"><button id="submitFormBtn" type="submit">Salva</button></td>
+            </tfoot>
+        </table>
+    </form>
+    <script>
+        const provinceList = [
+            "AG", "AL", "AN", "AR", "AP", "AT", "AV", "BA", "BT", "BL",
+            "BN", "BG", "BI", "BO", "BZ", "BS", "BR", "CA", "CL", "CB",
+            "CI", "CE", "CT", "CZ", "CH", "CO", "CS", "CR", "KR", "CN",
+            "EN", "FM", "FE", "FI", "FG", "FC", "FR", "GE", "GO", "GR",
+            "IM", "IS", "AQ", "SP", "LT", "LE", "LC", "LI", "LO", "LU",
+            "MC", "MN", "MS", "MT", "VS", "ME", "MI", "MO", "MB", "NA",
+            "NO", "NU", "OG", "OT", "OR", "PD", "PA", "PR", "PV", "PG",
+            "PU", "PE", "PC", "PI", "PT", "PN", "PZ", "PO", "RG", "RA",
+            "RC", "RE", "RI", "RN", "RM", "RO", "SA", "SS", "SV", "SI",
+            "SR", "SO", "TA", "TE", "TR", "TO", "TP", "TN", "TV", "TS",
+            "UD", "AO", "VA", "VE", "VB", "VC", "VR", "VV", "VI", "VT"
+        ];
+    
+        const selectProvince = document.querySelectorAll(".provincia");
+
+        selectProvince.forEach((opt) => {
+            provinceList.forEach(province => {
+                if (!opt.querySelector(`option[value="${province}"]`)) {
+                    const option = document.createElement("option");
+                    option.value = province;
+                    option.textContent = province;
+                    opt.appendChild(option);
+                }
+            });
+        });
+    </script>
+    <script>
+        async function perfezionamento(btn) {
+            const confirmSubmission = confirm("Sei sicuro di voler procedere con il perfezionamento?");
+            if (!confirmSubmission) return;
+            const { email } = btn.dataset;
+            const response = await fetch('/admin/perfezionamento', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({email: email})
+            });
+
+            if (!response.ok) {
+                console.error('Errore durante il perfezionamento:', response.statusText);
+                alert('Si è verificato un errore');
+            } else {
+                const data = await response.json();
+                alert('Perfezionamento attivato con successo');
+            }
+            window.location.reload();
+        }
+    </script>
+    <script>
+        async function trascinamento(btn) {
+            const confirmSubmission = confirm("Sei sicuro di voler procedere con il trascinamento?");
+            if (!confirmSubmission) return;
+            const { email } = btn.dataset;
+            const response = await fetch('/admin/trascinamento', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({email: email})
+            });
+
+            if (!response.ok) {
+                console.error('Errore durante il trascinamento:', response.statusText);
+                alert('Si è verificato un errore');
+            } else {
+                const data = await response.json();
+                alert('Trascinamento attivato con successo');
+            }
+            window.location.reload();
+        }
+    </script>
+    <script>
+        async function archive(btn) {
+            const { email, archivestate } = btn.dataset;
+            console.log(archivestate, email)
+            const response = await fetch('/admin/archive', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({email: email})
+            });
+
+            if (!response.ok) {
+                console.error('Errore durante l\'archiviamento:', response.statusText);
+                alert('Si è verificato un errore');
+            } else {
+                const data = await response.json();
+                alert(`Utente ${Boolean(archivestate) ? 'disarchiviato' : 'archiviato'} con successo`);
+                btn.value = !Boolean(archivestate) ? 'Archivia' : 'Disarchivia';
+                btn.dataset.archivestate = !Boolean(archivestate);
+            }
+            window.location.reload();
+        }
+    </script>
+    <script>
+        async function updateExam(btn){
+            const action = btn.value;
+            const examDate = action == 'fissa data' ? document.getElementById(btn.dataset.examdateid).value : null;
+            const response = await fetch('/admin/updateExam', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: btn.dataset.userid,
+                    examDate: examDate,
+                    action: action
+                })
+            });
+
+            if (!response.ok) {
+                console.error('Errore durante l\'aggiornamento:', response.statusText);
+                alert('Si è verificato un errore');
+            } else {
+                const data = await response.json();
+                alert('Esame aggiornato con successo');
+            }
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

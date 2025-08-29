@@ -11,7 +11,7 @@
 </header>
 <nav id="navBar">
     <ul>
-        <% if (role.role == 'Super') { %>
+        <% if (role?.role == 'Super' || role === 'Super') { %>
             <li><a href="/admin/prezzi">Prezzi</a></li>
             <li><a href="/admin/users">Allievi</a></li>
             <li><a href="/admin/bacheca">Bacheca</a></li>

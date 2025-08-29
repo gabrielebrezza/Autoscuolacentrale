@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/adminUsers.css">
+    <title><%= title %></title>
+    <!-- icone -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+    <%- include('header.ejs') %>
+    <div class="headerFormsContainer">
+        <details>
+            <summary>
+                <span class="material-symbols-outlined">
+                    filter_alt
+                </span>
+                Filtri
+            </summary>
+            <div class="headerForms filterSection">
+                <div class="field">
+                <label for="searchName">Cerca per nome:</label>
+                <input type="text" id="searchName" name="searchName">
+            </div>
+            <div class="field">
+                <label for="searchPhone">Cerca per numero di telefono:</label>
+                <input type="tel" id="searchPhone" name="searchPhone">
+            </div>
+            <div class="field">
+                <label for="searchEmail">Cerca per Email:</label>
+                <input type="email" id="searchEmail" name="searchEmail">
+            </div>
+            <div class="field">
+                <label for="searchExamsFromDate">Data esame Da:</label>
+                <input type="date" id="searchExamsFromDate" name="searchExamsFromDate">
+            </div>
+            <div class="field">
+                <label for="searchExamsToDate">Data esame a:</label>
+                <input type="date" id="searchExamsToDate" name="searchExamsToDate">
+            </div>
+            <!-- <div class="field">
+                <label for="searchArchived">Archiviati:</label>
+                <input type="checkbox" id="searchArchived" name="searchArchived">
+            </div> -->
+            <div class="field">
+                <div class="checkboxField">
+                    <label for="tutti">Tutti</label>
+                    <input type="radio" name="filterStatus" id="tutti" value="all">
+                </div>
+                <div class="checkboxField">
+                    <label for="archiviati">Archiviati</label>
+                    <input type="radio" name="filterStatus" id="archiviati" value="archived">
+                </div>
+                <div class="checkboxField">
+                    <label for="attivi">Attivi</label>
+                    <input type="radio" name="filterStatus" id="attivi" value="active" checked>
+                </div>
+            </div>
+            <div class="field">
+                <button id="copiaEmail" name="copiaEmail">Copia Email</button>
+            </div>
+        </div>
+    </details>
+    <details>
+        <summary>
+            <span class="material-symbols-outlined">
+                vpn_key
+            </span>
+            Crea Codice
+
+        </summary>
+        <form class="headerForms" id="createCodeForm" action="/createCode" method="POST">
+            <div class="field">
+                <label for="utenti">Utenti:</label>
+                <select id="utenti" name="utenti" required>
+                    <% 
+                        const options = students.map(student => ({
+                            value: student._id,
+                            createdAt: student.createdAt,
+                            label: `${student.billingInfo[0].nome} ${student.billingInfo[0].cognome}`.toLowerCase()
+                        })).sort((a, b) => a.label.localeCompare(b.label));
+                    %>
+                    <% for (const option of options) { %>
+                        <option value="<%= option.value %>" data-createdat="<%= option.createdAt %>"><%= option.label %></option>
+                    <% } %>
+                </select>
+            </div>
+            <div class="field">
+                <label for="totaleCodici" style="font-size: .9rem;">Numero di codici <br> (selezionare 1 per il pacchetto):</label>
+                <input type="number" name="totaleCodici" id="totaleCodici" min="1">
+            </div>
+            <div class="field">
+                <label for="durata">Durata:</label>
+                <select id="durata" name="durata" required>
+                    <option value="30">30 minuti</option>
+                    <option value="40">40 minuti</option>
+                    <option value="60">1 ora</option>
+                    <option value="120">2 ore</option>
+                    <option value="esame">esame</option>
+                    <option value="trascinamento">trascinamento</option>
+                    <option value="pacchetto">pacchetto da 10 guide</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="emettiFattura">Emetti fattura</label>
+                <input type="checkbox" name="emettiFattura" id="emettiFattura">
+            </div>
+            <div class="field">
+                <button type="button" id="createCode">Genera Codice</button>
+            </div>
+            <div class="field">
+                <label for="code">Codice:</label>
+                <input type="text" name="code" id="code" readonly required>
+            </div>
+            <div class="field">
+                <button type="submit" >Attiva codici</button>
+            </div>
+            <label style="color: #fff;" id="prezzoTotale" data-trascinamentoPrice="<%= prices.trascinamento %>" data-userpricefromdate="<%= JSON.stringify(prices.userPriceFromDate) %>" data-drivingprice="<%= prices.prezzo %>" data-examprice="<%= prices.prezzoEsame %>" data-packprice="<%= prices.prezzoPacchettoFisico %>"></label>
+        </form>
+    </details>
+    </div>
+    <script>
+        document.getElementById("createCode").addEventListener("click", function() {
+            var totCodes = document.getElementById("totaleCodici").value;
+            const durata = document.getElementById('durata').value;
+            if(durata == 'pacchetto') totCodes = 10;
+            let codici = [];
+            for(var i = 0; i < totCodes; i++){
+
+
+                var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                var codeLength = 10;
+                var generatedCode = '';
+                for (var j = 0; j < codeLength; j++) {
+                    generatedCode += characters.charAt(Math.floor(Math.random() * characters.length));
+                }
+                codici.push(generatedCode);
+            }
+            codici.join(' , ')
+            document.getElementById("code").value = codici;
+            const prezzoTotLabel = document.getElementById('prezzoTotale');
+            
+            if(durata == 'esame'){
+                const examePrice = Number(prezzoTotLabel.dataset.exameprice);
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * examePrice + "€";
+            }else if(durata == 'trascinamento'){
+                const trascinamentoPrice = Number(prezzoTotLabel.dataset.trascinamentoPrice);
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + totCodes * trascinamentoPrice + "€";
+            }else if(durata == 'pacchetto'){
+                const packPrice = prezzoTotLabel.dataset.packprice;
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + packPrice + "€";
+            }else{
+                const drivingPrice = Number(prezzoTotLabel.dataset.drivingprice);
+                const userpricefromdate = JSON.parse(prezzoTotLabel.dataset.userpricefromdate);
+                const select = document.getElementById('utenti');
+                const createdAt = new Date(select.selectedOptions[0].dataset.createdat);
+                const lessonPrice = createdAt.getTime() >= (new Date(userpricefromdate.fromDate)).getTime() ? Number(userpricefromdate.price) : drivingPrice;
+                prezzoTotLabel.innerText = "Il prezzo totale è di " + Math.ceil((totCodes * (lessonPrice * (Number(durata)/60))) * 100) / 100 + "€";
+            }
+        });
+
+        document.getElementById('createCodeForm').addEventListener('submit', function(event) {
+            var codeInput = document.getElementById('code');
+            if (codeInput.value.trim() === '') {
+                event.preventDefault();
+                alert('Il campo del codice è obbligatorio.');
+            }
+        });
+    </script>
+    <div class="tableContainer">
+    <table>
+        <thead>
+            <tr class="legenda">
+                <th colspan="2">
+                    <span>
+                        <span class="material-symbols-outlined trascNonPagato">
+                            drag_click
+                        </span>
+                        trascinamento non pagato
+                    </span>
+                </th>
+                <th colspan="2">
+                    <span>
+                        <span class="material-symbols-outlined trascPagato">
+                            drag_click
+                        </span>
+                        trascinamento pagato
+                    </span>
+                </th>
+                <th colspan="4">
+                    <span>
+                        <span class="material-symbols-outlined perfezionamento">
+                            upgrade
+                        </span>
+                        perfezionamento
+                    </span>
+                </th>
+            </tr>
+            <tr>
+                <th>N.</th>
+                <th>Allievo</th>
+                <th>Email</th>
+                <th>Cellulare</th>
+                <th>Data Esame</th>
+                <th>Guide</th>
+                <th>Limitazioni</th>
+                <th>Fatture</th>
+            </tr>
+        </thead>
+        <tbody id="usersTableBody">
+                <% let enumeration = 1; %>
+                <% for(const student of students) { %>
+                    <tr class="allievi <%= student.archiviato ? 'archiviato' : '' %>" data-archiviato="<%= student.archiviato %>" >
+                        <% let nomeAllievo = student.billingInfo[0].cognome + ' ' + student.billingInfo[0].nome %>
+                        <td data-label="N"><span><%= !student.archiviato ? enumeration++ : '' %></span></td>
+                        <td data-label="Allievo" >
+                            <div class="nameCell" data-idutente="<%= student._id %>">
+                                <% if (student.trascinamento.attivo) { %>
+                                    <span class="material-symbols-outlined <%= student.trascinamento.pagato ? 'trascPagato' : 'trascNonPagato' %>">
+                                        drag_click
+                                    </span>
+                                <% } %>
+                                <% if (student.perfezionamento) { %>
+                                    <span class="material-symbols-outlined perfezionamento">
+                                        upgrade
+                                    </span>
+                                <% } %>
+
+                                <a href="/admin/user/<%= student._id %>">
+                                    <span><%= nomeAllievo %></span>
+                                </a>
+                            </div>
+                        </td>
+                        <td data-label="Email" data-email="<%= student.email %>"><span><%= student.email %></span></td>
+                        <td data-label="Cellulare"><span><%= student.cell %></span></td>
+                            <td data-label="Data Esame"> 
+                                <span>
+                                    <% 
+                                        let ultimaData = 'N/A';
+                                        for (let j = student.exams.length - 1; j >= 0; j--) {
+                                            let exam = student.exams[j];
+                                            if (exam.paid && exam.date) {
+                                                ultimaData = new Date(exam.date).toLocaleDateString('it-IT', { 
+                                                    day: '2-digit', month: '2-digit', year: 'numeric' 
+                                                });
+                                                break;
+                                            }
+                                        }
+                                    %>
+                                    <%= ultimaData %>
+                                </span>
+                            </td>
+                            <td data-label="Guide"> <button class="tableBtn"><a href=" <%=`/admin/lessons/${student._id}` %>" >Ore lezioni</a></button></td>
+                            <td data-label="Limitazioni"> <button class="limitation tableBtn" data-student="<%= student.userName %>" data-exclude="<%= JSON.stringify(student.exclude.map(exclude => exclude.instructor)) %>">limita istruttori</button></td>
+                            <td data-label="Fatture">
+                                <% let noFatture = true %>
+                                <% for(const fattura of student.fatturaDaFare) { %>
+                                    <% if (!fattura.emessa) { %>
+                                        <a href=" <%= `/admin/fatture/${student.userName}` %> ">
+                                            <span class="material-symbols-outlined" style="color: orange;">
+                                                receipt_long
+                                            </span>
+                                        </a>
+                                        <% noFatture = false %>
+                                        <% break; %>
+                                    <% } %>
+                                <% } %>
+                                <% if (noFatture) { %>
+                                    <a href=" <%= `/admin/pagamenti?id=${student._id}` %> ">
+                                        <span class="material-symbols-outlined" style="color: rgb(18, 161, 209);">
+                                            payments
+                                        </span>
+                                    </a>
+                                <% } %>
+                            </td>
+                        </tr>
+                <% } %>
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const nameFilter = document.getElementById('searchName');
+    const phoneFilter = document.getElementById('searchPhone');
+    const emailFilter = document.getElementById('searchEmail');
+    const searchExamsFromDateFilter = document.getElementById('searchExamsFromDate');
+    const searchExamsToDateFilter = document.getElementById('searchExamsToDate');
+    const statusFilters = document.querySelectorAll('[name="filterStatus"]');
+    const tableBody = document.getElementById('usersTableBody');
+    const rows = tableBody.getElementsByTagName('tr');
+
+
+    const filterTable = () => {
+        const name = nameFilter.value.toLowerCase();
+        const email = emailFilter.value.toLowerCase();
+        const phone = phoneFilter.value.toLowerCase();
+        const examFromDate = new Date(searchExamsFromDateFilter.value);
+        const examtoDate = new Date(searchExamsToDateFilter.value);
+        const status = document.querySelector('input[name="filterStatus"]:checked').value;
+        let enumeration = 1;
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const numTd = row.getElementsByTagName('td')[0].textContent.toLowerCase();
+            const nomeTd = row.getElementsByTagName('td')[1].textContent.toLowerCase().trim();
+            const emailTd = row.getElementsByTagName('td')[2].textContent.toLowerCase();
+            const phoneTd = row.getElementsByTagName('td')[3].textContent.toLowerCase();
+            let examDateTd = row.getElementsByTagName('td')[4].textContent.toLowerCase().trim();
+            if(examDateTd != 'N/A'){
+                examDateTd = new Date(examDateTd.split('/').reverse().join('-'));
+            }
+            const isArchived = row.dataset.archiviato == 'true';
+            if (
+                (name === '' || nomeTd.includes(name)) &&
+                (email === '' || emailTd.includes(email)) &&
+                (phone === '' || phoneTd.includes(phone)) &&
+                ((!searchExamsFromDateFilter.value || !searchExamsToDateFilter.value) || ((examFromDate <= examDateTd) && (examDateTd <= examtoDate))) &&
+                ((status == 'archived' && isArchived) || status == 'all' || (status == 'active' && !isArchived))
+            ) {
+                row.getElementsByTagName('td')[0].innerText = enumeration++;
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    }
+
+    nameFilter.addEventListener('input', filterTable);
+    phoneFilter.addEventListener('input', filterTable);
+    emailFilter.addEventListener('input', filterTable);
+    searchExamsFromDateFilter.addEventListener('input', filterTable);
+    searchExamsToDateFilter.addEventListener('input', filterTable);
+    statusFilters.forEach(el => el.addEventListener('input', filterTable)); 
+});
+</script>
+
+<script>
+document.getElementById('copiaEmail').addEventListener('click', function() {
+    var visibleEmailRows = document.querySelectorAll('tr:not([style*="display:none"])');
+
+    var visibleEmails = [];
+
+    visibleEmailRows.forEach(function(row) {
+        var td = row.querySelector('td[data-label="Email"]');
+        if (td && (td.offsetWidth > 0 || td.offsetHeight > 0)) {
+            visibleEmails.push(td.dataset.email);
+        }
+    });
+
+    var emailsString = visibleEmails.join(', ');
+
+    navigator.clipboard.writeText(emailsString).then(function() {
+        alert('Indirizzi email visibili copiati negli appunti: ' + emailsString);
+    }).catch(function(err) {
+        console.error('Errore durante la copia negli appunti:', err);
+    });
+});
+
+</script>
+
+
+    </div>
+        <div id="formContainer" style="display: none;">
+            <a href=" ">
+                <span class="material-symbols-outlined">
+                    cancel
+                </span>
+            </a>
+            <div class="limitationButtons">
+                <button id="activateExcludeForm">Aggiungi limitazioni</button>
+                <button id="activateIncludeForm">Rimuovi limitazioni</button>
+            </div>
+            <form action="/excludeInstructor" id="excludeForm" class="form" method="POST" style="display: none;">
+                <h2>Istruttori esclusi</h2>
+                <input type="hidden" name="student" class="studentInput" id="excludeStudentInput" value="">
+                <% for (const instructor of instructors) { %>
+                    <div class="instructorInput">
+                        <label for="exclude-<%= instructor._id %>"><%= instructor.nome %> <%= instructor.cognome %></label>
+                        <input type="checkbox" class="instructorCheckBox" name="istruttori" id="exclude-<%= instructor._id %>" value="<%= instructor._id %>">
+                    </div>
+                <% } %>
+                <button type="submit">Conferma</button>
+            </form>
+            <form action="/includeInstructor" id="includeForm" class="form" method="POST" style="display: none;">
+                <h2>Istruttori inclusi</h2>
+                <input type="hidden" name="student" class="studentInput" id="includeStudentInput" value="">
+                <% for (const instructor of instructors) { %>
+                    <div class="instructorInput">
+                        <label for="include-<%= instructor._id %>"><%= instructor.nome %> <%= instructor.cognome %></label>
+                        <input type="checkbox" class="instructorCheckBox" name="istruttori" id="include-<%= instructor._id %>" value="<%= instructor._id %>">
+                    </div>
+                <% } %>
+                <button type="submit">Conferma</button>
+            </form>
+        </div>
+        <script>
+            const istruttori = <%- JSON.stringify(instructors) %>;
+            const limitationBtn = document.querySelectorAll('.limitation');
+            const container = document.getElementById('formContainer');
+            const excludeStudentInput = document.getElementById('excludeStudentInput');
+            const includeStudentInput = document.getElementById('includeStudentInput');
+            const excludeForm = document.getElementById('excludeForm');
+            const includeForm = document.getElementById('includeForm');
+            const activateExcludeForm = document.getElementById('activateExcludeForm');    
+            const activateIncludeForm = document.getElementById('activateIncludeForm');
+            const instructorCheckBox = document.querySelectorAll('.instructorCheckBox');
+            let excludedInstructors;
+            limitationBtn.forEach(btn => {
+                btn.addEventListener('click', () =>{
+                    let student = btn.dataset.student;
+                    excludedInstructors = JSON.parse(btn.dataset.exclude);
+                    includeStudentInput.value = student;
+                    excludeStudentInput.value = student;
+                    container.style.display = "flex";                    
+                });
+            });
+
+            activateExcludeForm.addEventListener('click', () =>{
+                excludeForm.style.display = 'flex';
+                includeForm.style.display = 'none';
+                instructorCheckBox.forEach(checkbox => {
+                    const instructorName = checkbox.value;
+                    var label = checkbox.parentNode;
+                    if (excludedInstructors.includes(instructorName)) {
+                        label.style.color = 'red';
+                        checkbox.checked = true;
+                        checkbox.disabled = true;
+                    } else {
+                        label.style.color = 'green';
+                        checkbox.checked = false;
+                        checkbox.disabled = false;
+                    }
+                }); 
+            });
+            activateIncludeForm.addEventListener('click', () =>{
+                includeForm.style.display = 'flex';
+                excludeForm.style.display = 'none';
+                instructorCheckBox.forEach(checkbox => {
+                    const instructorName = checkbox.value;
+                    var label = checkbox.parentNode;
+                    if (excludedInstructors.includes(instructorName)) {
+                        label.style.color = 'red';
+                        checkbox.checked = false;
+                        checkbox.disabled = false;
+                    } else {
+                        label.style.color = 'green';
+                        checkbox.checked = true;
+                        checkbox.disabled = true;
+                    }
+                }); 
+            });
+</script>
+</body>
+</html>

@@ -1,262 +1,416 @@
-*{
+/* Reset e base */
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-body{
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: #334155;
     background: #71a1cb;
-}
-section{
-    margin-top: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-    z-index: -100 !important;
-}
-.container {
-    
-    max-width: 400px;
-    margin-top: 50px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    line-height: 1.6;
 }
 
-h2 {
+/* Layout principale */
+.main-content {
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    margin-top: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Container del form */
+.form-container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 480px;
+    border: 1px solid #e2e8f0;
+}
+
+.form-title {
+    font-size: 1.5rem;
+    font-weight: 600;
     text-align: center;
-    color: #000;
-    font-size: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
+    color: #1e293b;
 }
 
-form{
+/* Form styling */
+.guide-form {
     display: flex;
-    align-items: center;
     flex-direction: column;
+    gap: 1.25rem;
 }
 
 .form-group {
-    width: 100%;
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+.form-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
     text-transform: capitalize;
 }
 
-
-
-input[type="text"],
-input[type="time"],
-input[type="date"],
-input[type="number"],
-select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-    font-size: 16px;
-}
-
-input[type="radio"] {
-    margin-right: 10px;
-}
-
-button {
-    background: #4075b2;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 16px;
+.form-input,
+.form-select {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
     text-transform: capitalize;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #ffffff;
 }
 
-button:hover {
-    background: #1a6dcb;
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.duration {
-    width: 40%;
-    margin-inline: auto;
+.form-select-multiple {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-select-multiple option {
+    padding: 0.5rem;
+    margin: 0.125rem 0;
+    border-radius: 4px;
+}
+
+.form-select-multiple option:checked {
+    background-color: #3b82f6;
+    color: white;
+}
+
+/* Duration options */
+.duration-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.duration-option {
     display: flex;
     align-items: center;
-    flex-direction: column;
-    
+    gap: 0.5rem;
 }
-.duration div{
-    width: 100%;
-    position: relative;
-    padding-block: 5px;
+
+.duration-radio {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #3b82f6;
+}
+
+.duration-label {
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+}
+
+/* Submit button */
+.submit-btn {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-top: 1rem;
+    text-transform: capitalize;
+}
+
+.submit-btn:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Modal styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
-    align-items: baseline;
-    flex-direction: row;
-}
-table {
-    width: 400px;
-    border-collapse: collapse;
-  }
-  
-  thead {
-    background-color: #f2f2f2;
-  }
-  
-  th, td {
-    padding: 8px;
-    text-align: center;
-    background-color: #f2f2f2;
-    border-bottom: 1px solid #ddd;
-  }
-  tr:first-of-type th:first-of-type{
-    border-top-left-radius: 20px;
-    border-bottom: 2px solid #000;
-
-  }
-  tr:first-of-type th:last-of-type{
-    border-top-right-radius: 20px;
-    border-bottom: 2px solid #000;
-  }
-  tr:last-of-type td:first-of-type{
-    border-bottom-left-radius: 20px;
-    border: none;
-  }
-  tr:last-of-type td:last-of-type{
-    border-bottom-right-radius: 20px;
-    border: none;
-  }
-
-.ui-state-highlight{
-    text-align: center  !important;
-    background-color: green !important;
-    border: none !important;
-
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 1rem;
 }
 
-.ui-state-active{
-    text-align: center  !important;
-    border: none !important;
-    background-color: #0000 !important;
-}
-td:not(.greenDate):has(.ui-state-default){
-    text-align: center  !important;
-    border: none !important;
-    background-color: #0000 !important;
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }
 
-
-
-.card {
-    margin-block: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
     overflow: hidden;
-    background-color: #f8f9fa; /* Colore di sfondo chiaro */
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
 }
 
-.card-header {
-    padding: 20px;
-    background-color: #e9ecef; /* Colore di sfondo leggermente più scuro */
-    border-bottom: 1px solid #dee2e6;
+.modal-overlay.active .modal-content {
+    transform: scale(1);
 }
 
-.card-header h3 {
-    margin: 0;
+.modal-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-title {
     font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    flex: 1;
 }
 
-.card-body {
-    padding: 20px;
-}
-
-.list-group {
-    margin: 0;
-    padding: 0;
-}
-
-.list-group-item {
-    list-style: none;
+.modal-close {
+    background: none;
     border: none;
-    padding: 10px 0;
-    border-bottom: 1px solid #dee2e6;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    margin-left: 1rem;
 }
 
-.list-group-item:last-child {
+.modal-close:hover {
+    color: #374151;
+    background-color: #f3f4f6;
+}
+
+.modal-body {
+    padding: 0;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Lesson cards */
+.lesson-card {
+    padding: 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.lesson-card:last-child {
     border-bottom: none;
 }
 
-.list-group-item span {
-    font-weight: bold;
+.instructor-info {
+    margin-bottom: 1rem;
 }
 
-.ui-datepicker{
-    position: absolute !important;
-    top:50% !important;
-    left:50% !important;
-    transform: translateX(-50%) translateY(-50%);
-}
-.ui-datepicker-header{
-    background: #4075b2 !important;
-    color: #fff !important;
-    border-radius: 20px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    height: min-content !important;
-}
-.ui-datepicker-next, .ui-datepicker-prev{
-    padding-top: 5px;
+.instructor-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    text-transform: capitalize;
 }
 
-.ui-datepicker-next:hover, .ui-datepicker-prev:hover{
-    background: #0000 !important;
-    border: 2px solid #0000 !important;
+.lesson-date {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
 }
-.ui-state-disabled, .ui-datepicker-unselectable, .ui-state-default{
-    border: none !important;
+
+.lessons-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.lesson-time {
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+}
+
+.time-slot {
+    font-size: 0.875rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+/* Template nascosto */
+.lessons-template {
+    display: none;
+}
+
+/* jQuery UI Datepicker customization */
+.ui-datepicker {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    font-family: inherit;
+    font-size: 0.75rem;
+    padding: 0;
+    margin-top: 10vh;
+}
+
+.ui-datepicker-header {
+    background: #3b82f6;
+    color: white;
+    border-radius: 8px 8px 0 0;
+    border: none;
+    padding: .25rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.ui-datepicker-prev,
+.ui-datepicker-next {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.ui-datepicker-prev:hover,
+.ui-datepicker-next:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ui-datepicker table {
+    width: 100% !important;
+    border-collapse: separate;
+    border-spacing: 1px;
+    padding: .25rem;
+}
+
+.ui-datepicker td,
+.ui-datepicker th {
+    padding: 0;
+    text-align: center;
+    border: none;
+    background: transparent;
+}
+
+.ui-datepicker th {
+    font-weight: 600;
+    color: #6b7280;
+    padding: 0.25rem;
+}
+
+.ui-datepicker .ui-state-default {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #374151;
+    padding: 0.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: block;
+    text-align: center;
+    width: 100%;
+    text-decoration: none;
+}
+
+.ui-datepicker .ui-state-default:hover {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+}
+
+.ui-datepicker .ui-state-active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.ui-datepicker .ui-state-highlight {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.ui-datepicker .has-lessons a {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.ui-datepicker .no-lessons a {
+    background: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.ui-datepicker .ui-state-disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.ui-datepicker .ui-datepicker-today .ui-state-default {
+    background: #fffbeb;
+    border-color: #fbbf24;
+    color: #92400e;
+    font-weight: 600;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+    .main-content {
+        padding: 1rem;
+        margin-top: 80px;
+    }
     
-}
-.ui-state-disabled{
-    opacity: 0 !important;
-}
-.greenDate a {
-    border: 2px solid #0000 !important;
-    font-size: 1rem;
-    padding: 5px !important;
-    text-align: center !important;
-    color: green !important;
-    background: #0000 !important;
-}
-
-.redDate a {
-    border: 2px solid #0000 !important;
-    padding: 5px !important;
-    font-size: 1rem;
-    text-align: center !important;
-    color: red !important;
-    background: #0000 !important;
-}
-td{
-    background: #0000;
-}
-.ui-datepicker-today{
-    background-color: transparent !important;
-}
-.ui-state-highlight{
-    text-align: center  !important;
-    background-color: rgb(77, 198, 77) !important;
-    border: none !important;
-
-}
-.ui-state-highlight {
-    border: 1px solid #0000 !important;
+    .form-container {
+        padding: 1.5rem;
+    }
     
-    color: #0000 !important;
+    .duration-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        margin: 0.5rem;
+    }
+    
+    .modal-header {
+        padding: 1rem;
+    }
+    
+    .lesson-card {
+        padding: 1rem;
+    }
 }
