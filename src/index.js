@@ -1073,30 +1073,6 @@ app.get('/success/trascinamento', isAuthenticated, async (req, res) => {
 
 app.post('/spostaGuida', isAuthenticated, async (req, res) => {
     try {
-        const price = 5;
-        const username = req.user.username;
-        const { paymentMethod } = req.body;
-        const custom = req.body;
-
-        if (!req.body.newInstructor || !req.body.newDate  || !req.body.newHour) return res.render('errorPage', {error: 'Selezionare una fascia oraria e una data'})
-        const returnPath = `/success/spostaGuida`;
-        const {_id} = await credentials.findOne({"userName": username});
-        if(paymentMethod == 'paypal'){
-            const url = await createPaypal(price, username, returnPath, custom);
-            res.redirect(url);
-        }
-        if(paymentMethod == 'satispay'){
-            const url = await createSatispay(price, _id, returnPath, custom);
-            return res.redirect(url);
-        }
-    } catch (error) {
-        console.error('Errore durante la prenotazione dell\'Esame :', error);
-        return res.render('errorPage', {error: 'Errore durante la prenotazione dell\'Esame'});
-    }
-});
-
-app.post('/spostaGuida', isAuthenticated, async (req, res) => {
-    try {
         const username = req.user.username;
         const user = await credentials.findOne({"userName": username});
 
