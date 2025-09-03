@@ -311,6 +311,7 @@ async function createSatispay(price, lessonId, returnPath, custom = {}) {
 
 async function retriveSatispay(username, paymentId, type) {
     const url = `https://${process.env.SATISPAY_API_URL}/g_business/v1/payments/${paymentId}`;
+    console.log(url)
     const date = new Date().toUTCString();
     const requestTarget = `(request-target): get /g_business/v1/payments/${paymentId}`;
     const host = `host: ${process.env.SATISPAY_API_URL}`;
@@ -335,9 +336,9 @@ async function retriveSatispay(username, paymentId, type) {
             }
         });
         const { status, metadata, amount_unit } = response.data;
-
+        console.log(response.data)
         const paymentUrl = `https://dashboard.satispay.com/dashboard/transactions/${paymentId}`;
-        console.log(`satispay id: ${paymentId}, user: ${username}, type: ${type}, response: ${response}`);
+        console.log(`satispay id: ${paymentId}, user: ${username}, type: ${type}, response: ${response.status}`);
         await addFattura(username, paymentUrl, type, amount_unit/100);
         return { status, custom: metadata };
     } catch (error) {

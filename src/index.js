@@ -571,7 +571,6 @@ app.post('/book', isAuthenticated, async (req, res) => {
         }
         if(paymentMethod == 'satispay'){
             ({ url, paymentId } = await createSatispay(price, lesson._id, returnPath, custom));
-            return res.redirect(url);
         }
         if(paymentMethod == 'code'){
             if(await checkCode(req.body.codicePagamento, price, user._id, 'Lezione di guida')){
@@ -912,7 +911,7 @@ app.get('/success/pacchetto', isAuthenticated, async (req, res) => {
         //     {$inc: {"totalCodes": numberOfCode}}
         // );
         const prezzi = await prices.findOne();
-        const price = prezzi.userPriceFromDate.fromDate.getTime() >= user.createdAt.getTime() ? prezzi.userPriceFromDate.price : prezzi.prezzo; 
+        const price = prezzi.userPriceFromDate.fromDate.getTime() <= user.createdAt.getTime() ? prezzi.userPriceFromDate.price : prezzi.prezzo; 
         
         const codes = [];
         for (let i = 0; i < numberOfCode; i++) {
@@ -1026,7 +1025,7 @@ app.get('/success/trascinamento', isAuthenticated, async (req, res) => {
         if(paymentMethod == 'satispay'){
             id = req.query.id;
             const { paymentId } = await credentials.findOne({"userName": username});
-            const {status} = await retriveSatispay(paymentId, username, type);
+            const {status} = await retriveSatispay(username, paymentId, type);
             if(status.toLowerCase() !='accepted' || !status){
                 return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
             }
@@ -1077,14 +1076,13 @@ app.post('/spostaGuida', isAuthenticated, async (req, res) => {
         const user = await credentials.findOne({"userName": username});
 
         const { paymentMethod, oldLessonId, newLessonId } = req.body;
-        
+        console.log(req.body)
         const oldlesson = await LessonsDB.findById(oldLessonId);
         const newLesson = await LessonsDB.findById(newLessonId);
 
         if(!oldlesson) return res.render('errorPage', { error: 'Lezione da spostare non trovata!' });
         if(!newLesson) return res.render('errorPage', { error: 'Nuova lezione non trovata!' });
         if(newLesson.payment.status === 'completed') return res.render('errorPage', { error: 'Qualcuno ha già prenotato questa lezione!' });
-        
         
         const expirationTime = 30 * 60 * 1000;
         const now = new Date();
@@ -1114,42 +1112,6 @@ app.post('/spostaGuida', isAuthenticated, async (req, res) => {
 
 app.get('/success/spostaGuida', isAuthenticated, async (req, res) => {
     try {
-        const {paymentMethod} = req.query;
-        const { username } = req.user;
-        const type = 'Spostamento Lezione di Guida';
-        if(!paymentMethod) return res.render('errorPage', {error: 'errore nel pagamento dell\'esame, metodo di pagamento non riconosciuto'})
-        
-        let id, custom;
-        if(paymentMethod == 'paypal'){
-            const payerId = req.query.PayerID;
-            const paymentId = req.query.paymentId;
-            if(!paymentId || !payerId){
-                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
-            }
-            const dati = await retrivePayPal(payerId, paymentId, type);
-            id = dati.userId, custom = dati.custom
-        }
-        if(paymentMethod == 'satispay'){
-            id = req.query.id;
-            const { paymentId } = await credentials.findOne({"userName": username});
-            const dati = await retriveSatispay(paymentId, username, type);
-            custom = dati.custom;
-            if(dati.status.toLowerCase() !='accepted' || !dati.status){
-                return res.render('errorPage', {error: 'Il pagamento non è avvenuto con successo'});
-            }
-        }
-
-        await setSpostaGuidaPaid(id, custom);
-        
-        res.redirect('/profile');
-    } catch (error) {
-        console.log('errore nella ricezione del pagamento sposta guida: ', error)
-        res.render('errorPage', {error: 'errore nel pagamento per lo spostamento della guida'})
-    }
-});
-
-app.get('/success/spostaGuida', isAuthenticated, async (req, res) => {
-    try {
         const { paymentMethod } = req.query;
         const { username } = req.user;
         const userId = (await credentials.findOne({ "userName": username }))._id;
@@ -1167,7 +1129,7 @@ app.get('/success/spostaGuida', isAuthenticated, async (req, res) => {
         }
         if(paymentMethod == 'satispay'){
             const { lessonId } = req.query;
-            const paymentId = (await LessonsDB.findById(lessonId, {"payment": 1}))?.paymentId;
+            const paymentId = (await LessonsDB.findById(lessonId, {"payment": 1}))?.payment?.paymentId;
             const dati = await retriveSatispay(username, paymentId, type);
             custom = dati.custom;
             const { status } = dati;

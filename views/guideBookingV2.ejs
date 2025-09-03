@@ -550,10 +550,10 @@ function updateSectionsVisibility(selectedDate) {
             </div>
 
             <!-- Bottoni pagamento -->
-            <button id="satispayButton" type="button" class="btn btn-primary">
+            <button id="satispayButton" type="button" class="btn btn-primary satispayButton">
                 <i class="fa fa-qrcode"></i> Paga con Satispay
             </button>
-            <button id="paypalButton" type="button" class="btn btn-primary">
+            <button id="paypalButton" type="button" class="btn btn-primary paypalButton">
                 <i class="fa fa-paypal"></i> Paga con PayPal
             </button>
         </form>
@@ -682,12 +682,12 @@ hourSelect.addEventListener('change', () => {
 /* ===============================
    BOTTONI PAGAMENTO
 ================================ */
-document.getElementById("paypalButton").addEventListener("click", () => {
+spostaGuidaForm.querySelector(".paypalButton").addEventListener("click", () => {
   spostaGuidaForm.querySelector('[name="paymentMethod"]').value = 'paypal';
   spostaGuidaForm.submit();
 });
 
-document.getElementById("satispayButton").addEventListener("click", () => {
+spostaGuidaForm.querySelector(".satispayButton").addEventListener("click", () => {
   spostaGuidaForm.querySelector('[name="paymentMethod"]').value = 'satispay';
   spostaGuidaForm.submit();
 });
