@@ -387,7 +387,7 @@ app.get('/profile', isAuthenticated, async (req, res) => {
         day: { $gt: new Date().setHours(0, 0, 0, 0) },
         $or: [
           { student: null },
-          { student: userId }
+        //   { student: userId }
         ]
       })
       .populate('instructor', 'nome')
@@ -416,8 +416,8 @@ const lezioniFiltrate = lezioni.filter(l => {
     if (l.instructor._id.equals(examId)) return false;
     if (excludeInstructorIds.includes(l.instructor._id)) return false;
   
-    const giorno = l.day.toISOString().split('T')[0];
-    if (giorniPrenotati.has(giorno)) return false;
+    // const giorno = l.day.toISOString().split('T')[0];
+    // if (giorniPrenotati.has(giorno)) return false;
   
     if (!l.reservedTo || l.reservedTo.length === 0) return true;
     return l.reservedTo.some(id => id == userId);
