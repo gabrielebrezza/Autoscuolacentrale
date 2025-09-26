@@ -383,50 +383,17 @@ app.get('/waitingApprovation/:userName', async (req, res) =>{
 app.get('/profile', isAuthenticated, async (req, res) => {
     const nome = req.user.username;
     const userId = (await credentials.findOne({"userName": nome}))._id;
-    const lezioni = await LessonsDB.find({
-        day: { $gt: new Date().setHours(0, 0, 0, 0) },
-        $or: [
-          { student: null },
-        //   { student: userId }
-        ]
-      })
-      .populate('instructor', 'nome')
-      .select('instructor student day startTime endTime duration reservedTo');
-
-      const giorniPrenotati = new Set(
-        lezioni
-          .filter(l => l.student && l.student.equals(userId)) // solo lezioni già prenotate
-          .map(l => l.day.toISOString().split('T')[0])       // formato 'YYYY-MM-DD'
-      );
-      const examId = (await admin.findOne({"nome": 'Esame', "cognome": "Guida"}))._id;
-
-    const { exclude } = await credentials.findOne({ "userName": nome }, { "exclude": 1 });
-    let excludeInstructorIds = [];
-    if (exclude && exclude.length > 0) {
-      excludeInstructorIds = await Promise.all(
-        exclude.map(async (e) => {
-          const instr = await admin.findOne({ nome: e.split(' ')[0], cognome: e.split(' ')[1] });
-          return instr?._id ?? null;
-        })
-      );
-    }
-
-      // Step 2: filtra le lezioni rimuovendo quelle nei giorni già prenotati
-const lezioniFiltrate = lezioni.filter(l => {
-    if (l.instructor._id.equals(examId)) return false;
-    if (excludeInstructorIds.includes(l.instructor._id)) return false;
+// Step 1: lezioni da oggi in poi
+const lezioni = await LessonsDB.find({
+    day: { $gt: new Date().setHours(0, 0, 0, 0) }
+  })
+  .populate('instructor', 'nome')
+  .select('instructor student day startTime endTime duration reservedTo');
   
-    // const giorno = l.day.toISOString().split('T')[0];
-    // if (giorniPrenotati.has(giorno)) return false;
-  
-    if (!l.reservedTo || l.reservedTo.length === 0) return true;
-    return l.reservedTo.some(id => id == userId);
-  });
-  
-  // Step 3: raggruppa per giorno e istruttore
+  // Step 2: raggruppa per giorno e istruttore
   const giorniMap = new Map();
   
-  lezioniFiltrate.forEach(l => {
+  lezioni.forEach(l => {
     const giorno = l.day.toISOString().split('T')[0].split('-').reverse().join('/');
     const istruttoreId = l.instructor._id.toString();
   
@@ -437,28 +404,71 @@ const lezioniFiltrate = lezioni.filter(l => {
     istruttoriMap.get(istruttoreId).push(l);
   });
   
-  // Step 4: costruisci l’array finale ordinando le lezioni per orario
   const lezioniRaggruppate = [];
   
   giorniMap.forEach((istruttoriMap, giorno) => {
     const istruttoriArray = [];
     istruttoriMap.forEach((lezioniArray, istruttoreId) => {
+      // ordina
       lezioniArray.sort((a, b) => {
-        const [aHour, aMinute] = a.startTime.split(':').map(Number);
-        const [bHour, bMinute] = b.startTime.split(':').map(Number);
-        return aHour !== bHour ? aHour - bHour : aMinute - bMinute;
+        const [aH, aM] = a.startTime.split(':').map(Number);
+        const [bH, bM] = b.startTime.split(':').map(Number);
+        return aH !== bH ? aH - bH : aM - bM;
       });
+  
+      // --- Step 2a: risolvi i buchi ---
+      const toMinutes = t => {
+        const [h, m] = t.split(':').map(Number);
+        return h * 60 + m;
+      };
+  
+      const prenotate = lezioniArray.filter(l => l.student); // già occupate
+      let keep = new Set();
+  
+      if (prenotate.length === 0) {
+        // nessuna prenotata → tieni tutto
+        keep = new Set(lezioniArray.map(l => l._id.toString()));
+      } else {
+        // ci sono prenotate → tieni solo prenotate + adiacenti
+        prenotate.forEach(p => {
+          keep.add(p._id.toString());
+  
+          lezioniArray.forEach(l => {
+            if (toMinutes(l.endTime) === toMinutes(p.startTime)) {
+              keep.add(l._id.toString()); // immediatamente prima
+            }
+            if (toMinutes(p.endTime) === toMinutes(l.startTime)) {
+              keep.add(l._id.toString()); // immediatamente dopo
+            }
+          });
+        });
+      }
+  
+      // ricostruisci array filtrato
+      const finalLezioni = lezioniArray.filter(l => keep.has(l._id.toString()));
+  
+      // --- Step 3: elimina prenotate ---
+      const disponibili = finalLezioni.filter(l => !l.student);
+  
       istruttoriArray.push({
         instructor: lezioniArray[0].instructor,
-        lezioni: lezioniArray
+        lezioni: disponibili
       });
     });
+  
     lezioniRaggruppate.push({
       day: giorno,
       instructors: istruttoriArray
     });
   });
-  
+// Step 4: pulizia finale → togli istruttori senza lezioni e giorni vuoti
+const lezioniPulite = lezioniRaggruppate
+  .map(g => {
+    const instructors = g.instructors.filter(instr => instr.lezioni.length > 0);
+    return { ...g, instructors };
+  })
+  .filter(g => g.instructors.length > 0);
+
     const user = await credentials.findOne({ "userName": nome });
     const {trascinamento, exams, billingInfo: personalData, email, createdAt } = user;
     const bachecaContent = await bacheca.findOne();
@@ -468,7 +478,7 @@ const lezioniFiltrate = lezioni.filter(l => {
     const prezzi = await prices.findOne({});
     const lessonPrice = prezzi.userPriceFromDate.fromDate.getTime() <= createdAt.getTime() ? prezzi.userPriceFromDate.price : prezzi.prezzo;
     const userEmail = email.email;
-    res.render('guideBookingV2', { nome, lezioniRaggruppate, exams, bachecaContent, personalData, lessonList, userEmail, trascinamento, prezzi, lessonPrice});
+    res.render('guideBookingV2', { nome, lezioniRaggruppate: lezioniPulite, exams, bachecaContent, personalData, lessonList, userEmail, trascinamento, prezzi, lessonPrice});
 });
 
 // app.post('/book', isAuthenticated, async (req, res) => {
