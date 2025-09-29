@@ -389,14 +389,14 @@ const lezioni = await LessonsDB.find({
   })
   .populate('instructor', 'nome')
   .select('instructor student day startTime endTime duration reservedTo');
-  
+  const { _id: examId} = await admin.findOne({ "nome": "Esame", "cognome": "Guida" });
   // Step 2: raggruppa per giorno e istruttore
   const giorniMap = new Map();
   
   lezioni.forEach(l => {
     const giorno = l.day.toISOString().split('T')[0].split('-').reverse().join('/');
     const istruttoreId = l.instructor._id.toString();
-  
+    if(istruttoreId === examId.toString()) return;
     if (!giorniMap.has(giorno)) giorniMap.set(giorno, new Map());
     const istruttoriMap = giorniMap.get(giorno);
   
