@@ -59,7 +59,6 @@
                                                 <td>
                                                     <% if (isBooked) { %>
                                                         <% if (hasPermission) { %>
-                                                            <% console.log(lezione.student.billingInfo[0]) %>
                                                             <% const utente = lezione.student.billingInfo[0].cognome + ' ' + lezione.student.billingInfo[0].nome %>
                                                             <a href="/admin/pagamenti?id=<%= lezione.student._id %>" class="si" title="<%= utente %>">
                                                                 <%= utente %>
@@ -271,7 +270,6 @@
                     const moveLessonForm = document.getElementById('moveLessonForm');
                     document.querySelectorAll('.move_date').forEach((btn) => {
                         btn.addEventListener('click', () => {
-                            console.log('premuto', btn.dataset)
                             const date = btn.dataset.day;
                             const duration = btn.dataset.duration;
                             document.querySelector('[name="oldLessonId"]').value = btn.dataset.lessonid;
@@ -424,15 +422,10 @@
                             const monthKey = getMonthKeyFromDate(year, month);
                             
                             // Controlla se il mese è già stato caricato
-                            if (monthCache.has(monthKey)) {
-                                console.log(`Mese ${monthKey} già in cache`);
-                                return;
-                            }
+                            if (monthCache.has(monthKey)) return;
                             
                             const fromDate = new Date(year, month - 1, 1).toLocaleDateString('sv-SE');
                             const toDate = new Date(year, month, 0).toLocaleDateString('sv-SE');
-                            
-                            console.log("Caricamento mese:", monthKey, "Range:", fromDate, "→", toDate);
                             
                             try {
                                 const response = await fetch(`/admin/lessons/${fromDate}/${toDate}`);

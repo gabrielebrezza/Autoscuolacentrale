@@ -357,7 +357,6 @@ router.get('/admin/guides', authenticateJWT, async (req, res) => {
             instructors: istruttoriArray
           });
         });
-        
         res.render('admin/adminComponents/lessons', { title: 'Admin - Visualizza Guide', guides: lezioniRaggruppate , istruttore, role: admin.role});
     } catch (error) {
         console.error('Errore durante il recupero delle guide:', error);
