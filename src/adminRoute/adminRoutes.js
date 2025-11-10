@@ -1268,22 +1268,33 @@ router.get('/admin/oreIstruttori', authenticateJWT, async (req, res) => {
     const instructor = req.user.username;
     const [nome, cognome] = instructor.split(" ");
     const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-    const instructors = await Admin.find({ "nome": { $ne: 'Esame' } }, { nome : 1, cognome : 1 });
-    res.render('admin/adminComponents/oreIstruttoriV2', {title: 'Admin - Orari Istruttori', instructors, role});
+    res.render('admin/adminComponents/oreIstruttoriV2', {title: 'Admin - Orari Istruttori', role});
 });
 
-router.get('/admin/oreIstruttori/:instructorId/:fromDate/:toDate', authenticateJWT, async (req, res) => {
+router.get('/admin/oreIstruttori/:fromDate/:toDate', authenticateJWT, async (req, res) => {
     const instructor = req.user.username;
     const [nome, cognome] = instructor.split(" ");
     const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-    const { instructorId, fromDate, toDate } = req.params;
-    const minutes = (await LessonsDB.find({
-        "instructor": instructorId,
+    const { fromDate, toDate } = req.params;
+    const lessons = await LessonsDB.find({
         "day": { $gte: new Date(fromDate), $lte: new Date(toDate) },
         "student": { $nin: [null, undefined] },
-        "payment.status": "completed"
-    }, { duration: 1})).reduce((total, lesson) => total + (lesson.duration || 0), 0);
-    res.status(200).json({ minutes });
+        // "payment.status": "completed"
+    }, { duration: 1, instructor: 1 }).populate('instructor', 'nome cognome')
+    const instructors = new Map()
+    lessons.forEach(l => {
+        const id = l.instructor._id.toString();
+        const duration = instructors.get(id) || 0;
+        instructors.set(id, duration + l.duration);
+    });
+    const instructorsHours = Array.from(instructors.entries()).map(([id, totalDuration]) => ({
+        id,
+        nome: lessons.find(l => l.instructor._id.toString() === id).instructor.nome,
+        cognome: lessons.find(l => l.instructor._id.toString() === id).instructor.cognome,
+        totalDuration
+    }));
+      
+    res.status(200).json({ instructorsHours });
 });
 
 router.get('/admin/formatoEmail', authenticateJWT, async (req, res) => {
