@@ -63,6 +63,12 @@
 
         <div class="container">
             <h2>Ore svolte dagli istruttori</h2>
+            <label for="instructor">Istruttore:</label>
+            <select id="instructor" name="instructor">
+                <% for (const i of instructors) { %>
+                    <option value="<%= i._id %>"><%= i.nome %> <%= i.cognome %></option>
+                <% } %>
+            </select>
             <label for="fromDate">Da data:</label>
             <input type="date" id="fromDate" name="fromDate">
 
@@ -74,36 +80,30 @@
             <button id="visualizzaOreBtn">Visualizza ore</button>
 
             <div id="oreContainer"></div>
+            <p id="totalHoursContainer"></p>
         </div>
 
         <script>
             document.getElementById('visualizzaOreBtn').addEventListener('click', async () => {
-                // const instructorId = document.getElementById('instructor').value;
+                const instructorId = document.getElementById('instructor').value;
                 const fromDate = document.getElementById('fromDate').value;
                 const toDate = document.getElementById('toDate').value;
+                const price = parseFloat(document.getElementById('price').value);
 
                 if(!fromDate || !toDate) return alert('Inserisci tutti i campi per vedere il pagamento dovuto!!');
 
-                const response = await fetch(`/admin/oreIstruttori/${fromDate}/${toDate}`)
+                const response = await fetch(`/admin/oreIstruttori/${instructorId}/${fromDate}/${toDate}`)
                 if(!response.ok) return alert('Si è verificato un\'errore durante il calcolo!');
                 const data = await response.json();
-                let hoursList = '<ol>'
-                let totalInstructorsTime = 0
-                for (const instructor of data.instructorsHours) {
-                    const totalMinutes = instructor.totalDuration;
-                    totalInstructorsTime += totalMinutes;
-    
-                    const price = parseFloat(document.getElementById('price').value);
-                    const finalPrice = totalMinutes * (price / 60);
-    
-                    const hours = Math.floor(totalMinutes / 60);
-                    const minutes = totalMinutes % 60;
-                    hoursList += `<li>${instructor.nome} ${instructor.cognome}: ${hours} ore e ${minutes} minuti. Compenso di ${finalPrice.toFixed(2)}€.</li>`
-                }
-                const totalHours = Math.floor(totalInstructorsTime / 60);
-                const totalMinutes = totalInstructorsTime % 60;
-                hoursList += `</ol><br><p>Tempo Totale: ${totalHours} ore ${totalMinutes} minuti.</p>`;
-                document.getElementById('oreContainer').innerHTML = hoursList;
+
+                const totalInstructorHours = Math.floor(data.instructorTime / 60);
+                const totalInstructorMinutes = data.instructorTime % 60;
+                const finalPrice = data.instructorTime * (price / 60);
+                document.getElementById('oreContainer').innerText = `L'istruttore selezionato nel periodo selezionato ha svolto ${totalInstructorHours} ore e ${totalInstructorMinutes} minuti di guida. Compenso di ${finalPrice.toFixed(2)}€.`;
+
+                const totalHours = Math.floor(data.totalTime / 60);
+                const totalMinutes = data.totalTime % 60;
+                document.getElementById('totalHoursContainer').innerText = `Il tempo totale di tutte le guide nel periodo selezionato è di ${totalHours} ore e ${totalMinutes} minuti.`;
             });
         </script>
     </body>

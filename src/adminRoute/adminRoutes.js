@@ -1267,33 +1267,35 @@ router.get('/admin/oreIstruttori', authenticateJWT, async (req, res) => {
     const instructor = req.user.username;
     const [nome, cognome] = instructor.split(" ");
     const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-    res.render('admin/adminComponents/oreIstruttoriV2', {title: 'Admin - Orari Istruttori', role});
+    const instructors = await Admin.find({ "_id": { $nin: ['6626980400b0d4278fe7fe90', '66261a1449e2b78996f34e01', '6623b5a9b94b2421cc853730'] } }, { nome : 1, cognome : 1 });
+    res.render('admin/adminComponents/oreIstruttoriV2', {title: 'Admin - Orari Istruttori', instructors, role});
 });
 
-router.get('/admin/oreIstruttori/:fromDate/:toDate', authenticateJWT, async (req, res) => {
+router.get('/admin/oreIstruttori/:instructorId/:fromDate/:toDate', authenticateJWT, async (req, res) => {
     const instructor = req.user.username;
     const [nome, cognome] = instructor.split(" ");
     const role = await Admin.findOne({"nome": nome, "cognome": cognome}, {"role" : 1});
-    const { fromDate, toDate } = req.params;
+    const { instructorId, fromDate, toDate } = req.params;
     const lessons = await LessonsDB.find({
         "day": { $gte: new Date(fromDate), $lte: new Date(toDate) },
         "student": { $nin: [null, undefined] },
         // "payment.status": "completed"
-    }, { duration: 1, instructor: 1 }).populate('instructor', 'nome cognome')
+    }, { duration: 1, instructor: 1 })
     const instructors = new Map()
     lessons.forEach(l => {
-        const id = l.instructor._id.toString();
+        const id = l.instructor.toString();
         const duration = instructors.get(id) || 0;
         instructors.set(id, duration + l.duration);
     });
-    const instructorsHours = Array.from(instructors.entries()).map(([id, totalDuration]) => ({
-        id,
-        nome: lessons.find(l => l.instructor._id.toString() === id).instructor.nome,
-        cognome: lessons.find(l => l.instructor._id.toString() === id).instructor.cognome,
-        totalDuration
-    }));
+
+    let totalTime = 0
+    for (const duration of instructors.values()) {
+        totalTime += duration;
+    }
       
-    res.status(200).json({ instructorsHours });
+    const instructorTime = instructors.get(instructorId) || 0;
+      
+    res.status(200).json({ instructorTime, totalTime });
 });
 
 router.get('/admin/formatoEmail', authenticateJWT, async (req, res) => {
