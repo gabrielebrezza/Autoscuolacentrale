@@ -652,7 +652,7 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
         const prices = await prezzoGuida.findOne();
         let type = '';
         let importo;
-        const lessonPrice = user.createdAt.getTime() >= (new Date(prices.userPriceFromDate.fromDate)).getTime() ? Number(userPriceFromDate.price) : prices.prezzo;
+        const lessonPrice = user.createdAt.getTime() >= (new Date(prices.userPriceFromDate.fromDate)).getTime() ? Number(prices.userPriceFromDate.price) : prices.prezzo;
         if(durata == 'esame'){
             type = 'Esame di guida'
             importo = prices.prezzoEsame;
