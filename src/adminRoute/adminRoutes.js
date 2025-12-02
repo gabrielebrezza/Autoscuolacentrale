@@ -678,8 +678,7 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
             $addToSet: {
                 "fatturaDaFare": {"tipo": type, "data": date, "importo": Math.ceil((durata == 'pacchetto' ? prices.prezzoPacchettoFisico * (nCodes/10): importo * nCodes) * 100) / 100, "paymentUrl": 'Codice', "emessa": req.body.emettiFattura == 'on' ? false : true},
             }
-        },
-        {new: true}
+        }
     );
     
     const codes = [];
@@ -694,7 +693,7 @@ router.post('/createCode', authenticateJWT, async (req, res)=>{
     await CodesDB.insertMany(codes);
     if(req.body.emettiFattura == 'on'){
         const finalPrice = Math.ceil((durata == 'pacchetto' ? prices.prezzoPacchettoFisico * (nCodes/10) : importo * nCodes) * 100) / 100;
-        const user = await credentials.findOne({"email": email})
+        const user = await credentials.findById(userId, { "billingInfo": 1, "userName": 1 })
         const dati = {
             codiceFiscaleCliente: user.billingInfo[0].codiceFiscale,
             nomeCliente: user.billingInfo[0].cognome,
