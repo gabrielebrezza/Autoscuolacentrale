@@ -1045,7 +1045,7 @@ router.delete('/admin/lessons/:lessonId', authenticateJWT, async (req, res) => {
         const { lessonId } = req.params;
         
         const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-
+        console.log("30 minuti fa: " + thirtyMinutesAgo)
         await LessonsDB.findOneAndDelete({
           _id: lessonId,
           $or: [
