@@ -587,6 +587,7 @@ app.post('/book', isAuthenticated, async (req, res) => {
                 await setLessonPaid(user._id, lesson._id);
                 return res.redirect('/profile');
             }else{
+                console.log(`Si è verificato un errore durante la convalida del codice pagamento ${req.body.codicePagamento}, ${user._id}, ${price}`)
                 return res.render('errorPage', {error: 'Codice non esistente'});
             }
         }
