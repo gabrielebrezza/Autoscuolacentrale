@@ -382,27 +382,31 @@ app.get('/waitingApprovation/:userName', async (req, res) =>{
 
 app.get('/profile', isAuthenticated, async (req, res) => {
     const nome = req.user.username;
-    const userId = (await credentials.findOne({"userName": nome}))._id;
-// Step 1: lezioni da oggi in poi
-const lezioni = await LessonsDB.find({
-    day: { $gt: new Date().setHours(0, 0, 0, 0) }
-  })
-  .populate('instructor', 'nome')
-  .select('instructor student day startTime endTime duration reservedTo');
-  const { _id: examId} = await admin.findOne({ "nome": "Esame", "cognome": "Guida" });
-  // Step 2: raggruppa per giorno e istruttore
-  const giorniMap = new Map();
+    // const userId = (await credentials.findOne({"userName": nome}))._id;
+    const { _id: userId} = await credentials.findOne({"userName": nome}).select("_id")
+
+    // Step 1: lezioni da oggi in poi
+    const lezioni = await LessonsDB.find({
+        day: { $gt: new Date().setHours(0, 0, 0, 0) }
+    })
+    .populate('instructor', 'nome')
+    .select('instructor student day startTime endTime duration reservedTo');
+    const { _id: examId} = await admin.findOne({ "nome": "Esame", "cognome": "Guida" });
+    // Step 2: raggruppa per giorno e istruttore
+    const giorniMap = new Map();
   
-  lezioni.forEach(l => {
-    const giorno = l.day.toISOString().split('T')[0].split('-').reverse().join('/');
-    const istruttoreId = l.instructor._id.toString();
-    if(istruttoreId === examId.toString()) return;
-    if (!giorniMap.has(giorno)) giorniMap.set(giorno, new Map());
-    const istruttoriMap = giorniMap.get(giorno);
-  
-    if (!istruttoriMap.has(istruttoreId)) istruttoriMap.set(istruttoreId, []);
-    istruttoriMap.get(istruttoreId).push(l);
-  });
+    lezioni.forEach(l => {
+        const giorno = l.day.toISOString().split('T')[0].split('-').reverse().join('/');
+        const istruttoreId = l.instructor._id.toString();
+        if (l.reservedTo?.length && !l.reservedTo.includes(userId)) return;
+
+        if(istruttoreId === examId.toString()) return;
+        if (!giorniMap.has(giorno)) giorniMap.set(giorno, new Map());
+        const istruttoriMap = giorniMap.get(giorno);
+        
+        if (!istruttoriMap.has(istruttoreId)) istruttoriMap.set(istruttoreId, []);
+        istruttoriMap.get(istruttoreId).push(l);
+    });
   
   const lezioniRaggruppate = [];
   
