@@ -309,7 +309,7 @@
                         if (parts.length < 3) continue;
                         
                         const day = parts[0].split('/').reverse().join('-');
-                        if (new Date(day) < new Date()) continue;
+                        if (new Date(day) < new Date().setTime(0, 0, 0, 0)) continue;
                         
                         const hour = parts[1];
                         const today = new Date().toISOString().split('T')[0];
