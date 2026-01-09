@@ -385,12 +385,11 @@ app.get('/profile', isAuthenticated, async (req, res) => {
     // const userId = (await credentials.findOne({"userName": nome}))._id;
     const { _id: userId} = await credentials.findOne({"userName": nome}).select("_id")
     const now = new Date();
-    const oggiUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 
-    console.log(new Date(new Date().setHours(0, 0, 0, 0)), oggiUTC)
     // Step 1: lezioni da oggi in poi
     const lezioni = await LessonsDB.find({
-        day: { $gte: oggiUTC }
+        day: { $gte: todayUTC }
     })
     .populate('instructor', 'nome')
     .select('instructor student day startTime endTime duration reservedTo');
