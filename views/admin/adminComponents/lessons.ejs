@@ -29,7 +29,7 @@
                     <% for(const instructorLessons of lesson.instructors) { %>
                         <% const lessonInstructor = `${instructorLessons.instructor.nome} ${instructorLessons.instructor.cognome}`; %>
                         <% const hasPermission = role == 'Super' || lessonInstructor === istruttore %>
-                        <div class="day-card" data-date="<%= lesson.day %>" style="display: none;">
+                        <div class="day-card" data-date="<%= lesson.day %>" data-ispast="<%= new Date(lesson.day).getTime() < new Date().getTime() %>" style="display: none;">
                             <h2 class="day-title">
                                 Giorno: <%= lesson.day %>
                             </h2>
@@ -404,16 +404,16 @@
                     $("#data").datepicker({
                         dateFormat: 'dd/mm/yy',
                         beforeShowDay: function(date) {
-                            var day = date.getDate();
-                            var month = date.getMonth() + 1;
-                            var year = date.getFullYear();
-                            var dateString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+                            var dateString = date.toLocaleDateString('it-IT', {day: "2-digit", month: "2-digit", year: "numeric"});
                             var sectionExists = $('.day-card[data-date="' + dateString + '"]').length > 0;
-                            if (sectionExists) {
-                                return [true, "greenDate", "Ci sono guide libere"];
-                            } else {
-                                return [true, "redDate disabled", "Non ci sono guide libere"];
-                            }
+                            
+                            var classe = sectionExists ? "greenDate" : "redDate disabled";
+                            var tooltip = sectionExists ? "Ci sono guide libere" : "Non ci sono guide libere";
+                            var today = new Date();
+                            today.setHours(0,0,0,0); // azzera ore/minuti/secondi
+                            var isPast = date < today;
+                            
+                            return [true, classe, tooltip, isPast];
                         },
                         onSelect: function(dateText, inst) {
                             updateSectionsVisibility(dateText);
@@ -448,25 +448,29 @@
                         }
                     });
 
-                    selectTodayOrFirstGreenDate();
 
-                    function selectTodayOrFirstGreenDate() {
-                        var today = new Date();
-                        var day = today.getDate();
-                        var month = today.getMonth() + 1;
-                        var year = today.getFullYear();
-                        var todayString = (day < 10 ? '0' : '') + day + '/' + (month < 10 ? '0' : '') + month + '/' + year;
+                    setDataIspast()
+                    $(".greenDate[data-ispast='false']:first").trigger("click");
 
-                        var todayExists = $('.day-card[data-date="' + todayString + '"]').length > 0;
 
-                        if (todayExists) {
-                            $("#data").datepicker("setDate", todayString);
-                            updateSectionsVisibility(todayString);
-                        } else {
-                            setTimeout(function() {
-                                $(".greenDate:first").trigger("click");
-                            }, 100);
-                        }
+
+                    function setDataIspast() {
+                        $("#data .ui-datepicker-calendar td").each(function() {
+                            var $td = $(this);
+                            if (!$td.hasClass('ui-datepicker-other-month') && $td.hasClass('greenDate')) { // ignora giorni degli altri mesi
+                                var day = $td.find('a').text();
+                                var month = $("#data").datepicker('getDate').getMonth() + 1;
+                                var year = $("#data").datepicker('getDate').getFullYear();
+
+                                var dateObj = new Date(year, month-1, day);
+                                var today = new Date();
+                                today.setHours(0,0,0,0);
+                            
+                                // Imposta attributo
+
+                                $td.attr('data-ispast', dateObj < today ? 'true' : 'false');
+                            }
+                        });
                     }
                 });
 
@@ -510,6 +514,7 @@
                             const dayCard = document.createElement('div');
                             dayCard.className = 'day-card';
                             dayCard.setAttribute('data-date', lesson.day);
+                            dayCard.setAttribute('data-ispast', new Date(lesson.day).getTime() < new Date().getTime())
                             dayCard.style.display = 'none';
                             
                             let anyBooking = false;
