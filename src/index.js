@@ -414,50 +414,46 @@ app.get('/profile', isAuthenticated, async (req, res) => {
   
   giorniMap.forEach((istruttoriMap, giorno) => {
     const istruttoriArray = [];
+  
     istruttoriMap.forEach((lezioniArray, istruttoreId) => {
-      // ordina
+      // --- Step 1: ordina le lezioni per orario di inizio ---
       lezioniArray.sort((a, b) => {
         const [aH, aM] = a.startTime.split(':').map(Number);
         const [bH, bM] = b.startTime.split(':').map(Number);
         return aH !== bH ? aH - bH : aM - bM;
       });
   
-      // --- Step 2a: risolvi i buchi ---
-      const toMinutes = t => {
-        const [h, m] = t.split(':').map(Number);
-        return h * 60 + m;
-      };
-  
+      // --- Step 2: individua quali lezioni tenere ---
       const prenotate = lezioniArray.filter(l => l.student); // già occupate
       let keep = new Set();
   
       if (prenotate.length === 0) {
-        // nessuna prenotata → tieni tutto
+        // Nessuna prenotata → tieni tutto
         keep = new Set(lezioniArray.map(l => l._id.toString()));
       } else {
-        // ci sono prenotate → tieni solo prenotate + adiacenti
+        // Ci sono prenotate → tieni prenotata + immediatamente prima e dopo
         prenotate.forEach(p => {
+          const idx = lezioniArray.findIndex(l => l._id.toString() === p._id.toString());
+  
+          // Tieni la prenotata
           keep.add(p._id.toString());
   
-          lezioniArray.forEach(l => {
-            if (toMinutes(l.endTime) === toMinutes(p.startTime)) {
-              keep.add(l._id.toString()); // immediatamente prima
-            }
-            if (toMinutes(p.endTime) === toMinutes(l.startTime)) {
-              keep.add(l._id.toString()); // immediatamente dopo
-            }
-          });
+          // Tieni la lezione precedente se esiste
+          if (idx > 0) keep.add(lezioniArray[idx - 1]._id.toString());
+  
+          // Tieni la lezione successiva se esiste
+          if (idx < lezioniArray.length - 1) keep.add(lezioniArray[idx + 1]._id.toString());
         });
       }
   
-      // ricostruisci array filtrato
+      // --- Step 3: ricostruisci array filtrato ---
       const finalLezioni = lezioniArray.filter(l => keep.has(l._id.toString()));
   
-      // --- Step 3: elimina prenotate ---
+      // --- Step 4: elimina prenotate, tenendo solo disponibili ---
       const disponibili = finalLezioni.filter(l => !l.student);
   
       istruttoriArray.push({
-        instructor: lezioniArray[0].instructor,
+        instructor: lezioniArray[0]?.instructor || null,
         lezioni: disponibili
       });
     });
@@ -467,6 +463,7 @@ app.get('/profile', isAuthenticated, async (req, res) => {
       instructors: istruttoriArray
     });
   });
+  
 // Step 4: pulizia finale → togli istruttori senza lezioni e giorni vuoti
 const lezioniPulite = lezioniRaggruppate
   .map(g => {
